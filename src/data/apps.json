@@ -1,0 +1,2330 @@
+{
+ "version": "1.1",
+ "source": "DSCT_capability_matrix_v1.0.xlsx",
+ "apps": [
+  {
+   "id": "1_S",
+   "os": [
+    "android",
+    "ios"
+   ],
+   "route": "app+web",
+   "routeRaw": "앱&웹 둘 다",
+   "devices": "모바일, PC",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram",
+    "Facebook",
+    "Snapchat",
+    "X",
+    "TikTok",
+    "Line"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.1.2",
+    "1.2.1",
+    "1.3.1",
+    "3.1.1",
+    "3.1.2",
+    "3.3",
+    "4.1.1",
+    "4.1.2",
+    "4.3"
+   ],
+   "featureCount": 10,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "노트에 헤더 없음",
+     "verified": "store"
+    },
+    "3.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "사용량 비교",
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "비밀번호",
+     "detail": null,
+     "verified": "store"
+    },
+    "4.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "긴 문구 입력",
+     "detail": null,
+     "verified": "store"
+    },
+    "4.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "StayFree",
+   "fullName": "StayFree - Screen Time",
+   "availability": "Both",
+   "store": "both"
+  },
+  {
+   "id": "2_SF",
+   "os": [
+    "android",
+    "ios"
+   ],
+   "route": "app+web",
+   "routeRaw": "앱&웹 둘 다",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram",
+    "Snapchat"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.1.2",
+    "1.2.1",
+    "1.2.2",
+    "1.3.1",
+    "1.3.2",
+    "2.1.2",
+    "2.1.3",
+    "2.2",
+    "3.1.2",
+    "3.3",
+    "4.1.1",
+    "4.1.2",
+    "4.2",
+    "4.3"
+   ],
+   "featureCount": 15,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "5분 사용마다 30분 대기",
+     "verified": "store"
+    },
+    "1.3.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "앱 실행 횟수",
+     "verified": "store"
+    },
+    "2.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.3": {
+     "support": "full",
+     "taskGroup": [
+      "약",
+      "강"
+     ],
+     "unlockMethod": null,
+     "detail": "랜덤 문장 입력, 수학 문제, 폰 흔들기, QR, 교육 앱 30분",
+     "verified": "store"
+    },
+    "2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "타인 승인",
+     "detail": "차단 해제에 타인 승인",
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "PIN",
+     "detail": "모드 3단계 + OS 설정 접근 차단",
+     "verified": "store"
+    },
+    "4.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "만료시간, QR, 예약, 랜덤 텍스트, 해제 대기시간, 타인 승인",
+     "detail": null,
+     "verified": "store"
+    },
+    "4.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "4.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "Stay Focused",
+   "fullName": "Stay Focused: Site/App Blocker",
+   "availability": "Both",
+   "store": "both"
+  },
+  {
+   "id": "3_D",
+   "os": [
+    "android"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일, 태블릿",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram",
+    "TikTok"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.2",
+    "1.2.1",
+    "1.3.1",
+    "1.3.2",
+    "3.1.3",
+    "4.1.1"
+   ],
+   "featureCount": 6,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "TikTok 100개 예시",
+     "verified": "store"
+    },
+    "3.1.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "Ignore 5 minutes",
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "비밀번호 (기록 없음, 기본 처리)",
+     "detail": "Strict Mode",
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "Digitox",
+   "fullName": "Screen Time & Limits: Digitox",
+   "availability": "Google Play",
+   "store": "play"
+  },
+  {
+   "id": "4_A",
+   "os": [
+    "android",
+    "ios"
+   ],
+   "route": "app+web",
+   "routeRaw": "앱&웹",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "Instagram",
+    "YouTube",
+    "Snapchat",
+    "Facebook"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.2",
+    "1.2.1",
+    "1.2.2",
+    "1.3.1",
+    "2.1.1",
+    "2.1.2",
+    "2.1.3",
+    "2.1.4",
+    "3.1.3",
+    "3.2.3"
+   ],
+   "featureCount": 10,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "호흡 운동 포함 (2.1.3에서 이관)",
+     "verified": "store"
+    },
+    "2.1.3": {
+     "support": "full",
+     "taskGroup": [
+      "강"
+     ],
+     "unlockMethod": null,
+     "detail": "푸시업",
+     "verified": "store"
+    },
+    "2.1.4": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.2.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "Ascent",
+   "fullName": "Ascent: screen time & offtime",
+   "availability": "Both",
+   "store": "both"
+  },
+  {
+   "id": "5_N",
+   "os": [
+    "android"
+   ],
+   "route": "app+web",
+   "routeRaw": "앱&웹",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram",
+    "Facebook",
+    "TikTok"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.2",
+    "1.1.3",
+    "1.3.1",
+    "4.1.1"
+   ],
+   "featureCount": 4,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "Curious Mode 쿨다운",
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "PIN, 패턴, 날짜·시각",
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "NoScroll",
+   "fullName": "NoScroll: Block Reels & Shorts",
+   "availability": "Google Play",
+   "store": "play"
+  },
+  {
+   "id": "6_BS",
+   "os": [
+    "android"
+   ],
+   "route": "app+web",
+   "routeRaw": "앱&웹",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram",
+    "Snapchat",
+    "Facebook",
+    "LinkedIn",
+    "Twitter",
+    "TikTok"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.1.2",
+    "1.2.1",
+    "1.2.2",
+    "1.3.1",
+    "2.2"
+   ],
+   "featureCount": 6,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "Block Scroll",
+   "fullName": "Block Scroll: No Shorts/Reels",
+   "availability": "Google Play",
+   "store": "play"
+  },
+  {
+   "id": "7_NS",
+   "os": [
+    "android"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram"
+   ],
+   "wholeAppBlock": false,
+   "features": [
+    "1.1.2"
+   ],
+   "featureCount": 1,
+   "scope": {
+    "YouTube": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "NoShorts",
+   "fullName": "No Shorts Disable Shorts/ Reels",
+   "availability": "Google Play",
+   "store": "play"
+  },
+  {
+   "id": "8_SS",
+   "os": [
+    "android"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram",
+    "TikTok",
+    "Snapchat",
+    "Facebook"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.2",
+    "1.3.1",
+    "2.2",
+    "3.1.3"
+   ],
+   "featureCount": 4,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "StopScroll",
+   "fullName": "StopScroll: Block Reels/ Shorts",
+   "availability": "Google Play",
+   "store": "play"
+  },
+  {
+   "id": "9_WH",
+   "os": [
+    "android",
+    "ios"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram",
+    "Snapchat",
+    "TikTok",
+    "X",
+    "Reddit",
+    "Facebook"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.1.2",
+    "1.2.1",
+    "1.3.1",
+    "2.1.2",
+    "2.1.3",
+    "3.2.1",
+    "4.1.1",
+    "4.2"
+   ],
+   "featureCount": 9,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "full",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "full",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "full",
+     "app-tab": "full",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "cheat day",
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.3": {
+     "support": "full",
+     "taskGroup": [
+      "약"
+     ],
+     "unlockMethod": null,
+     "detail": "버튼 홀드. 홀드 시간 설정 가능",
+     "verified": "store"
+    },
+    "3.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "비밀번호 (기록 없음, 기본 처리)",
+     "detail": null,
+     "verified": "store"
+    },
+    "4.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "WallHabit",
+   "fullName": "WallHabit Block Shorts & Reels",
+   "availability": "Both",
+   "store": "both"
+  },
+  {
+   "id": "10_SG",
+   "os": [
+    "android",
+    "ios"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "Instagram",
+    "YouTube",
+    "Facebook",
+    "TikTok"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.2",
+    "1.3.1",
+    "1.3.2",
+    "2.1.2",
+    "2.2",
+    "3.1.3",
+    "4.1.1",
+    "4.2"
+   ],
+   "featureCount": 8,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "DM 릴스만 허용 (Pro)",
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "팝업 타임아웃 기준",
+     "verified": "store"
+    },
+    "1.3.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "스크롤 지속 기준 팝업",
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "비밀번호",
+     "detail": "파트너 보관 권유",
+     "verified": "store"
+    },
+    "4.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "ScrollGuard",
+   "fullName": "ScrollGuard: Hide Reels Shorts",
+   "availability": "Both",
+   "store": "both"
+  },
+  {
+   "id": "11_SB",
+   "os": [
+    "android"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "Instagram",
+    "YouTube",
+    "Facebook",
+    "TikTok",
+    "Snapchat"
+   ],
+   "wholeAppBlock": false,
+   "features": [
+    "1.1.2",
+    "1.3.1",
+    "2.1.2",
+    "2.2",
+    "3.1.3"
+   ],
+   "featureCount": 5,
+   "scope": {
+    "YouTube": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "DM 릴스만 허용",
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "Scroll Block",
+   "fullName": "Scroll Block: Stop Scroll Pro",
+   "availability": "Google Play",
+   "store": "play"
+  },
+  {
+   "id": "12_SZ",
+   "os": [
+    "android",
+    "ios"
+   ],
+   "route": "app+web",
+   "routeRaw": "앱&웹",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram",
+    "Facebook"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.1.2",
+    "1.2.1",
+    "1.2.2",
+    "1.3.1",
+    "1.3.2",
+    "2.1.1",
+    "2.1.2",
+    "2.1.3",
+    "2.1.4",
+    "2.2",
+    "3.1.1",
+    "3.1.3",
+    "3.2.3",
+    "4.1.1",
+    "4.2"
+   ],
+   "featureCount": 16,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "요일·시간대별, 앱별 상이 설정",
+     "verified": "store"
+    },
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "점증 대기",
+     "verified": "store"
+    },
+    "2.1.3": {
+     "support": "full",
+     "taskGroup": [
+      "약"
+     ],
+     "unlockMethod": null,
+     "detail": "수학 문제, 버튼 홀드",
+     "verified": "store"
+    },
+    "2.1.4": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "노트에 헤더 없음",
+     "verified": "store"
+    },
+    "3.1.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.2.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "비밀번호 (기록 없음, 기본 처리)",
+     "detail": "Strict Block",
+     "verified": "store"
+    },
+    "4.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "ScreenZen",
+   "fullName": "Screen Zen * Screen Time Control",
+   "availability": "Both",
+   "store": "both"
+  },
+  {
+   "id": "13_M",
+   "os": [
+    "android"
+   ],
+   "route": "app+web",
+   "routeRaw": "앱&웹사이트",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "Instagram",
+    "YouTube",
+    "Snapchat",
+    "Facebook",
+    "Reddit"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.1.2",
+    "1.2.1",
+    "1.2.2",
+    "1.3.1",
+    "1.3.2",
+    "2.1.4",
+    "3.1.1",
+    "3.1.2",
+    "4.1.1"
+   ],
+   "featureCount": 10,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "앱을 연 횟수",
+     "verified": "store"
+    },
+    "2.1.4": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "지정 시간에만 변경 가능",
+     "detail": "10분 창",
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "Mindful",
+   "fullName": "Mindful: Focus & Screen Time",
+   "availability": "Google Play",
+   "store": "play"
+  },
+  {
+   "id": "14_R",
+   "os": [
+    "android"
+   ],
+   "route": "app",
+   "routeRaw": "앱 & 웹",
+   "devices": "모바일",
+   "inAppPlatforms": [
+    "Instagram",
+    "YouTube",
+    "Facebook"
+   ],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.1.2",
+    "1.2.1",
+    "1.2.2",
+    "1.3.1",
+    "2.2",
+    "3.1.2",
+    "3.3",
+    "4.2",
+    "4.3"
+   ],
+   "featureCount": 10,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "YouTube Study Mode 채널 허용 목록",
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "리더보드",
+     "verified": "store"
+    },
+    "4.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "4.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "Regain",
+   "fullName": "Regain: Study Timer for Focus",
+   "availability": "Google Play",
+   "store": "play"
+  },
+  {
+   "id": "15_SY",
+   "os": [
+    "ios"
+   ],
+   "route": "app",
+   "routeRaw": "웹 (앱 안됨)",
+   "devices": "모바일, PC",
+   "inAppPlatforms": [
+    "YouTube"
+   ],
+   "wholeAppBlock": false,
+   "features": [
+    "1.1.2",
+    "1.1.3",
+    "3.2.1"
+   ],
+   "featureCount": 3,
+   "scope": {
+    "YouTube": {
+     "app": "none",
+     "entry-point": "full",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": "웹 전용. 네이티브 앱에는 적용 불가",
+   "shortName": "Shorts Blocker",
+   "fullName": "Shorts Blocker for YouTube",
+   "availability": "App Store",
+   "store": "appstore"
+  },
+  {
+   "id": "16_UT",
+   "os": [
+    "ios"
+   ],
+   "route": "app",
+   "routeRaw": "웹",
+   "devices": "모바일, PC",
+   "inAppPlatforms": [
+    "YouTube"
+   ],
+   "wholeAppBlock": false,
+   "features": [
+    "1.1.2",
+    "1.1.3",
+    "1.2.1",
+    "1.2.2",
+    "1.3.1",
+    "2.1.2",
+    "3.2.1",
+    "3.2.2",
+    "4.1.1"
+   ],
+   "featureCount": 9,
+   "scope": {
+    "YouTube": {
+     "app": "none",
+     "entry-point": "full",
+     "app-tab": "full",
+     "content": "full"
+    },
+    "Instagram": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "none",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "썸네일·회색조·자동재생 차단",
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "비밀번호 (기록 없음, 기본 처리)",
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": "웹 전용. 네이티브 앱에는 적용 불가",
+   "shortName": "UnTrap",
+   "fullName": "UnTrap for YouTube",
+   "availability": "App Store",
+   "store": "appstore"
+  },
+  {
+   "id": "17_NL",
+   "os": [
+    "ios"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일",
+   "inAppPlatforms": [],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.3.1",
+    "1.3.2",
+    "3.1.1",
+    "3.2.2",
+    "4.1.2"
+   ],
+   "featureCount": 8,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "열기 전 세션 한도 지정",
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "아이콘 흐리게",
+     "verified": "store"
+    },
+    "4.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "미상",
+     "detail": "노트에 스크린샷만. tie-break에는 유무만 사용",
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "No Scroll",
+   "fullName": "No Scroll - Limit Screen Time",
+   "availability": "App Store",
+   "store": "appstore"
+  },
+  {
+   "id": "18_CR",
+   "os": [
+    "ios"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일",
+   "inAppPlatforms": [],
+   "wholeAppBlock": true,
+   "features": [
+    "1.2.2",
+    "1.3.1",
+    "2.1.1",
+    "2.1.3",
+    "3.1.2"
+   ],
+   "featureCount": 5,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.3": {
+     "support": "full",
+     "taskGroup": [
+      "약",
+      "강"
+     ],
+     "unlockMethod": null,
+     "detail": "3초 버튼 홀드, 하늘 촬영",
+     "verified": "store"
+    },
+    "3.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "CloseReels",
+   "fullName": "CloseReels: Reduce Scrolling",
+   "availability": "App Store",
+   "store": "appstore"
+  },
+  {
+   "id": "19_SH",
+   "os": [
+    "ios"
+   ],
+   "route": "app",
+   "routeRaw": "웹",
+   "devices": "모바일, PC",
+   "inAppPlatforms": [
+    "YouTube",
+    "Instagram",
+    "TikTok",
+    "Facebook",
+    "Reddit",
+    "Twitter",
+    "LinkedIn",
+    "Netflix",
+    "Pinterest",
+    "Twitch"
+   ],
+   "wholeAppBlock": false,
+   "features": [
+    "1.1.2",
+    "1.3.1",
+    "3.2.1",
+    "3.2.2",
+    "4.1.1"
+   ],
+   "featureCount": 5,
+   "scope": {
+    "YouTube": {
+     "app": "none",
+     "entry-point": "full",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "none",
+     "entry-point": "full",
+     "app-tab": "full",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "none",
+     "entry-point": "full",
+     "app-tab": "full",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "썸네일·회색조",
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "비밀번호 (기록 없음, 기본 처리)",
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": "웹 전용. 네이티브 앱에는 적용 불가",
+   "shortName": "SocialFocus",
+   "fullName": "SocialFocus: Hide Distraction",
+   "availability": "App Store",
+   "store": "appstore"
+  },
+  {
+   "id": "20_J",
+   "os": [
+    "ios"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일, PC",
+   "inAppPlatforms": [],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.1.2",
+    "1.2.1",
+    "1.2.2",
+    "1.3.1",
+    "1.3.2",
+    "2.1.2",
+    "2.1.3",
+    "2.1.4",
+    "2.2",
+    "3.1.2",
+    "3.3",
+    "4.1.1",
+    "4.2"
+   ],
+   "featureCount": 14,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "none",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.3": {
+     "support": "full",
+     "taskGroup": [
+      "강"
+     ],
+     "unlockMethod": null,
+     "detail": "QR, 3천보, 다른 앱 사용",
+     "verified": "store"
+    },
+    "2.1.4": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.3": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "노트 표기는 3.2였음",
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "비밀번호",
+     "detail": "OS 설정·로그아웃·시각 변경 차단",
+     "verified": "store"
+    },
+    "4.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "Jomo",
+   "fullName": "Jomo - Screen Time Blocker",
+   "availability": "App Store",
+   "store": "appstore"
+  },
+  {
+   "id": "21_C",
+   "os": [
+    "ios"
+   ],
+   "route": "app",
+   "routeRaw": "앱",
+   "devices": "모바일",
+   "inAppPlatforms": [],
+   "wholeAppBlock": true,
+   "features": [
+    "1.1.1",
+    "1.2.1",
+    "1.3.1",
+    "2.1.2",
+    "2.1.4",
+    "2.2",
+    "3.1.2",
+    "3.2.1",
+    "3.2.2",
+    "4.1.1",
+    "4.2"
+   ],
+   "featureCount": 11,
+   "scope": {
+    "YouTube": {
+     "app": "full",
+     "entry-point": "full",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "Instagram": {
+     "app": "full",
+     "entry-point": "full",
+     "app-tab": "none",
+     "content": "none"
+    },
+    "TikTok": {
+     "app": "full",
+     "entry-point": "full",
+     "app-tab": "none",
+     "content": "none"
+    }
+   },
+   "impl": {
+    "1.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "1.3.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "연속 사용 기준",
+     "verified": "store"
+    },
+    "2.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.1.4": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.1.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    },
+    "3.2.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "Complete Block mode",
+     "verified": "store"
+    },
+    "3.2.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": "아이콘 흐리게",
+     "verified": "store"
+    },
+    "4.1.1": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": "passcode",
+     "detail": null,
+     "verified": "store"
+    },
+    "4.2": {
+     "support": "full",
+     "taskGroup": null,
+     "unlockMethod": null,
+     "detail": null,
+     "verified": "store"
+    }
+   },
+   "note": null,
+   "shortName": "Cape",
+   "fullName": "Cape: App to Pause Excess",
+   "availability": "App Store",
+   "store": "appstore"
+  }
+ ]
+}
