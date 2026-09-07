@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { FEATURE_BY_ID, SIMULATIONS, EXPLORE_RUNGS, description } from '../data/features.js'
 import { displayName } from '../store.js'
 import { APP_BY_ID, appsWithFeature, appIconPath } from '../data/apps.js'
-import { SimNotReady } from './Cards.jsx'
+import { SimNotReady, InterventionSim } from './Cards.jsx'
 
 // ─────────────────────────────────────────────────────────────
 // feature code → sim id 역매핑 (EXPLORE_RUNGS)
@@ -110,7 +110,7 @@ function FeatureDetail({ detail, onBack, onOpenApp }) {
       {/* 겪어보기 오버레이 — .dtl 컨텍스트 내부에서 position:absolute */}
       {showSim && (
         hasLiveSim
-          ? null  // 실제 컴포넌트는 추후 채움 (SIMULATIONS에 null인 동안 도달 불가)
+          ? <InterventionSim simId={simId} featureName={name} onClose={() => setShowSim(false)} />
           : <SimNotReady onClose={() => setShowSim(false)} />
       )}
     </div>

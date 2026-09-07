@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { MockHome, MockShorts } from './MockYouTube.jsx'
+import { VIDEO_POOL } from '../data/videos.js'
 import Intervention, { VARIANTS, SIM_INUSE_COUNT } from './Intervention.jsx'
 import Clock24, { rangesOf } from './Clock24.jsx'
 import { AGENCY_LEVELS, ENFORCEMENT, RUNGS_BY_AGENCY, SIMULATIONS, description } from '../data/features.js'
@@ -324,6 +325,8 @@ export function SimIntroCard({ spec, onAnswer, answered }) {
 export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
   const [phase, setPhase] = useState('home') // 'home' | 'watching' | 'fired' | 'done'
   const [swipeCount, setSwipeCount] = useState(0)
+  // 슬라이드 전환 중 { from, to } — null이면 전환 없음
+  const [swipeTransition, setSwipeTransition] = useState(null)
   const cardRef = useRef(null)
   const watchRef = useRef(null)
   const meta = SIM_META[spec.when]
@@ -344,7 +347,12 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
     if (swipeCount >= SIM_INUSE_COUNT - 1) {
       setPhase('fired')
     } else {
-      setSwipeCount((c) => c + 1)
+      // 이전→현재 슬라이드 업 애니메이션을 350ms 동안 실행
+      const from = swipeCount
+      const to = swipeCount + 1
+      setSwipeTransition({ from, to })
+      setSwipeCount(to)
+      setTimeout(() => setSwipeTransition(null), 350)
     }
   }
   // 이벤트 핸들러에서 항상 최신 swipeNext를 호출하기 위한 ref
@@ -365,7 +373,12 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
     }
 
     let startY = null
-    const onTouchStart = (e) => { startY = e.touches[0].clientY }
+    const onTouchStart = (e) => {
+      // passive: false 로 등록해야 preventDefault() 가 동작한다
+      // 부모 .deck 스크롤-스냅이 이 수직 제스처를 가로채지 않도록 막는다
+      e.preventDefault()
+      startY = e.touches[0].clientY
+    }
     const onTouchEnd = (e) => {
       if (startY !== null && startY - e.changedTouches[0].clientY > 40) trigger()
       startY = null
@@ -378,13 +391,17 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
       mouseY = null
     }
 
-    const onWheel = (e) => { if (e.deltaY > 0) trigger() }
+    const onWheel = (e) => {
+      e.preventDefault() // 부모 .deck 스크롤-스냅 방지
+      if (e.deltaY > 0) trigger()
+    }
 
-    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    // passive: false — preventDefault() 를 쓰려면 passive를 false로 지정해야 함
+    el.addEventListener('touchstart', onTouchStart, { passive: false })
     el.addEventListener('touchend', onTouchEnd)
     el.addEventListener('mousedown', onMouseDown)
     el.addEventListener('mouseup', onMouseUp)
-    el.addEventListener('wheel', onWheel, { passive: true })
+    el.addEventListener('wheel', onWheel, { passive: false })
     return () => {
       el.removeEventListener('touchstart', onTouchStart)
       el.removeEventListener('touchend', onTouchEnd)
@@ -437,11 +454,19 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
       {/* InUse: 숏폼 시청 단계 + done(완료 후에도 마지막 영상 유지) */}
       {showWatching && (
         <div className="c-screen full" ref={watchRef}>
-          <MockShorts
-            video={videos[swipeCount % videos.length]}
-            interactive={false}
-            playing={active}
-          />
+          {swipeTransition ? (
+            // 슬라이드 전환 중: 이전 영상이 위로 올라가고 새 영상이 아래에서 들어온다
+            <>
+              <div className="sp-slide sp-slide-out">
+                <MockShorts video={videos[swipeTransition.from % videos.length]} interactive={false} playing={false} />
+              </div>
+              <div className="sp-slide sp-slide-in">
+                <MockShorts video={videos[swipeTransition.to % videos.length]} interactive={false} playing={false} />
+              </div>
+            </>
+          ) : (
+            <MockShorts video={videos[swipeCount % videos.length]} interactive={false} playing={active} />
+          )}
           {phase === 'watching' && (
             // 안내 표시만, 클릭 핸들러 없음 (제스처로 넘김)
             <div className="sim-swipe-next">
@@ -580,6 +605,496 @@ export function SimNotReady({ onClose }) {
   )
 }
 
+// ══ 겪어보기 시뮬레이션 — 공통 껍데기 + 통과 절차 3종 ══════════
+// ─────────────────────────────────────────────────────────────
+// InterventionSim: 여덟 개 시뮬레이션이 공유하는 3단계 컨테이너
+//   1단계 home    : MockHome — 숏폼 탭 하이라이트
+//   2단계 overlay : 개입 오버레이 (children = sim 고유 내용)
+//   3단계 shorts  : MockShorts + "겪어보기를 마쳤어요" 배너
+//
+// 닫고 다시 열면 1단계부터 (unmount/mount 로 state 리셋)
+// ─────────────────────────────────────────────────────────────
+
+// ── confirm: 의도 확인 ──────────────────────────────────────
+function ConfirmSim({ onPass, onClose }) {
+  return (
+    <>
+      <h2 className="isim-q">지금 숏폼을 보려고 하시나요?</h2>
+      <div className="iv-actions">
+        <button className="iv-btn" onClick={onPass}>계속 보기</button>
+        <button className="iv-btn sub" onClick={onClose}>그만두기</button>
+      </div>
+    </>
+  )
+}
+
+// ── timed_wait: 사용 전 숨고르기 ───────────────────────────
+const TIMED_WAIT_SEC = 5
+
+function TimedWaitSim({ onPass, onClose }) {
+  const [left, setLeft] = useState(TIMED_WAIT_SEC)
+  useEffect(() => {
+    if (left <= 0) return
+    const t = setTimeout(() => setLeft((l) => l - 1), 1000)
+    return () => clearTimeout(t)
+  }, [left])
+  const done = left === 0
+  const pct = ((TIMED_WAIT_SEC - left) / TIMED_WAIT_SEC) * 100
+  return (
+    <>
+      <h2 className="isim-q">잠시 기다린 뒤에 열립니다</h2>
+      <div className="isim-wait">
+        <div className="isim-wait-bar" style={{ width: `${pct}%` }} />
+      </div>
+      <p className="isim-countdown">{left > 0 ? `${left}초` : '열립니다'}</p>
+      <div className="iv-actions">
+        <button className="iv-btn" onClick={onPass} disabled={!done}>계속 보기</button>
+        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+      </div>
+    </>
+  )
+}
+
+// ── intention_input: 사용 목적 입력 ────────────────────────
+// 입력값은 state 에 저장하지 않는다. 시뮬레이션 전용 로컬 상태.
+function IntentionInputSim({ onPass, onClose }) {
+  const [text, setText] = useState('')
+  return (
+    <>
+      <h2 className="isim-q">무엇을 하려고 여시나요?</h2>
+      <textarea
+        className="isim-textarea"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="직접 입력해보세요"
+        rows={3}
+        autoFocus
+      />
+      <div className="iv-actions">
+        <button className="iv-btn" onClick={onPass} disabled={!text.trim()}>계속 보기</button>
+        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+      </div>
+    </>
+  )
+}
+
+// ── 미션 계열 공통 안내 문구 (실제 조건 충족 불가한 3개에만 표시) ──
+const SIM_NOTE = '실제로는 이 조건을 채워야 열립니다. 여기서는 흐름만 보여드려요'
+
+// ── mission_hold: 버튼 3초 홀드 ────────────────────────────
+// 핵심 마찰: 중간에 손을 떼면 진행이 0 으로 돌아간다.
+// pointerdown/up/leave/cancel — 마우스·터치 통합.
+const HOLD_DURATION_MS = 3000
+const HOLD_TICK_MS = 50
+
+function MissionHoldSim({ onPass, onClose }) {
+  const [pct, setPct] = useState(0)
+  const intervalRef = useRef(null)
+  const pctRef = useRef(0)
+  const passedRef = useRef(false)
+
+  const startHold = (e) => {
+    e.preventDefault()
+    if (intervalRef.current || passedRef.current) return
+    intervalRef.current = setInterval(() => {
+      pctRef.current = Math.min(100, pctRef.current + (HOLD_TICK_MS / HOLD_DURATION_MS) * 100)
+      setPct(pctRef.current)
+      if (pctRef.current >= 100) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+        passedRef.current = true
+      }
+    }, HOLD_TICK_MS)
+  }
+
+  const stopHold = () => {
+    if (passedRef.current) return
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+    pctRef.current = 0
+    setPct(0)
+  }
+
+  useEffect(() => {
+    if (pct < 100) return
+    const t = setTimeout(onPass, 200)
+    return () => clearTimeout(t)
+  }, [pct])
+
+  useEffect(() => () => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+  }, [])
+
+  const label = pct >= 100 ? '열립니다!' : intervalRef.current ? '누르는 중...' : '누르기'
+  return (
+    <>
+      <h2 className="isim-q">버튼을 3초간 누르고 있어야 열립니다</h2>
+      <div className="isim-wait">
+        <div className="isim-wait-bar" style={{ width: `${pct}%`, transition: 'none' }} />
+      </div>
+      <div className="iv-actions">
+        <button
+          className="iv-btn"
+          onPointerDown={startHold}
+          onPointerUp={stopHold}
+          onPointerLeave={stopHold}
+          onPointerCancel={stopHold}
+          style={{ touchAction: 'none', userSelect: 'none' }}
+        >{label}</button>
+        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+      </div>
+    </>
+  )
+}
+
+// ── mission_simple: 두 자리 수 덧셈 ────────────────────────
+// 정답이 맞아야만 통과. intention_input 과 달리 임의 입력 불가.
+function genAddProblem() {
+  const a = Math.floor(Math.random() * 90) + 10 // 10~99
+  const b = Math.floor(Math.random() * 90) + 10 // 10~99
+  return { a, b, answer: a + b }
+}
+
+function MissionSimpleSim({ onPass, onClose }) {
+  const [problem, setProblem] = useState(genAddProblem)
+  const [input, setInput] = useState('')
+  const [error, setError] = useState(false)
+
+  const handleSubmit = () => {
+    if (parseInt(input, 10) === problem.answer) {
+      onPass()
+    } else {
+      setError(true)
+      setInput('')
+      setProblem(genAddProblem())
+    }
+  }
+
+  return (
+    <>
+      <h2 className="isim-q">간단한 문제를 풀어야 열립니다</h2>
+      <p className="isim-problem">{problem.a} + {problem.b} = ?</p>
+      {error && <p className="isim-error">다시 시도해보세요</p>}
+      <input
+        className="isim-input"
+        type="number"
+        inputMode="numeric"
+        value={input}
+        onChange={(e) => { setInput(e.target.value); setError(false) }}
+        onKeyDown={(e) => { if (e.key === 'Enter' && input.trim()) handleSubmit() }}
+        placeholder="정답 입력"
+        autoFocus
+      />
+      <div className="iv-actions">
+        <button className="iv-btn" onClick={handleSubmit} disabled={!input.trim()}>확인</button>
+        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+      </div>
+    </>
+  )
+}
+
+// ── mission_exercise: 걸음 수 채우기 ────────────────────────
+// 실제 걸음 수가 아니라 시뮬레이션. SIM_NOTE 표시.
+// 4.5초에 100보 도달 (45ms 간격).
+const EXERCISE_STEPS = 100
+const EXERCISE_TICK_MS = 45
+
+function MissionExerciseSim({ onPass, onClose }) {
+  const [steps, setSteps] = useState(0)
+  const [started, setStarted] = useState(false)
+  const timerRef = useRef(null)
+  const stepsRef = useRef(0)
+
+  const startWalk = () => {
+    setStarted(true)
+    timerRef.current = setInterval(() => {
+      stepsRef.current += 1
+      setSteps(stepsRef.current)
+      if (stepsRef.current >= EXERCISE_STEPS) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
+      }
+    }, EXERCISE_TICK_MS)
+  }
+
+  useEffect(() => () => {
+    if (timerRef.current) clearInterval(timerRef.current)
+  }, [])
+
+  const done = steps >= EXERCISE_STEPS
+  const pct = (steps / EXERCISE_STEPS) * 100
+  return (
+    <>
+      <h2 className="isim-q">걸음 수 100보를 채워야 열립니다</h2>
+      <p className="isim-sim-note">{SIM_NOTE}</p>
+      <div className="isim-steps">
+        <span className="isim-steps-count">{steps}</span>
+        <span className="isim-steps-unit"> / {EXERCISE_STEPS} 보</span>
+      </div>
+      <div className="isim-wait">
+        <div className="isim-wait-bar" style={{ width: `${pct}%`, transition: 'none' }} />
+      </div>
+      <div className="iv-actions">
+        {!started && <button className="iv-btn" onClick={startWalk}>걷기 시작</button>}
+        {started && !done && <button className="iv-btn" disabled>걷는 중...</button>}
+        {done && <button className="iv-btn" onClick={onPass}>계속 보기</button>}
+        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+      </div>
+    </>
+  )
+}
+
+// ── mission_capture: 촬영 미션 ──────────────────────────────
+// 실제 카메라 권한 없음. 뷰파인더 목업 + 촬영 버튼.
+function MissionCaptureSim({ onPass, onClose }) {
+  const [captured, setCaptured] = useState(false)
+
+  useEffect(() => {
+    if (!captured) return
+    const t = setTimeout(onPass, 700)
+    return () => clearTimeout(t)
+  }, [captured])
+
+  return (
+    <>
+      <h2 className="isim-q">정해둔 대상을 촬영해야 열립니다</h2>
+      <p className="isim-sim-note">{SIM_NOTE}</p>
+      <div className="isim-viewfinder">
+        <div className="isim-vf-frame" />
+        {captured && <div className="isim-vf-flash" />}
+      </div>
+      <div className="iv-actions">
+        <button className="iv-btn" onClick={() => setCaptured(true)} disabled={captured}>
+          {captured ? '촬영 완료' : '촬영'}
+        </button>
+        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+      </div>
+    </>
+  )
+}
+
+// ── mission_altapp: 대체 활동 미션 ─────────────────────────
+// 그 자리에서 겪을 수 없으므로 흐름만 보여준다. SIM_NOTE 표시.
+function MissionAltappSim({ onPass, onClose }) {
+  return (
+    <>
+      <h2 className="isim-q">미리 정해둔 앱을 5분 이상 사용해야 열립니다</h2>
+      <p className="isim-sim-note">{SIM_NOTE}</p>
+      <div className="isim-altapp-mock">
+        <div className="isim-altapp-icon">📖</div>
+        <div className="isim-altapp-label">미리 정해둔 앱</div>
+      </div>
+      <div className="iv-actions">
+        <button className="iv-btn" onClick={onPass}>사용했다고 가정하기</button>
+        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+      </div>
+    </>
+  )
+}
+
+// ══ 환경 변경 계열 시뮬레이션 — 껍데기 없이 독립 전체화면 ══════
+// InterventionSim 3단계 흐름을 거치지 않는다.
+// 각 컴포넌트가 자체 isim 컨테이너를 소유한다.
+// ─────────────────────────────────────────────────────────────
+
+// ── grayscale: 숏폼 선반 흑백화 ─────────────────────────────
+// 1.5초 원본 → 부드러운 전환 → 흑백. '다시 보기'로 반복 가능.
+function GrayscaleSim({ onClose }) {
+  const [replayTick, setReplayTick] = useState(0)
+  const [gray, setGray] = useState(false)
+  const [showMsg, setShowMsg] = useState(false)
+
+  useEffect(() => {
+    setGray(false)
+    setShowMsg(false)
+    const t = setTimeout(() => { setGray(true); setShowMsg(true) }, 1500)
+    return () => clearTimeout(t)
+  }, [replayTick])
+
+  const shelfStyle = {
+    filter: gray ? 'grayscale(1)' : 'grayscale(0)',
+    transition: 'filter 1s ease',
+  }
+
+  return (
+    <div className="isim">
+      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
+      <div className="isim-screen">
+        <MockHome shelfStyle={shelfStyle} />
+        {showMsg && (
+          <div className="isim-env-banner">
+            <p className="isim-env-msg">숏폼 썸네일이 흑백으로 바뀌었어요</p>
+            <div className="isim-env-btns">
+              <button className="iv-btn sub" onClick={() => setReplayTick((t) => t + 1)}>다시 보기</button>
+              <button className="iv-btn sub" onClick={onClose}>닫기</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── push_notification: 사용 푸시 알림 ──────────────────────
+// 막지 않는다. 알림 배너가 뜨지만 숏폼 탭은 정상 작동한다.
+function PushNotificationSim({ onClose }) {
+  const [phase, setPhase] = useState('home') // 'home' | 'shorts'
+  const [showBanner, setShowBanner] = useState(true)
+
+  useEffect(() => {
+    if (!showBanner) return
+    const t = setTimeout(() => setShowBanner(false), 4000)
+    return () => clearTimeout(t)
+  }, [showBanner])
+
+  return (
+    <div className="isim">
+      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
+      {phase === 'home' && (
+        <div className="isim-screen">
+          <MockHome onShortsAccess={() => setPhase('shorts')} />
+          {showBanner && (
+            <div className="isim-notif" onClick={() => setShowBanner(false)}>
+              <div className="isim-notif-icon">▶</div>
+              <div className="isim-notif-body">
+                <span className="isim-notif-app">MyTube</span>
+                <span className="isim-notif-msg">오늘 숏폼을 30분 넘게 봤어요</span>
+              </div>
+              <button
+                className="isim-notif-close"
+                onClick={(e) => { e.stopPropagation(); setShowBanner(false) }}
+                aria-label="알림 닫기"
+              >✕</button>
+            </div>
+          )}
+          <div className="isim-env-note">이 개입은 숏폼 탭을 막지 않아요. 탭을 눌러보세요.</div>
+        </div>
+      )}
+      {phase === 'shorts' && (
+        <div className="isim-screen">
+          <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
+          <div className="isim-done-banner">
+            <p className="isim-done-msg">겪어보기를 마쳤어요</p>
+            <button className="iv-btn" onClick={onClose}>닫기</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── redirect_productivity: 사용 경로 유도 ──────────────────
+// 숏폼 탭을 눌러도 숏폼이 열리지 않고 대체 화면으로 전환된다.
+function RedirectProductivitySim({ onClose }) {
+  const [phase, setPhase] = useState('home') // 'home' | 'redirected'
+
+  return (
+    <div className="isim">
+      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
+      {phase === 'home' && (
+        <div className="isim-screen">
+          <MockHome onShortsAccess={() => setPhase('redirected')} />
+          <div className="isim-cue-hint">숏폼 탭을 눌러보세요</div>
+        </div>
+      )}
+      {phase === 'redirected' && (
+        <div className="isim-screen">
+          <div className="isim-redirect-app">
+            <div className="isim-redirect-hd">
+              <span className="isim-redirect-icon">📖</span>
+              <span className="isim-redirect-name">미리 정해둔 앱</span>
+            </div>
+            <p className="isim-redirect-msg">숏폼 대신 미리 정해둔 앱으로 이동했어요</p>
+            <div className="isim-redirect-content">
+              <div className="isim-redirect-row" />
+              <div className="isim-redirect-row" />
+              <div className="isim-redirect-row isim-redirect-row--short" />
+            </div>
+          </div>
+          <div className="isim-done-banner">
+            <p className="isim-done-msg">겪어보기를 마쳤어요</p>
+            <button className="iv-btn" onClick={onClose}>닫기</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── hard_block: 완전 차단 — S3 At-Access 개입 컴포넌트 재사용 ──
+// onPass → InterventionSim 의 phase 를 'shorts' 로 이동 (겪어보기 완료).
+// Intervention 의 .iv 가 isim 전체를 덮으므로 isim-x 의 z-index 를 그 위로 올린다.
+function HardBlockSim({ onPass, onClose }) {
+  return <Intervention variant="At" onPrimary={onPass} confirm />
+}
+
+// sim id → 오버레이 내용 컴포넌트 (InterventionSim 2단계에서 렌더됨)
+const SIM_COMPONENTS = {
+  confirm: ConfirmSim,
+  timed_wait: TimedWaitSim,
+  intention_input: IntentionInputSim,
+  mission_hold: MissionHoldSim,
+  mission_simple: MissionSimpleSim,
+  mission_exercise: MissionExerciseSim,
+  mission_capture: MissionCaptureSim,
+  mission_altapp: MissionAltappSim,
+  hard_block: HardBlockSim,
+}
+
+// 환경 변경 계열 — InterventionSim 껍데기 없이 직접 전체화면 렌더
+const ENV_SIM_COMPONENTS = {
+  grayscale: GrayscaleSim,
+  push_notification: PushNotificationSim,
+  redirect_productivity: RedirectProductivitySim,
+}
+
+// ── 공통 껍데기 ────────────────────────────────────────────
+export function InterventionSim({ simId, featureName, onClose }) {
+  const [phase, setPhase] = useState('home') // 'home' | 'overlay' | 'shorts'
+  const SimContent = SIM_COMPONENTS[simId]
+  // 환경 변경 계열은 자체 전체화면 컴포넌트로 전달 (hooks 이후에 분기)
+  const EnvSim = ENV_SIM_COMPONENTS[simId]
+  if (EnvSim) return <EnvSim onClose={onClose} />
+
+  return (
+    <div className="isim">
+      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
+
+      {/* 1단계: MockHome — 숏폼 탭 하이라이트 (S1 selectable 없음) */}
+      {phase === 'home' && (
+        <div className="isim-screen">
+          <MockHome onShortsAccess={() => setPhase('overlay')} />
+          <div className="isim-cue-hint">아래 숏폼 탭을 눌러보세요</div>
+        </div>
+      )}
+
+      {/* 2단계: 개입 오버레이 */}
+      {phase === 'overlay' && (
+        <div className="isim-ov">
+          <div className="isim-feat-badge">{featureName}</div>
+          {SimContent
+            ? <SimContent onPass={() => setPhase('shorts')} onClose={onClose} />
+            : <SimNotReady onClose={onClose} />
+          }
+        </div>
+      )}
+
+      {/* 3단계: 숏폼 화면 + 완료 배너 */}
+      {phase === 'shorts' && (
+        <div className="isim-screen">
+          <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
+          <div className="isim-done-banner">
+            <p className="isim-done-msg">겪어보기를 마쳤어요</p>
+            <button className="iv-btn" onClick={onClose}>닫기</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ══ S4 강도 (카드 하나 = 판단 한 번) ════════════════════
 // S4 공통 버튼 문구 — IntensityCard 계열 2단 버튼용 (O/X 카드는 3단이므로 아래 OXRow를 볼 것)
 const S4_REJECT = '과해요'
@@ -660,7 +1175,9 @@ export function IntensityCard({ spec, onAccept, onReject, onConfirm }) {
 
       {/* 겪어보기 오버레이 */}
       {showSim && (
-        <Intervention variant="At" n={1} onPrimary={() => setShowSim(false)} confirm />
+        hasSim
+          ? <InterventionSim simId={spec.sim} featureName={enf.nameKo ?? spec.level} onClose={() => setShowSim(false)} />
+          : <SimNotReady onClose={() => setShowSim(false)} />
       )}
     </div>
   )
@@ -717,7 +1234,7 @@ export function IntensityIndivCard({ spec, state, api, onAnswer }) {
 
       {showSim && (
         hasSim
-          ? <Intervention variant="At" n={1} onPrimary={() => setShowSim(false)} confirm />
+          ? <InterventionSim simId={item.sim} featureName={item.nameKo} onClose={() => setShowSim(false)} />
           : <SimNotReady onClose={() => setShowSim(false)} />
       )}
     </div>
@@ -781,7 +1298,7 @@ export function IntensitySearchCard({ spec, state, api, onAnswer }) {
 
       {showSim && (
         hasSim
-          ? <Intervention variant="At" n={1} onPrimary={() => setShowSim(false)} confirm />
+          ? <InterventionSim simId={rung.sim} featureName={rung.nameKo} onClose={() => setShowSim(false)} />
           : <SimNotReady onClose={() => setShowSim(false)} />
       )}
     </div>
@@ -942,7 +1459,7 @@ function RungRow({ rung, state, api, gaugeFilled, gaugeTotal }) {
       <button className="c-sim-btn" onClick={handleSim}>겪어보기</button>
       {showSim && (
         hasSim
-          ? null
+          ? <InterventionSim simId={rung.sim} featureName={rung.nameKo} onClose={() => setShowSim(false)} />
           : <SimNotReady onClose={() => setShowSim(false)} />
       )}
     </div>
@@ -1163,7 +1680,7 @@ function OXRow({ rung, val, onWeak, onOk, onStrong }) {
       </div>
       {showSim && (
         hasSim
-          ? <Intervention variant="At" n={1} onPrimary={() => setShowSim(false)} confirm />
+          ? <InterventionSim simId={rung.sim} featureName={rung.nameKo} onClose={() => setShowSim(false)} />
           : <SimNotReady onClose={() => setShowSim(false)} />
       )}
     </div>
@@ -1175,6 +1692,7 @@ export function S4OXCard({ spec, state, api, answered, onAnswer }) {
   const { agencyId, isPrimary } = spec
   const rungs = rungsForOX(state, agencyId)
   const accepted = state.featureAccepted ?? {}
+  const cardRef = useRef(null)
 
   const allAnswered = rungs.length > 0 && rungs.every((r) => accepted[r.id] !== undefined)
 
@@ -1182,17 +1700,21 @@ export function S4OXCard({ spec, state, api, answered, onAnswer }) {
     api.set({ featureAccepted: { ...accepted, [id]: val } })
   }
 
-  // 건너뛰기 — oxSkipped 에 기록하고 즉시 넘어감 (비1순위 카드만)
+  // 건너뛰기 — oxSkipped 에 기록하고 다음 카드로 즉시 스크롤 (비1순위 카드만)
   const handleSkip = () => {
     const skipped = state.oxSkipped ?? []
     if (!skipped.includes(agencyId)) {
       api.set({ oxSkipped: [...skipped, agencyId] })
     }
     onAnswer()
+    setTimeout(() => {
+      const slot = cardRef.current?.closest('[data-cid]')
+      slot?.nextElementSibling?.scrollIntoView({ behavior: 'smooth' })
+    }, 150)
   }
 
   return (
-    <div className="c c-paper">
+    <div className="c c-paper" ref={cardRef}>
       <div className="c-pad">
         <Tag step="S4" />
         {!isPrimary && (

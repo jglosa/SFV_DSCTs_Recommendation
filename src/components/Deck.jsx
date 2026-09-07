@@ -268,20 +268,25 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
             state={state}
             api={api}
             onAnswer={() => {
-              // dayType 변경 시 기존 시계 카드 제거 후 재생성
+              // dayType 변경 시 schedule-type 이후 카드 전부 제거 후 재생성
+              // ('none'→'daily' 전환 시 S3 노트 등 비-schedule 카드도 제거해야 함)
               setCards((prev) => {
                 const idx = prev.findIndex((c) => c.cid === spec.cid)
                 if (idx < 0) return prev
-                const removed = prev.slice(idx + 1).filter((c) => c.type === 'schedule')
-                if (removed.length === 0) return prev
-                const removedCids = new Set(removed.map((c) => c.cid))
-                setAnswered((a) => {
-                  const next = { ...a }
-                  removedCids.forEach((id) => delete next[id])
-                  return next
-                })
-                clockQueue.current = []
-                return prev.filter((c, i) => i <= idx || c.type !== 'schedule')
+                const removed = prev.slice(idx + 1)
+                if (removed.length > 0) {
+                  const removedCids = new Set(removed.map((c) => c.cid))
+                  setAnswered((a) => {
+                    const next = { ...a }
+                    removedCids.forEach((id) => delete next[id])
+                    return next
+                  })
+                  clockQueue.current = []
+                  const scriptIdx = script.findIndex((s) => s.type === 'schedule-type')
+                  if (scriptIdx >= 0) cursor.current = scriptIdx + 1
+                  return prev.slice(0, idx + 1)
+                }
+                return prev
               })
               answer(spec.cid)
             }}

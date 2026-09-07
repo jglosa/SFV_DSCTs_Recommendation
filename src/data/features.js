@@ -103,9 +103,15 @@ export function description(item) {
 }
 
 // ── 시뮬레이션 레지스트리 ──────────────────────────────────────
-// sim id → React 컴포넌트 (아직 없으면 null → 호출하는 쪽에서 "준비 중" 표시)
-// 컴포넌트 구현은 다음 단계에서 한다.
+// null  → 준비 중 (호출하는 쪽에서 "준비 중" 오버레이 표시)
+// true  → 구현 완료 (InterventionSim 이 SIM_COMPONENTS 를 통해 실제 컴포넌트 선택)
+const LIVE_SIM_IDS = new Set([
+  'confirm', 'timed_wait', 'intention_input',
+  'mission_hold', 'mission_simple', 'mission_exercise', 'mission_capture', 'mission_altapp',
+  'grayscale', 'push_notification', 'redirect_productivity', 'hard_block',
+])
+// 모든 11개 키 구현 완료 — null 없음
 export const SIMULATIONS = Object.fromEntries([
-  ...raw.sims.map((s) => [s.id, null]),
-  ['mission_hold', null],  // ladder L7이 참조하지만 sims 배열에 없음
+  ...raw.sims.map((s) => [s.id, LIVE_SIM_IDS.has(s.id) ? true : null]),
+  ['mission_hold', true],  // ladder L7이 참조하지만 sims 배열에 없음
 ])

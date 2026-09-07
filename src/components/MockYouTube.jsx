@@ -114,7 +114,7 @@ function Hit({ id, label, selected, onPick, children, block, cue, dim, variant }
 // preBlocked     : Pre-Access 시뮬 전용. true 면 숏폼 선반과 탭을 즉시 차단 상태로 렌더.
 // onShortsAccess : At/InUse 시뮬 전용. Hit 없이 클릭 핸들러+시각적 유도만.
 // ※ appSelected / dim / passive / noShorts 는 제거됨
-export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false, onShortsAccess, selectable = false }) {
+export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false, onShortsAccess, selectable = false, shelfStyle }) {
   const is = (id) => picked.includes(id)
   // selectable 이면 전체 타겟 활성. targets 명시 시 해당 id 만 (레거시 시뮬 용도).
   const live = (id) => selectable || (!!targets && targets.includes(id))
@@ -143,6 +143,7 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
     <section
       className={'yt-shelf' + (onShortsAccess ? ' sim-cue' : '')}
       onClick={handleShortsAccess}
+      style={shelfStyle}
     >
       {/* 원래 콘텐츠: preBlocked 시 즉시 숨김 */}
       <div

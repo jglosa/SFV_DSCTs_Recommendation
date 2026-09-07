@@ -546,6 +546,13 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   50% { box-shadow: inset 0 0 0 2px transparent; }
 }
 
+/* InUse: 영상 간 슬라이드 업 전환 */
+.sp-slide { position: absolute; inset: 0; }
+.sp-slide-out { animation: spSlideOut 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+.sp-slide-in  { animation: spSlideIn  0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+@keyframes spSlideOut { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+@keyframes spSlideIn  { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
 /* InUse: 스와이프 안내 */
 .sim-swipe-next {
   position: absolute; bottom: 64px; left: 0; right: 0; z-index: 90;
@@ -1097,6 +1104,188 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   padding: 28px 24px; width: 100%; text-align: center;
 }
 .sim-nr-msg { font-size: 15px; color: var(--ink); line-height: 1.6; margin: 0 0 20px; }
+
+/* ── InterventionSim 컨테이너 ── */
+.isim {
+  position: absolute; inset: 0; z-index: 40;
+  background: #000;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.isim-x {
+  position: absolute; top: 12px; right: 14px; z-index: 200; /* .iv(z:160) 위에 유지 */
+  background: rgba(0,0,0,.55); border: none; border-radius: 50%;
+  width: 32px; height: 32px; font-size: 16px; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; line-height: 1;
+}
+/* 1단계 / 3단계: 실제 화면을 꽉 채움 */
+.isim-screen { flex: 1; position: relative; overflow: hidden; }
+/* 숏폼 탭 누르라는 힌트 */
+.isim-cue-hint {
+  position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.7); color: #fff;
+  padding: 8px 16px; border-radius: 20px; font-size: 13px;
+  white-space: nowrap; pointer-events: none;
+}
+/* 2단계: 개입 오버레이 */
+.isim-ov {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 24px; gap: 20px;
+  background: var(--bg-card);
+}
+.isim-feat-badge {
+  font-size: 12px; font-weight: 700; letter-spacing: .08em;
+  color: var(--ink-2); text-transform: uppercase;
+  background: var(--border); border-radius: 10px; padding: 4px 12px;
+}
+.isim-q { font-size: 20px; font-weight: 700; color: var(--ink); text-align: center; margin: 0; line-height: 1.4; }
+/* 타이머 진행 바 */
+.isim-wait {
+  width: 100%; height: 6px; border-radius: 3px;
+  background: var(--border); overflow: hidden;
+}
+.isim-wait-bar {
+  height: 100%; background: var(--ink);
+  transition: width 1s linear;
+}
+.isim-countdown { font-size: 28px; font-weight: 700; color: var(--ink); margin: 0; }
+/* 의도 입력 텍스트에어리어 */
+.isim-textarea {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; font-size: 15px; color: var(--ink); background: var(--bg);
+  resize: none; font-family: inherit; line-height: 1.5;
+}
+.isim-textarea:focus { outline: none; border-color: var(--ink-2); }
+/* 3단계: 완료 배너 */
+.isim-done-banner {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+  padding: 24px 24px 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.isim-done-msg { font-size: 17px; font-weight: 700; color: #fff; margin: 0; }
+
+/* ── 미션 계열 공통 ── */
+.isim-sim-note {
+  font-size: 12px; color: var(--ink-2); text-align: center;
+  margin: -8px 0 0; line-height: 1.5;
+}
+/* mission_simple */
+.isim-problem {
+  font-size: 34px; font-weight: 800; color: var(--ink);
+  text-align: center; margin: 0; letter-spacing: 0.04em;
+}
+.isim-error {
+  font-size: 13px; color: #e55; text-align: center; margin: -8px 0 0;
+}
+.isim-input {
+  width: 100%;
+  border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; font-size: 22px; font-weight: 700;
+  color: var(--ink); background: var(--bg);
+  text-align: center; font-family: inherit;
+}
+.isim-input:focus { outline: none; border-color: var(--ink); }
+/* mission_exercise */
+.isim-steps {
+  text-align: center;
+}
+.isim-steps-count { font-size: 36px; font-weight: 800; color: var(--ink); }
+.isim-steps-unit  { font-size: 16px; color: var(--ink-2); }
+/* mission_capture */
+.isim-viewfinder {
+  width: 100%; aspect-ratio: 4/3;
+  background: #111; border-radius: 10px;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.isim-vf-frame {
+  width: 56%; height: 56%;
+  border: 2px dashed rgba(255,255,255,0.5);
+  border-radius: 4px;
+}
+.isim-vf-flash {
+  position: absolute; inset: 0; background: #fff;
+  animation: vfFlash 0.6s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes vfFlash { from { opacity: 0.9; } to { opacity: 0; } }
+/* mission_altapp */
+.isim-altapp-mock {
+  width: 100%; background: var(--bg);
+  border: 1.5px solid var(--border); border-radius: 14px;
+  padding: 24px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.isim-altapp-icon { font-size: 40px; line-height: 1; }
+.isim-altapp-label { font-size: 14px; color: var(--ink-2); font-weight: 500; }
+
+/* ── 환경 변경 계열 공통 ── */
+/* 화면 하단 고정 배너 (grayscale 문구 / 버튼) */
+.isim-env-banner {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.72); backdrop-filter: blur(6px);
+  padding: 18px 20px 28px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.isim-env-msg { font-size: 15px; font-weight: 700; color: #fff; margin: 0; text-align: center; }
+.isim-env-btns { display: flex; gap: 8px; }
+.isim-env-btns .iv-btn { flex: 1; }
+/* 화면 하단 안내 문구 (push_notification — 막지 않음 명시) */
+.isim-env-note {
+  position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.65); color: #ffffffcc;
+  padding: 6px 14px; border-radius: 16px;
+  font-size: 12px; white-space: nowrap; pointer-events: none;
+}
+/* 시스템 알림 배너 (push_notification) */
+.isim-notif {
+  position: absolute; top: 52px; left: 12px; right: 12px; z-index: 100;
+  background: rgba(30,30,30,.92); backdrop-filter: blur(10px);
+  border-radius: 14px; padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  animation: notifSlideIn .3s ease;
+  cursor: pointer;
+}
+@keyframes notifSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+.isim-notif-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: #ff0000; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.isim-notif-body { flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.isim-notif-app { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; }
+.isim-notif-msg { font-size: 13px; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.isim-notif-close {
+  background: none; border: none; color: #888; font-size: 14px;
+  padding: 4px; cursor: pointer; flex-shrink: 0;
+}
+/* redirect_productivity 대체 앱 화면 */
+.isim-redirect-app {
+  flex: 1; display: flex; flex-direction: column;
+  background: var(--bg); padding: 56px 20px 20px;
+  gap: 16px; overflow-y: auto;
+}
+.isim-redirect-hd {
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border); padding-bottom: 14px;
+}
+.isim-redirect-icon { font-size: 28px; }
+.isim-redirect-name { font-size: 16px; font-weight: 700; color: var(--ink); }
+.isim-redirect-msg {
+  font-size: 14px; color: var(--mint-deep);
+  background: var(--mint-soft); border-radius: 10px;
+  padding: 10px 14px; margin: 0; line-height: 1.5;
+}
+.isim-redirect-content { display: flex; flex-direction: column; gap: 10px; }
+.isim-redirect-row {
+  height: 56px; background: var(--border); border-radius: 10px;
+}
+.isim-redirect-row--short { width: 60%; height: 40px; }
 
 /* ── 앱 상세 ── */
 .dtl-app-hero { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
