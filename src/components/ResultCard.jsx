@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { recommend } from '../engine.js'
-import { SCOPE_LEVELS, RESISTANCE_LABEL, LADDER_RUNGS } from '../data/features.js'
+import { SCOPE_LEVELS, RESISTANCE_LABEL, LADDER_RUNGS, FEATURE_BY_ID } from '../data/features.js'
 import { displayName } from '../store.js'
 import { VARIANTS } from './Intervention.jsx'
 import { rangesOf } from './Clock24.jsx'
 import { appIconPath } from '../data/apps.js'
+import { WHEN_LABEL, AGENCY_LABEL } from './DetailPanel.jsx'
 
 // ── 앱 아이콘 — 이미지 실패 시 이니셜 원형 배지 ─────────────
 function AppIcon({ id, shortName, idx, onClick }) {
@@ -113,9 +114,14 @@ function hoursDisplay(state) {
 export default function ResultCard({ state, api, onOpenDetail }) {
   const [showAnswers, setShowAnswers] = useState(false)
   const r = recommend(state)
-  const reasonByCode = Object.fromEntries(
-    (r.rationale?.features ?? []).map((f) => [f.code, f.reason]),
-  )
+  // 기능 카드 부제: {작동 시점} · {개입 방식} — WHEN_LABEL/AGENCY_LABEL 재사용
+  const featureSubtitle = (f) => {
+    const ft = FEATURE_BY_ID[f.code]
+    const w = ft && WHEN_LABEL[ft.when]
+    const a = ft && AGENCY_LABEL[ft.agency]
+    if (w && a) return `${w} · ${a}`
+    return w || a || ''
+  }
   const summary = buildSummary(state, r.picks)
   const hours = hoursDisplay(state)
 
@@ -156,8 +162,8 @@ export default function ResultCard({ state, api, onOpenDetail }) {
                 >
                   <div className="frec-text">
                     <span className="frec-name">{name ?? f.code}</span>
-                    {reasonByCode[f.code] && (
-                      <span className="frec-reason">{reasonByCode[f.code]}</span>
+                    {featureSubtitle(f) && (
+                      <span className="frec-reason">{featureSubtitle(f)}</span>
                     )}
                   </div>
                   <span className="frec-chevron">›</span>

@@ -29,16 +29,22 @@ EXPLORE_RUNGS.forEach((rung) => {
 // availability 표시 레이블
 const AVAIL_LABEL = { Both: 'iOS · Android', 'Google Play': 'Android', 'App Store': 'iOS' }
 
-// 기능 속성 참가자용 레이블 (내부 코드 미노출)
-const WHEN_LABEL = {
+// 기능 속성 참가자용 레이블 (내부 코드 미노출) — ResultCard 에서도 import
+export const WHEN_LABEL = {
   Pre:   '열기 전',
   At:    '숏폼에 들어가려는 순간',
   InUse: '보고 있는 중',
 }
-const AGENCY_LABEL = {
+export const AGENCY_LABEL = {
   supported: '막지 않고 알려줌',
   flexible:  '조건을 채우면 통과',
   limited:   '아예 볼 수 없음',
+}
+const SCOPE_LABEL = {
+  'app':         '앱 전체',
+  'entry-point': '진입 지점',
+  'app-tab':     '숏폼 탭',
+  'content':     '채널·주제',
 }
 
 // 앱 환경 참가자용 한 줄 레이블
@@ -117,23 +123,34 @@ function FeatureDetail({ detail, onBack, onOpenApp }) {
         {/* 2) 설명 */}
         {desc && <p className="dtl-desc">{desc}</p>}
 
-        {/* 3) 기능 속성 — 작동 시점·개입 방식 */}
-        {feature && (WHEN_LABEL[feature.when] || AGENCY_LABEL[feature.agency]) && (
-          <div className="dtl-meta">
-            {WHEN_LABEL[feature.when] && (
-              <div className="dtl-meta-row">
-                <span className="dtl-meta-label">작동 시점</span>
-                <span className="dtl-meta-value">{WHEN_LABEL[feature.when]}</span>
-              </div>
-            )}
-            {AGENCY_LABEL[feature.agency] && (
-              <div className="dtl-meta-row">
-                <span className="dtl-meta-label">개입 방식</span>
-                <span className="dtl-meta-value">{AGENCY_LABEL[feature.agency]}</span>
-              </div>
-            )}
-          </div>
-        )}
+        {/* 3) 기능 속성 — 작동 시점·개입 방식·통제 범위 */}
+        {feature && (WHEN_LABEL[feature.when] || AGENCY_LABEL[feature.agency]) && (() => {
+          const scopeStr = (feature.addressableScope ?? [])
+            .map((s) => SCOPE_LABEL[s] ?? s)
+            .join('·') || null
+          return (
+            <div className="dtl-meta">
+              {WHEN_LABEL[feature.when] && (
+                <div className="dtl-meta-row">
+                  <span className="dtl-meta-label">작동 시점</span>
+                  <span className="dtl-meta-value">{WHEN_LABEL[feature.when]}</span>
+                </div>
+              )}
+              {AGENCY_LABEL[feature.agency] && (
+                <div className="dtl-meta-row">
+                  <span className="dtl-meta-label">개입 방식</span>
+                  <span className="dtl-meta-value">{AGENCY_LABEL[feature.agency]}</span>
+                </div>
+              )}
+              {scopeStr && (
+                <div className="dtl-meta-row">
+                  <span className="dtl-meta-label">통제 범위</span>
+                  <span className="dtl-meta-value">{scopeStr}</span>
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         {/* 4) 겪어보기 — 항상 표시. sim 없으면 준비 중 오버레이 */}
         <button className="c-sim-btn" onClick={() => setShowSim(true)}>겪어보기</button>
@@ -173,8 +190,10 @@ function AppDetail({ detail, state, onBack, onOpenDetail }) {
     recPicks.filter((f) => app.features.includes(f.code ?? f.id)).map((f) => f.code ?? f.id),
   )
 
-  // 이 앱이 가진 다른 기능 (추천 기능 제외)
+  // 이 앱이 가진 다른 기능 (추천 기능 제외) — engineRole별 분리
   const otherCodes = app.features.filter((code) => !recPicks.some((f) => (f.code ?? f.id) === code))
+  const interventionCodes = otherCodes.filter((c) => FEATURE_BY_ID[c]?.engineRole !== 's5')
+  const bypassCodes = otherCodes.filter((c) => FEATURE_BY_ID[c]?.engineRole === 's5')
 
   // 지원 환경 일치 여부 (S0 답변 기준)
   const userOs = state?.env?.os ?? []
@@ -236,12 +255,12 @@ function AppDetail({ detail, state, onBack, onOpenDetail }) {
           </>
         )}
 
-        {/* 3) 이 앱이 가진 다른 기능 — 추천 3개 제외, 전부 표시 */}
-        {otherCodes.length > 0 && (
+        {/* 3a) 이 앱이 가진 다른 개입 기능 (engineRole ≠ s5) */}
+        {interventionCodes.length > 0 && (
           <>
-            <div className="dtl-sec-h">이 앱이 가진 다른 기능</div>
+            <div className="dtl-sec-h">이 앱이 가진 다른 개입 기능</div>
             <div className="dtl-feat-list">
-              {otherCodes.map((code) => (
+              {interventionCodes.map((code) => (
                 <div key={code} className="dtl-feat-row">
                   <span className="dtl-feat-name">{displayName({ code })}</span>
                   {description({ code }) && (
@@ -253,12 +272,29 @@ function AppDetail({ detail, state, onBack, onOpenDetail }) {
           </>
         )}
 
-        {/* 4) 지원 환경 */}
+        {/* 3b) 우회를 막아주는 기능 (engineRole = s5) */}
+        {bypassCodes.length > 0 && (
+          <>
+            <div className="dtl-sec-h">우회를 막아주는 기능</div>
+            <div className="dtl-feat-list">
+              {bypassCodes.map((code) => (
+                <div key={code} className="dtl-feat-row">
+                  <span className="dtl-feat-name">{displayName({ code })}</span>
+                  {description({ code }) && (
+                    <span className="dtl-feat-desc">{description({ code })}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* 4) 지원 환경 — 운영체제·이용 경로·앱 내 차단 3행, iOS 우선 */}
         <div className="dtl-sec-h">지원 환경</div>
         <div className="dtl-env-table">
           <EnvRow
             label="운영체제"
-            value={app.os.map((o) => o === 'ios' ? 'iOS' : 'Android').join(', ')}
+            value={['ios', 'android'].filter((o) => app.os.includes(o)).map((o) => o === 'ios' ? 'iOS' : 'Android').join(', ')}
             match={osMatch}
           />
           <EnvRow
@@ -270,16 +306,6 @@ function AppDetail({ detail, state, onBack, onOpenDetail }) {
             label="앱 내 차단"
             value={app.inAppPlatforms.length ? app.inAppPlatforms.join(', ') : '미지원'}
             match={platformMatch}
-          />
-          <EnvRow
-            label="전체 잠금"
-            value={app.wholeAppBlock ? '지원' : '미지원'}
-            match={false}
-          />
-          <EnvRow
-            label="스토어"
-            value={AVAIL_LABEL[app.availability] ?? app.availability}
-            match={false}
           />
         </div>
 
