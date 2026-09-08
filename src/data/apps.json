@@ -1,5 +1,5 @@
 {
- "version": "1.1",
+ "version": "1.2",
  "source": "DSCT_capability_matrix_v1.0.xlsx",
  "apps": [
   {
@@ -130,7 +130,13 @@
    "shortName": "StayFree",
    "fullName": "StayFree - Screen Time",
    "availability": "Both",
-   "store": "both"
+   "store": "both",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": false,
+    "B4": true
+   }
   },
   {
    "id": "2_SF",
@@ -299,7 +305,13 @@
    "shortName": "Stay Focused",
    "fullName": "Stay Focused: Site/App Blocker",
    "availability": "Both",
-   "store": "both"
+   "store": "both",
+   "bypassSupport": {
+    "B1": true,
+    "B2": true,
+    "B3": true,
+    "B4": true
+   }
   },
   {
    "id": "3_D",
@@ -392,7 +404,13 @@
    "shortName": "Digitox",
    "fullName": "Screen Time & Limits: Digitox",
    "availability": "Google Play",
-   "store": "play"
+   "store": "play",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "4_A",
@@ -521,7 +539,13 @@
    "shortName": "Ascent",
    "fullName": "Ascent: screen time & offtime",
    "availability": "Both",
-   "store": "both"
+   "store": "both",
+   "bypassSupport": {
+    "B1": false,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "5_N",
@@ -599,7 +623,13 @@
    "shortName": "NoScroll",
    "fullName": "NoScroll: Block Reels & Shorts",
    "availability": "Google Play",
-   "store": "play"
+   "store": "play",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "6_BS",
@@ -696,7 +726,13 @@
    "shortName": "Block Scroll",
    "fullName": "Block Scroll: No Shorts/Reels",
    "availability": "Google Play",
-   "store": "play"
+   "store": "play",
+   "bypassSupport": {
+    "B1": false,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "7_NS",
@@ -748,7 +784,13 @@
    "shortName": "NoShorts",
    "fullName": "No Shorts Disable Shorts/ Reels",
    "availability": "Google Play",
-   "store": "play"
+   "store": "play",
+   "bypassSupport": {
+    "B1": false,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "8_SS",
@@ -827,7 +869,13 @@
    "shortName": "StopScroll",
    "fullName": "StopScroll: Block Reels/ Shorts",
    "availability": "Google Play",
-   "store": "play"
+   "store": "play",
+   "bypassSupport": {
+    "B1": false,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "9_WH",
@@ -951,7 +999,13 @@
    "shortName": "WallHabit",
    "fullName": "WallHabit Block Shorts & Reels",
    "availability": "Both",
-   "store": "both"
+   "store": "both",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": true,
+    "B4": false
+   }
   },
   {
    "id": "10_SG",
@@ -1062,7 +1116,13 @@
    "shortName": "ScrollGuard",
    "fullName": "ScrollGuard: Hide Reels Shorts",
    "availability": "Both",
-   "store": "both"
+   "store": "both",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": true,
+    "B4": false
+   }
   },
   {
    "id": "11_SB",
@@ -1149,7 +1209,13 @@
    "shortName": "Scroll Block",
    "fullName": "Scroll Block: Stop Scroll Pro",
    "availability": "Google Play",
-   "store": "play"
+   "store": "play",
+   "bypassSupport": {
+    "B1": false,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "12_SZ",
@@ -1325,7 +1391,13 @@
    "shortName": "ScreenZen",
    "fullName": "Screen Zen * Screen Time Control",
    "availability": "Both",
-   "store": "both"
+   "store": "both",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": true,
+    "B4": false
+   }
   },
   {
    "id": "13_M",
@@ -1452,7 +1524,13 @@
    "shortName": "Mindful",
    "fullName": "Mindful: Focus & Screen Time",
    "availability": "Google Play",
-   "store": "play"
+   "store": "play",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "14_R",
@@ -1577,7 +1655,13 @@
    "shortName": "Regain",
    "fullName": "Regain: Study Timer for Focus",
    "availability": "Google Play",
-   "store": "play"
+   "store": "play",
+   "bypassSupport": {
+    "B1": false,
+    "B2": false,
+    "B3": true,
+    "B4": true
+   }
   },
   {
    "id": "15_SY",
@@ -1644,7 +1728,13 @@
    "shortName": "Shorts Blocker",
    "fullName": "Shorts Blocker for YouTube",
    "availability": "App Store",
-   "store": "appstore"
+   "store": "appstore",
+   "bypassSupport": {
+    "B1": false,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "16_UT",
@@ -1759,7 +1849,13 @@
    "shortName": "UnTrap",
    "fullName": "UnTrap for YouTube",
    "availability": "App Store",
-   "store": "appstore"
+   "store": "appstore",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "17_NL",
@@ -1864,7 +1960,13 @@
    "shortName": "No Scroll",
    "fullName": "No Scroll - Limit Screen Time",
    "availability": "App Store",
-   "store": "appstore"
+   "store": "appstore",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "18_CR",
@@ -1948,7 +2050,13 @@
    "shortName": "CloseReels",
    "fullName": "CloseReels: Reduce Scrolling",
    "availability": "App Store",
-   "store": "appstore"
+   "store": "appstore",
+   "bypassSupport": {
+    "B1": false,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "19_SH",
@@ -2040,7 +2148,13 @@
    "shortName": "SocialFocus",
    "fullName": "SocialFocus: Hide Distraction",
    "availability": "App Store",
-   "store": "appstore"
+   "store": "appstore",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": false,
+    "B4": false
+   }
   },
   {
    "id": "20_J",
@@ -2195,7 +2309,13 @@
    "shortName": "Jomo",
    "fullName": "Jomo - Screen Time Blocker",
    "availability": "App Store",
-   "store": "appstore"
+   "store": "appstore",
+   "bypassSupport": {
+    "B1": true,
+    "B2": true,
+    "B3": true,
+    "B4": false
+   }
   },
   {
    "id": "21_C",
@@ -2324,7 +2444,13 @@
    "shortName": "Cape",
    "fullName": "Cape: App to Pause Excess",
    "availability": "App Store",
-   "store": "appstore"
+   "store": "appstore",
+   "bypassSupport": {
+    "B1": true,
+    "B2": false,
+    "B3": true,
+    "B4": false
+   }
   }
  ]
 }

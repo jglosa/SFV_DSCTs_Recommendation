@@ -2,7 +2,7 @@
 
 > 이 문서는 **코드에 구현된 실제 동작**을 기록한다.
 > 설계 의도(`CLAUDE.md`)와 어긋난 곳은 §5에 별도 정리했다.
-> 코드 수정 없이 읽기 전용으로 작성된 문서다.
+> apps.json v1.2 기준.
 
 ---
 
@@ -103,7 +103,7 @@ score = 0.6 × (rung.order / maxOrder)
 2. G1→G2→…→G9 순으로 순회하면서 후보 배열 쌓기
 3. 중복 키(`code|scope|taskGroup`) 제거
 4. 3개가 채워지면 더 낮은 등급은 건너뜀
-5. §8 규칙: 후보 부족 시에도 있는 것만 반환 (빈 슬롯 없음)
+5. §8 규칙: 3개 미만은 데이터 오류이며 `console.error`로 보고되고 `trace`에 실패 rung이 기록된다
 
 ### 2-5. feature 코드 결정 (`resolveRungCode`)
 
@@ -133,16 +133,18 @@ rung의 `resolveBy` 값에 따라 feature 코드가 달라진다.
 | `scopeScore` | `env.platforms` × `state.scopes` 조합별로: `app.scope[platform][scope]='full'` → +2, `'partial'` → +1 |
 | `envScore` | OS 교집합(+1/개) + 경로 일치(+1/경로) + `inAppPlatforms` 교집합(+1/개) + desktop+PC 보너스(+1) |
 | `scheduleScore` | `dayType='daily'` 또는 `'split'` 이고 앱이 기능 `1.2.1` 지원 → 1, 아니면 0 |
-| `bypassScore` | `bypassWanted[Bk]=true` 항목 중 앱이 `BYPASS_FEAT_MAP[Bk]` 기능을 보유한 수 |
+| `bypassScore` | `bypassWanted[Bk]=true` 항목 중 `app.bypassSupport[Bk]=true` 인 수 |
 
-**`BYPASS_FEAT_MAP` (engine.js:93–98)**
+**bypassSupport 지원 앱 수 (apps.json v1.2)**
 
-| 시나리오 | 대응 기능 코드 |
-|---|---|
-| B1 (설정 변경 우회) | 4.1.1, 4.1.2 |
-| B2 (OS 설정 우회) | 4.1.1 |
-| B3 (앱 삭제 우회) | 4.2 |
-| B4 (PIP 우회) | 4.3 |
+| 시나리오 | 설명 | 지원 앱 수 |
+|---|---|---|
+| B1 (설정 변경 우회) | 개입 앱 설정을 직접 변경 | 13개 |
+| B2 (OS 설정 우회) | 기기 날짜·시각 변경으로 차단 우회 | **2개** (2_SF, 20_J) |
+| B3 (앱 삭제 우회) | 차단 앱 삭제 후 재설치 | 7개 |
+| B4 (PIP 우회) | PIP·분할화면으로 우회 시청 | 3개 |
+
+이전 `BYPASS_FEAT_MAP`은 기능 코드(`4.1.1` 등)를 매핑해 B2에 12개 앱이 점수를 받았으나, apps.json v1.2의 `bypassSupport` 필드로 교체해 정확히 2개만 받는다.
 
 ### 3-2. 앱 3개 확정 (`buildAppPicks`)
 
@@ -175,7 +177,6 @@ rung의 `resolveBy` 값에 따라 feature 코드가 달라진다.
 | `bypassWanted` | — | `bypassScore` (tie-break) | — | — | `profile.blockedBypass`에도 복사 |
 | `bypassScenario` | **미사용** | **미사용** | **미사용** | — | 분석 전용 (§5 참조) |
 | `bypassMethods` | **미사용** | **미사용** | **미사용** | — | 분석 전용 (§5 참조) |
-| `scheduleNeeded` | **미사용** | **미사용** | **미사용** | — | 분석 전용 (§5 참조) |
 | `hours` | **미사용** | **미사용** | **미사용** | — | 분석 전용 (§5 참조) |
 | `timingSeen` | **미사용** | **미사용** | **미사용** | — | 분석 전용 (§5 참조) |
 | `agencyVisited` | **미사용** | **미사용** | **미사용** | — | 로그 전용 (§5 참조) |
@@ -195,13 +196,14 @@ rung의 `resolveBy` 값에 따라 feature 코드가 달라진다.
 - `agencyVisited`, `simsPlayed`: `store.js:29-30` 주석 "로그용"
 - `CLAUDE.md §3`: Continuous 기능은 추천 슬롯이 아니라 tie-break — `protections: []` 반환
 
-### 5-2. `scheduleNeeded`, `hours`, `timingSeen` 미사용
+### 5-2. `hours`, `timingSeen` 미사용
 
-이 세 필드는 S2(스케줄 카드)와 S3(시뮬레이션 진행) 과정에서 수집되지만, `recommend()` 내 어디서도 참조하지 않는다. `dayType`만 `scheduleScore`에 사용된다.
+이 두 필드는 S2(시계 카드)·S3(시뮬레이션 진행)에서 수집되지만, `recommend()` 내 어디서도 참조하지 않는다. `dayType`만 `scheduleScore`에 사용된다.
 
-- `scheduleNeeded`: 참가자가 "시간대 지정이 필요한가"에 답한 값. 현재 `dayType`으로 충분히 커버하고 있어 중복일 수 있음.
 - `hours`: 원형 시계로 선택한 구간. 추천 앱에 시간대 설정 기능이 있는지는 체크하지 않음 (scheduleScore는 기능 지원 여부만 확인).
-- `timingSeen`: S3에서 어떤 시뮬을 실제 화면에서 본 기록. 분석용으로 보임.
+- `timingSeen`: S3에서 어떤 시뮬을 실제 화면에서 본 기록. 분석용.
+
+`scheduleNeeded`는 코드에서 한 번도 SET되지 않아(`initialState: null`에서 변하지 않음) `dayType`이 단독 진실 공급원임이 확인됐고, 중복 필드로 store.js에서 제거했다.
 
 ### 5-3. `envOther` 미사용
 
@@ -255,4 +257,4 @@ S0에서 "기타" 기기·경로를 주관식으로 입력한 경우 `envOther`�
 
 ---
 
-*최종 갱신: 2026-09-08*
+*최종 갱신: 2026-09-08 → 2026-09-08 (apps.json v1.2: bypassSupport 필드 적용, scheduleNeeded 제거, 3개 미만 error 보고)*

@@ -15,8 +15,7 @@ export const initialState = {
   // S1 — scopeLevels id 배열 (app / entry-point / app-tab / content)
   scopes: [],
 
-  // S2 — 스케줄
-  scheduleNeeded: null,
+  // S2 — 스케줄 (scheduleNeeded 제거: 항상 null이며 dayType 이 동일 의미를 담는다)
   hours: {},
   dayType: null,
 
