@@ -478,9 +478,15 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
         </div>
       )}
 
-      {/* 개입 오버레이 */}
+      {/* 개입 오버레이 — 닫기만 표시, 계속 보기 없음 */}
       {phase === 'fired' && (
-        <Intervention variant={spec.when} n={spec.n} onPrimary={resolve} confirm />
+        <Intervention
+          variant={spec.when}
+          n={spec.n}
+          onPrimary={resolve}
+          onSecondary={resolve}
+          hideContinue
+        />
       )}
 
       {/* SwipeUp: Pre는 answered 즉시, At/InUse는 done 단계에 앱 화면 위에 오버레이 */}
@@ -510,14 +516,8 @@ export function SimHomeCard({ spec, onAnswer, answered }) {
         <Intervention
           variant="At"
           n={spec.n}
-          onPrimary={() => {
-            setFired(false)
-            onAnswer(true)
-          }}
-          onSecondary={() => {
-            setFired(false)
-            onAnswer(true)
-          }}
+          onPrimary={() => { setFired(false); onAnswer(true) }}
+          onSecondary={() => { setFired(false); onAnswer(true) }}
         />
       )}
       {answered && !fired && <SwipeUp tone="dark" />}
@@ -619,17 +619,17 @@ export function SimNotReady({ onClose }) {
 function ConfirmSim({ onPass, onClose }) {
   return (
     <>
-      <h2 className="isim-q">지금 숏폼을 보려고 하시나요?</h2>
+      <h2 className="isim-q">지금 정말 숏폼이 필요한가요?</h2>
       <div className="iv-actions">
-        <button className="iv-btn" onClick={onPass}>계속 보기</button>
-        <button className="iv-btn sub" onClick={onClose}>그만두기</button>
+        <button className="iv-btn" onClick={onClose}>닫기</button>
+        <button className="iv-btn sub" onClick={onPass}>계속 보기</button>
       </div>
     </>
   )
 }
 
 // ── timed_wait: 사용 전 숨고르기 ───────────────────────────
-const TIMED_WAIT_SEC = 5
+const TIMED_WAIT_SEC = 10
 
 function TimedWaitSim({ onPass, onClose }) {
   const [left, setLeft] = useState(TIMED_WAIT_SEC)
@@ -642,14 +642,14 @@ function TimedWaitSim({ onPass, onClose }) {
   const pct = ((TIMED_WAIT_SEC - left) / TIMED_WAIT_SEC) * 100
   return (
     <>
-      <h2 className="isim-q">잠시 기다린 뒤에 열립니다</h2>
+      <h2 className="isim-q">잠시 멈추고<br/>숨을 고르세요</h2>
       <div className="isim-wait">
         <div className="isim-wait-bar" style={{ width: `${pct}%` }} />
       </div>
-      <p className="isim-countdown">{left > 0 ? `${left}초` : '열립니다'}</p>
+      <p className="isim-countdown">{left > 0 ? `${left}초` : ''}</p>
       <div className="iv-actions">
-        <button className="iv-btn" onClick={onPass} disabled={!done}>계속 보기</button>
-        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+        <button className="iv-btn" onClick={onClose}>닫기</button>
+        <button className="iv-btn sub" onClick={onPass} disabled={!done}>계속 보기</button>
       </div>
     </>
   )
@@ -671,8 +671,8 @@ function IntentionInputSim({ onPass, onClose }) {
         autoFocus
       />
       <div className="iv-actions">
-        <button className="iv-btn" onClick={onPass} disabled={!text.trim()}>계속 보기</button>
-        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+        <button className="iv-btn" onClick={onClose}>닫기</button>
+        <button className="iv-btn sub" onClick={onPass} disabled={!text.trim()}>계속 보기</button>
       </div>
     </>
   )
@@ -681,11 +681,13 @@ function IntentionInputSim({ onPass, onClose }) {
 // ── 미션 계열 공통 안내 문구 (실제 조건 충족 불가한 3개에만 표시) ──
 const SIM_NOTE = '실제로는 이 조건을 채워야 열립니다. 여기서는 흐름만 보여드려요'
 
-// ── mission_hold: 버튼 3초 홀드 ────────────────────────────
+// ── mission_hold: 버튼 5초 홀드 ────────────────────────────
 // 핵심 마찰: 중간에 손을 떼면 진행이 0 으로 돌아간다.
-// pointerdown/up/leave/cancel — 마우스·터치 통합.
-const HOLD_DURATION_MS = 3000
+// 원형 SVG 게이지가 버튼 주위를 감싸며 채워진다.
+const HOLD_DURATION_MS = 5000
 const HOLD_TICK_MS = 50
+const HOLD_R = 56          // SVG 원 반지름
+const HOLD_CIRCUMFERENCE = 2 * Math.PI * HOLD_R
 
 function MissionHoldSim({ onPass, onClose }) {
   const [pct, setPct] = useState(0)
@@ -727,23 +729,37 @@ function MissionHoldSim({ onPass, onClose }) {
     if (intervalRef.current) clearInterval(intervalRef.current)
   }, [])
 
-  const label = pct >= 100 ? '열립니다!' : intervalRef.current ? '누르는 중...' : '누르기'
+  const offset = HOLD_CIRCUMFERENCE * (1 - pct / 100)
+
   return (
     <>
-      <h2 className="isim-q">버튼을 3초간 누르고 있어야 열립니다</h2>
-      <div className="isim-wait">
-        <div className="isim-wait-bar" style={{ width: `${pct}%`, transition: 'none' }} />
-      </div>
-      <div className="iv-actions">
+      <h2 className="isim-q">버튼을 5초간<br/>누르고 있어야 열립니다</h2>
+      {/* 원형 게이지 + 홀드 버튼 */}
+      <div className="hold-ring-wrap">
+        <svg className="hold-ring-svg" viewBox="0 0 128 128">
+          {/* 트랙 */}
+          <circle cx="64" cy="64" r={HOLD_R} fill="none" stroke="var(--border)" strokeWidth="6" />
+          {/* 진행 */}
+          <circle
+            cx="64" cy="64" r={HOLD_R}
+            fill="none" stroke="var(--ink)" strokeWidth="6"
+            strokeDasharray={HOLD_CIRCUMFERENCE}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            transform="rotate(-90 64 64)"
+          />
+        </svg>
         <button
-          className="iv-btn"
+          className="hold-btn"
           onPointerDown={startHold}
           onPointerUp={stopHold}
           onPointerLeave={stopHold}
           onPointerCancel={stopHold}
           style={{ touchAction: 'none', userSelect: 'none' }}
-        >{label}</button>
-        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+        />
+      </div>
+      <div className="iv-actions">
+        <button className="iv-btn" onClick={onClose}>닫기</button>
       </div>
     </>
   )
@@ -788,8 +804,8 @@ function MissionSimpleSim({ onPass, onClose }) {
         autoFocus
       />
       <div className="iv-actions">
-        <button className="iv-btn" onClick={handleSubmit} disabled={!input.trim()}>확인</button>
-        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+        <button className="iv-btn" onClick={onClose}>닫기</button>
+        <button className="iv-btn sub" onClick={handleSubmit} disabled={!input.trim()}>확인</button>
       </div>
     </>
   )
@@ -837,10 +853,10 @@ function MissionExerciseSim({ onPass, onClose }) {
         <div className="isim-wait-bar" style={{ width: `${pct}%`, transition: 'none' }} />
       </div>
       <div className="iv-actions">
-        {!started && <button className="iv-btn" onClick={startWalk}>걷기 시작</button>}
-        {started && !done && <button className="iv-btn" disabled>걷는 중...</button>}
-        {done && <button className="iv-btn" onClick={onPass}>계속 보기</button>}
-        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+        <button className="iv-btn" onClick={onClose}>닫기</button>
+        {!started && <button className="iv-btn sub" onClick={startWalk}>걷기 시작</button>}
+        {started && !done && <button className="iv-btn sub" disabled>걷는 중...</button>}
+        {done && <button className="iv-btn sub" onClick={onPass}>계속 보기</button>}
       </div>
     </>
   )
@@ -866,10 +882,10 @@ function MissionCaptureSim({ onPass, onClose }) {
         {captured && <div className="isim-vf-flash" />}
       </div>
       <div className="iv-actions">
-        <button className="iv-btn" onClick={() => setCaptured(true)} disabled={captured}>
+        <button className="iv-btn" onClick={onClose}>닫기</button>
+        <button className="iv-btn sub" onClick={() => setCaptured(true)} disabled={captured}>
           {captured ? '촬영 완료' : '촬영'}
         </button>
-        <button className="iv-btn sub" onClick={onClose}>닫기</button>
       </div>
     </>
   )
@@ -887,8 +903,8 @@ function MissionAltappSim({ onPass, onClose }) {
         <div className="isim-altapp-label">미리 정해둔 앱</div>
       </div>
       <div className="iv-actions">
-        <button className="iv-btn" onClick={onPass}>사용했다고 가정하기</button>
-        <button className="iv-btn sub" onClick={onClose}>닫기</button>
+        <button className="iv-btn" onClick={onClose}>닫기</button>
+        <button className="iv-btn sub" onClick={onPass}>사용했다고 가정하기</button>
       </div>
     </>
   )
@@ -900,38 +916,21 @@ function MissionAltappSim({ onPass, onClose }) {
 // ─────────────────────────────────────────────────────────────
 
 // ── grayscale: 숏폼 선반 흑백화 ─────────────────────────────
-// 1.5초 원본 → 부드러운 전환 → 흑백. '다시 보기'로 반복 가능.
+// 처음부터 흑백으로 표시된다.
 function GrayscaleSim({ onClose }) {
-  const [replayTick, setReplayTick] = useState(0)
-  const [gray, setGray] = useState(false)
-  const [showMsg, setShowMsg] = useState(false)
-
-  useEffect(() => {
-    setGray(false)
-    setShowMsg(false)
-    const t = setTimeout(() => { setGray(true); setShowMsg(true) }, 1500)
-    return () => clearTimeout(t)
-  }, [replayTick])
-
-  const shelfStyle = {
-    filter: gray ? 'grayscale(1)' : 'grayscale(0)',
-    transition: 'filter 1s ease',
-  }
+  const shelfStyle = { filter: 'grayscale(1)' }
 
   return (
     <div className="isim">
       <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
       <div className="isim-screen">
         <MockHome shelfStyle={shelfStyle} />
-        {showMsg && (
-          <div className="isim-env-banner">
-            <p className="isim-env-msg">숏폼 썸네일이 흑백으로 바뀌었어요</p>
-            <div className="isim-env-btns">
-              <button className="iv-btn sub" onClick={() => setReplayTick((t) => t + 1)}>다시 보기</button>
-              <button className="iv-btn sub" onClick={onClose}>닫기</button>
-            </div>
+        <div className="isim-env-banner">
+          <p className="isim-env-msg">숏폼 썸네일이 흑백으로 표시돼요</p>
+          <div className="isim-env-btns">
+            <button className="iv-btn sub" onClick={onClose}>닫기</button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
@@ -942,12 +941,22 @@ function GrayscaleSim({ onClose }) {
 function PushNotificationSim({ onClose }) {
   const [phase, setPhase] = useState('home') // 'home' | 'shorts'
   const [showBanner, setShowBanner] = useState(true)
+  const [showShortsBanner, setShowShortsBanner] = useState(false)
 
+  // 홈 화면 알림: 4초 후 자동 닫힘
   useEffect(() => {
     if (!showBanner) return
     const t = setTimeout(() => setShowBanner(false), 4000)
     return () => clearTimeout(t)
   }, [showBanner])
+
+  // 숏폼 진입 시 알림 다시 표시
+  useEffect(() => {
+    if (phase !== 'shorts') return
+    setShowShortsBanner(true)
+    const t = setTimeout(() => setShowShortsBanner(false), 4000)
+    return () => clearTimeout(t)
+  }, [phase])
 
   return (
     <div className="isim">
@@ -957,7 +966,6 @@ function PushNotificationSim({ onClose }) {
           <MockHome onShortsAccess={() => setPhase('shorts')} />
           {showBanner && (
             <div className="isim-notif" onClick={() => setShowBanner(false)}>
-              <div className="isim-notif-icon">▶</div>
               <div className="isim-notif-body">
                 <span className="isim-notif-app">MyTube</span>
                 <span className="isim-notif-msg">오늘 숏폼을 30분 넘게 봤어요</span>
@@ -975,6 +983,19 @@ function PushNotificationSim({ onClose }) {
       {phase === 'shorts' && (
         <div className="isim-screen">
           <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
+          {showShortsBanner && (
+            <div className="isim-notif" onClick={() => setShowShortsBanner(false)}>
+              <div className="isim-notif-body">
+                <span className="isim-notif-app">MyTube</span>
+                <span className="isim-notif-msg">오늘 숏폼을 30분 넘게 봤어요</span>
+              </div>
+              <button
+                className="isim-notif-close"
+                onClick={(e) => { e.stopPropagation(); setShowShortsBanner(false) }}
+                aria-label="알림 닫기"
+              >✕</button>
+            </div>
+          )}
           <div className="isim-done-banner">
             <p className="isim-done-msg">겪어보기를 마쳤어요</p>
             <button className="iv-btn" onClick={onClose}>닫기</button>
@@ -986,7 +1007,13 @@ function PushNotificationSim({ onClose }) {
 }
 
 // ── redirect_productivity: 사용 경로 유도 ──────────────────
-// 숏폼 탭을 눌러도 숏폼이 열리지 않고 대체 화면으로 전환된다.
+// 숏폼 탭을 눌러도 숏폼이 열리지 않고 대체 활동 제안 오버레이로 전환된다.
+const REDIR_ALTS = [
+  { emoji: '📧', label: '이메일', bg: '#0A84FF' },
+  { emoji: '📖', label: '독서',   bg: '#FF9F0A' },
+  { emoji: '🎵', label: '음악',   bg: '#BF5AF2' },
+]
+
 function RedirectProductivitySim({ onClose }) {
   const [phase, setPhase] = useState('home') // 'home' | 'redirected'
 
@@ -1000,22 +1027,22 @@ function RedirectProductivitySim({ onClose }) {
         </div>
       )}
       {phase === 'redirected' && (
-        <div className="isim-screen">
-          <div className="isim-redirect-app">
-            <div className="isim-redirect-hd">
-              <span className="isim-redirect-icon">📖</span>
-              <span className="isim-redirect-name">미리 정해둔 앱</span>
-            </div>
-            <p className="isim-redirect-msg">숏폼 대신 미리 정해둔 앱으로 이동했어요</p>
-            <div className="isim-redirect-content">
-              <div className="isim-redirect-row" />
-              <div className="isim-redirect-row" />
-              <div className="isim-redirect-row isim-redirect-row--short" />
+        <div className="isim-redir">
+          <div className="isim-redir-body">
+            <div className="isim-feat-badge">생산성 앱으로 이동</div>
+            <h2 className="isim-redir-q">지금 정말 숏폼을<br/>봐야 하나요?</h2>
+            <div className="isim-redir-apps">
+              {REDIR_ALTS.map(({ emoji, label, bg }) => (
+                <div key={label} className="isim-redir-app">
+                  <div className="isim-redir-app-icon" style={{ background: bg }}>{emoji}</div>
+                  <span className="isim-redir-app-label">{label}</span>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="isim-done-banner">
-            <p className="isim-done-msg">겪어보기를 마쳤어요</p>
-            <button className="iv-btn" onClick={onClose}>닫기</button>
+          <div className="isim-redir-btns">
+            <button className="isim-redir-stop" onClick={onClose}>닫기</button>
+            <button className="isim-redir-cont" onClick={onClose}>계속 보기</button>
           </div>
         </div>
       )}
@@ -1023,11 +1050,17 @@ function RedirectProductivitySim({ onClose }) {
   )
 }
 
-// ── hard_block: 완전 차단 — S3 At-Access 개입 컴포넌트 재사용 ──
-// onPass → InterventionSim 의 phase 를 'shorts' 로 이동 (겪어보기 완료).
-// Intervention 의 .iv 가 isim 전체를 덮으므로 isim-x 의 z-index 를 그 위로 올린다.
-function HardBlockSim({ onPass, onClose }) {
-  return <Intervention variant="At" onPrimary={onPass} confirm />
+// ── hard_block: 완전 차단 전용 화면 ────────────────────────
+// 숏폼을 아예 못 보게 막으므로 닫기는 onClose(시뮬 종료)를 호출.
+function HardBlockSim({ onClose }) {
+  return (
+    <>
+      <h2 className="isim-q">숏폼이 차단되었습니다</h2>
+      <div className="iv-actions">
+        <button className="iv-btn" onClick={onClose}>닫기</button>
+      </div>
+    </>
+  )
 }
 
 // sim id → 오버레이 내용 컴포넌트 (InterventionSim 2단계에서 렌더됨)
@@ -1334,12 +1367,12 @@ export function BypassScenarioCard({ state, api, onAnswer }) {
     <div className="c c-paper">
       <div className="c-pad">
         <Tag step="S5" />
-        <h2 className="c-q">어떤 상황에서 숏폼을 보고 싶은 충동이 가장 강한가요?</h2>
         <p className="s5-guide">
           당신은 다음의 상황에서 개입을 우회하여 숏폼 비디오를 시청하고 싶은 충동에
           휩싸였습니다. 숏폼 비디오 시청이 아예 차단된 기기 상태에서 다음의 상황에
           직면한 당신이 숏폼 비디오를 시청하기 위해 어떤 행동을 할지 상상해보세요
         </p>
+        <h2 className="c-q">다음 중 숏폼 우회 시청을 정당화할 상황으로 가장 공감되는 시나리오를 하나 선택해주세요</h2>
         <div className="sc-list">
           {SCENARIOS.map((sc) => (
             <button
@@ -1778,11 +1811,11 @@ export function BypassWantedCard({ state, api, onAnswer, answered }) {
                 <button
                   className={'yesno-btn' + (wanted[id] === false ? ' picked' : '')}
                   onClick={() => setWanted(id, false)}
-                >아니오</button>
+                >괜찮아요</button>
                 <button
                   className={'yesno-btn' + (wanted[id] === true ? ' picked' : '')}
                   onClick={() => setWanted(id, true)}
-                >예</button>
+                >차단해요</button>
               </div>
             </div>
           ))}

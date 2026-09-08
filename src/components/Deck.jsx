@@ -396,12 +396,15 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
         ))}
       </div>
 
-      <div className="rail">
-        <div
-          className="rail-fill"
-          style={{ height: `${Math.min(100, ((active + 1) / total) * 100)}%` }}
-        />
-      </div>
+      {/* sim-scene / sim-intro 카드에서는 rail 숨김 */}
+      {cards[active]?.type !== 'sim-scene' && cards[active]?.type !== 'sim-intro' && (
+        <div className="rail">
+          <div
+            className="rail-fill"
+            style={{ height: `${Math.min(100, ((active + 1) / total) * 100)}%` }}
+          />
+        </div>
+      )}
 
       {/* step-pill 제거: S# 배지는 참가자 화면에 표시하지 않음 */}
 

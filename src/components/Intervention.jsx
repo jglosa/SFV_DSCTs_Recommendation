@@ -43,8 +43,10 @@ export const VARIANTS = {
 
 const NUM = ['①', '②', '③']
 
-// confirm=true: 버튼을 하나("확인했습니다")만 표시. 시뮬레이션 체험 전용.
-export default function Intervention({ variant, n, onPrimary, confirm }) {
+// onPrimary: "계속 보기" 클릭 시 호출 (개입 통과).
+// onSecondary: "닫기" 클릭 시 호출 (개입 전 화면으로 복귀).
+// hideContinue: true이면 "계속 보기" 버튼을 표시하지 않음.
+export default function Intervention({ variant, n, onPrimary, onSecondary, hideContinue }) {
   const v = VARIANTS[variant]
 
   return (
@@ -63,11 +65,14 @@ export default function Intervention({ variant, n, onPrimary, confirm }) {
           <span>{v.stat[0]}</span>
           <span>{v.stat[1]}</span>
         </div>
-        <div className="iv-actions">
-          <button className="iv-btn" onClick={onPrimary}>
-            확인했습니다
-          </button>
-        </div>
+      </div>
+      <div className="iv-actions">
+        {onSecondary && (
+          <button className="iv-btn" onClick={onSecondary}>닫기</button>
+        )}
+        {!hideContinue && (
+          <button className="iv-btn iv-btn-ghost" onClick={onPrimary}>계속 보기</button>
+        )}
       </div>
     </div>
   )

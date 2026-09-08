@@ -574,7 +574,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   animation: ivIn .22s ease-out;
 }
 @keyframes ivIn { from { opacity: 0; } to { opacity: 1; } }
-.iv-inner { margin: auto 0; padding: 40px 0; }
+.iv-inner { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 40px 0 20px; }
 .iv-badge {
   display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
   font-family: var(--mono); font-size: 9.5px; font-weight: 600;
@@ -588,9 +588,23 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
   font-family: var(--mono); font-size: 11px; letter-spacing: .05em; color: var(--ink-2);
 }
-.iv-actions { display: flex; flex-direction: column; gap: 8px; }
-.iv-btn { width: 100%; padding: 14px; border-radius: 14px; font-size: 14.5px; font-weight: 600; background: var(--ink); color: #fff; }
+.iv-actions {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 20px 0 calc(20px + env(safe-area-inset-bottom));
+}
+.iv-btn {
+  width: 100%; padding: 15px; border-radius: 50px;
+  font-size: 15px; font-weight: 600;
+  background: var(--ink); color: #fff;
+  border: none;
+}
 .iv-btn.sub { background: transparent; color: var(--ink-2); border: 1.5px solid var(--border); }
+/* 그만 보기: 배경 없이 텍스트만 */
+.iv-btn-ghost {
+  width: 100%; padding: 12px;
+  background: none; border: none;
+  font-size: 14px; font-weight: 500; color: var(--ink-2);
+}
 .iv-btn:disabled { opacity: .4; cursor: not-allowed; }
 
 
@@ -1132,8 +1146,22 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .isim-ov {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  padding: 32px 24px; gap: 20px;
+  padding: 32px 24px 140px; gap: 20px;
   background: var(--bg-card);
+  position: relative;
+}
+/* 버튼 영역: 항상 하단 고정, 전체 너비 */
+.isim-ov .iv-actions {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 16px 24px calc(24px + env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--bg-card);
+}
+/* isim-ov 안의 보조 버튼(닫기/그만 보기)은 텍스트만 */
+.isim-ov .iv-btn.sub {
+  background: none; border: none;
+  color: var(--ink-2); font-size: 14px; font-weight: 500;
 }
 .isim-feat-badge {
   font-size: 12px; font-weight: 700; letter-spacing: .08em;
@@ -1158,9 +1186,9 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   resize: none; font-family: inherit; line-height: 1.5;
 }
 .isim-textarea:focus { outline: none; border-color: var(--ink-2); }
-/* 3단계: 완료 배너 */
+/* 3단계: 완료 배너 — MockShorts의 sp-rail(z:12)보다 앞에 나오도록 z-index 확보 */
 .isim-done-banner {
-  position: absolute; bottom: 0; left: 0; right: 0;
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
   background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
   padding: 24px 24px 32px;
   display: flex; flex-direction: column; align-items: center; gap: 14px;
@@ -1194,6 +1222,20 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 }
 .isim-steps-count { font-size: 36px; font-weight: 800; color: var(--ink); }
 .isim-steps-unit  { font-size: 16px; color: var(--ink-2); }
+/* mission_hold — 원형 게이지 + 홀드 버튼 */
+.hold-ring-wrap {
+  position: relative;
+  width: 168px; height: 168px; flex-shrink: 0;
+}
+.hold-ring-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+}
+.hold-btn {
+  position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 118px; height: 118px; border-radius: 50%;
+  background: var(--ink); border: none; cursor: pointer;
+}
 /* mission_capture */
 .isim-viewfinder {
   width: 100%; aspect-ratio: 4/3;
@@ -1251,12 +1293,6 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   cursor: pointer;
 }
 @keyframes notifSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-.isim-notif-icon {
-  width: 32px; height: 32px; border-radius: 8px;
-  background: #ff0000; color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; flex-shrink: 0;
-}
 .isim-notif-body { flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 .isim-notif-app { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; }
 .isim-notif-msg { font-size: 13px; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
@@ -1264,28 +1300,48 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   background: none; border: none; color: #888; font-size: 14px;
   padding: 4px; cursor: pointer; flex-shrink: 0;
 }
-/* redirect_productivity 대체 앱 화면 */
-.isim-redirect-app {
+/* redirect_productivity 대체 활동 제안 오버레이 */
+.isim-redir {
   flex: 1; display: flex; flex-direction: column;
-  background: var(--bg); padding: 56px 20px 20px;
-  gap: 16px; overflow-y: auto;
+  background: var(--bg-card); color: var(--ink);
+  padding: 0 28px calc(36px + env(safe-area-inset-bottom));
 }
-.isim-redirect-hd {
-  display: flex; align-items: center; gap: 10px;
-  border-bottom: 1px solid var(--border); padding-bottom: 14px;
+.isim-redir-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 28px;
 }
-.isim-redirect-icon { font-size: 28px; }
-.isim-redirect-name { font-size: 16px; font-weight: 700; color: var(--ink); }
-.isim-redirect-msg {
-  font-size: 14px; color: var(--mint-deep);
-  background: var(--mint-soft); border-radius: 10px;
-  padding: 10px 14px; margin: 0; line-height: 1.5;
+.isim-redir-q {
+  font-size: 26px; font-weight: 700; line-height: 1.35;
+  text-align: center; margin: 0; color: var(--ink);
 }
-.isim-redirect-content { display: flex; flex-direction: column; gap: 10px; }
-.isim-redirect-row {
-  height: 56px; background: var(--border); border-radius: 10px;
+.isim-redir-apps {
+  display: flex; gap: 24px; justify-content: center;
+  background: var(--border); border-radius: 22px;
+  padding: 18px 28px;
 }
-.isim-redirect-row--short { width: 60%; height: 40px; }
+.isim-redir-app {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+}
+.isim-redir-app-icon {
+  width: 58px; height: 58px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+}
+.isim-redir-app-label {
+  font-size: 11px; color: var(--ink-2); font-weight: 500;
+}
+.isim-redir-btns {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.isim-redir-stop {
+  width: 100%; padding: 15px; border-radius: 50px;
+  background: var(--ink); color: #fff; border: none;
+  font-size: 15px; font-weight: 600;
+}
+.isim-redir-cont {
+  width: 100%; padding: 12px; border: none; background: none;
+  color: var(--ink-2); font-size: 14px; font-weight: 500;
+}
 
 /* ── 앱 상세 ── */
 .dtl-app-hero { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
