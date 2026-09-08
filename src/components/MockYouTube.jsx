@@ -7,6 +7,8 @@
 // scope_levels 값과 1:1 대응한다.
 // ─────────────────────────────────────────────────────────────
 
+import { SCOPE_DISPLAY } from '../data/features.js'
+
 const CHIPS = ['전체', '게임', '음악', '실시간', '요리', '뉴스', '학습']
 
 const LONGFORM = [
@@ -200,7 +202,7 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
   return (
     <div className="yt">
       {/* app 타겟: 앱 헤더 전체 (로고+아이콘) */}
-      <T id="app" label="앱 전체" variant="grid">
+      <T id="app" label={SCOPE_DISPLAY['app']} variant="grid">
         <header className="yt-top">
           <YTLogo />
           <span className="yt-top-icons">
@@ -220,7 +222,7 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
       )}
 
       {/* content 타겟 진입점: 카테고리 칩 묶음 */}
-      <T id="content" label="이런 채널·주제" variant="grid">
+      <T id="content" label={SCOPE_DISPLAY['content']} variant="grid">
         <div className="yt-chips">
           {CHIPS.map((c, i) => (
             <span key={c} className={'yt-chip' + (i === 0 ? ' on' : '')}>
@@ -235,7 +237,7 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
 
         {/* Shorts 선반 */}
         {live('entry-point')
-          ? <T id="entry-point" label="이 줄" block variant="grid">{shelfSection}</T>
+          ? <T id="entry-point" label={SCOPE_DISPLAY['entry-point']} block variant="grid">{shelfSection}</T>
           : shelfSection
         }
 
@@ -250,7 +252,7 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
         </span>
         {/* Shorts 탭 */}
         {live('app-tab')
-          ? <T id="app-tab" label={cue ? '여기를 누르세요' : '이 탭'} variant="nav">{shortsTab}</T>
+          ? <T id="app-tab" label={cue ? '여기를 누르세요' : SCOPE_DISPLAY['app-tab']} variant="nav">{shortsTab}</T>
           : shortsTab
         }
         <span className="yt-nav-item">

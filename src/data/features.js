@@ -25,6 +25,15 @@ export const SCOPE_LEVELS = Object.fromEntries(
   raw.scopeLevels.map((s) => [s.id, s.ko])
 )
 
+// ── 통제 범위 참가자용 표현 — S1 화면·기능 상세 공통 사용 ──────
+// SCOPE_LEVELS(JSON 원본)와 분리: 'entry-point' 의 '진입 지점' 은 참가자 불투명.
+export const SCOPE_DISPLAY = {
+  'app':         '앱 전체',
+  'entry-point': '홈의 숏폼 줄',
+  'app-tab':     '숏폼 탭',
+  'content':     '채널·주제',
+}
+
 // ── agency 레벨 3단 (supported / flexible / limited), order 오름차순 ──
 export const AGENCY_LEVELS = [...raw.agencyLevels].sort((a, b) => a.order - b.order)
 

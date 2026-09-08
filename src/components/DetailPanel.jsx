@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FEATURE_BY_ID, SIMULATIONS, EXPLORE_RUNGS, description } from '../data/features.js'
+import { FEATURE_BY_ID, SIMULATIONS, EXPLORE_RUNGS, description, SCOPE_DISPLAY } from '../data/features.js'
 import { displayName } from '../store.js'
 import { APP_BY_ID, appsWithFeature, appIconPath } from '../data/apps.js'
 import { SimNotReady, InterventionSim } from './Cards.jsx'
@@ -40,13 +40,6 @@ export const AGENCY_LABEL = {
   flexible:  '조건을 채우면 통과',
   limited:   '아예 볼 수 없음',
 }
-const SCOPE_LABEL = {
-  'app':         '앱 전체',
-  'entry-point': '진입 지점',
-  'app-tab':     '숏폼 탭',
-  'content':     '채널·주제',
-}
-
 // 앱 환경 참가자용 한 줄 레이블
 function appEnvLabel(app) {
   const parts = []
@@ -123,34 +116,30 @@ function FeatureDetail({ detail, onBack, onOpenApp }) {
         {/* 2) 설명 */}
         {desc && <p className="dtl-desc">{desc}</p>}
 
-        {/* 3) 기능 속성 — 작동 시점·개입 방식·통제 범위 */}
-        {feature && (WHEN_LABEL[feature.when] || AGENCY_LABEL[feature.agency]) && (() => {
-          const scopeStr = (feature.addressableScope ?? [])
-            .map((s) => SCOPE_LABEL[s] ?? s)
-            .join('·') || null
-          return (
-            <div className="dtl-meta">
-              {WHEN_LABEL[feature.when] && (
-                <div className="dtl-meta-row">
-                  <span className="dtl-meta-label">작동 시점</span>
-                  <span className="dtl-meta-value">{WHEN_LABEL[feature.when]}</span>
-                </div>
-              )}
-              {AGENCY_LABEL[feature.agency] && (
-                <div className="dtl-meta-row">
-                  <span className="dtl-meta-label">개입 방식</span>
-                  <span className="dtl-meta-value">{AGENCY_LABEL[feature.agency]}</span>
-                </div>
-              )}
-              {scopeStr && (
-                <div className="dtl-meta-row">
-                  <span className="dtl-meta-label">통제 범위</span>
-                  <span className="dtl-meta-value">{scopeStr}</span>
-                </div>
-              )}
-            </div>
-          )
-        })()}
+        {/* 3) 기능 속성 — 작동 시점·개입 방식·통제 범위
+             통제 범위: engine 이 결정한 item.scope 하나만 표시. addressableScope 사용 안 함. */}
+        {feature && (
+          <div className="dtl-meta">
+            {WHEN_LABEL[feature.when] && (
+              <div className="dtl-meta-row">
+                <span className="dtl-meta-label">작동 시점</span>
+                <span className="dtl-meta-value">{WHEN_LABEL[feature.when]}</span>
+              </div>
+            )}
+            {AGENCY_LABEL[feature.agency] && (
+              <div className="dtl-meta-row">
+                <span className="dtl-meta-label">개입 방식</span>
+                <span className="dtl-meta-value">{AGENCY_LABEL[feature.agency]}</span>
+              </div>
+            )}
+            {item.scope && SCOPE_DISPLAY[item.scope] && (
+              <div className="dtl-meta-row">
+                <span className="dtl-meta-label">통제 범위</span>
+                <span className="dtl-meta-value">{SCOPE_DISPLAY[item.scope]}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 4) 겪어보기 — 항상 표시. sim 없으면 준비 중 오버레이 */}
         <button className="c-sim-btn" onClick={() => setShowSim(true)}>겪어보기</button>
