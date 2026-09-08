@@ -1473,15 +1473,15 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
 // ══ S4 (자율 탐색 구조) ══════════════════════════════════
 
 // ── 탐색 패널 내부: rung 한 행 ─────────────────────────
-function RungRow({ rung, state, api, gaugeFilled, gaugeTotal }) {
-  const [showSim, setShowSim] = useState(false)
+// onSim: 겪어보기 클릭 시 부모(S4AgencyDetail)에 rung 전달 — iOS 스태킹 문제 방지
+function RungRow({ rung, state, api, gaugeFilled, gaugeTotal, onSim }) {
   const hasSim = rung.sim && SIMULATIONS[rung.sim] !== null
   const desc = description({ code: rung.resolve?.fixed ?? rung.id })
 
   const handleSim = () => {
     const played = state.simsPlayed ?? []
     api.set({ simsPlayed: [...played, rung.sim] })
-    setShowSim(true)
+    onSim(rung, hasSim)
   }
 
   return (
@@ -1490,17 +1490,13 @@ function RungRow({ rung, state, api, gaugeFilled, gaugeTotal }) {
       <div className="s4-rung-name">{rung.nameKo}</div>
       {desc && <div className="s4-rung-desc">{desc}</div>}
       <button className="c-sim-btn" onClick={handleSim}>겪어보기</button>
-      {showSim && (
-        hasSim
-          ? <InterventionSim simId={rung.sim} featureName={rung.nameKo} onClose={() => setShowSim(false)} />
-          : <SimNotReady onClose={() => setShowSim(false)} />
-      )}
     </div>
   )
 }
 
 // ── 탐색 패널 내부: agency 레벨 상세 화면 ──────────────
 function S4AgencyDetail({ level, state, api, onBack }) {
+  const [activeSim, setActiveSim] = useState(null) // { rung, hasSim } | null
   const rungs = (RUNGS_BY_AGENCY[level.id] ?? [])
     .filter((r) => r.exploreVisible)
     .sort((a, b) => a.order - b.order)
@@ -1527,11 +1523,18 @@ function S4AgencyDetail({ level, state, api, onBack }) {
                 api={api}
                 gaugeFilled={showGauge ? idx + 1 : undefined}
                 gaugeTotal={showGauge ? rungs.length : undefined}
+                onSim={(r, hasSim) => setActiveSim({ rung: r, hasSim })}
               />
             ))}
           </div>
         </div>
       </div>
+      {/* iOS stacking context 우회: .dtl-body overflow-y:auto 밖에서 렌더 */}
+      {activeSim && (
+        activeSim.hasSim
+          ? <InterventionSim simId={activeSim.rung.sim} featureName={activeSim.rung.nameKo} onClose={() => setActiveSim(null)} />
+          : <SimNotReady onClose={() => setActiveSim(null)} />
+      )}
     </div>
   )
 }
