@@ -29,6 +29,27 @@ EXPLORE_RUNGS.forEach((rung) => {
 // availability 표시 레이블
 const AVAIL_LABEL = { Both: 'iOS · Android', 'Google Play': 'Android', 'App Store': 'iOS' }
 
+// 기능 속성 참가자용 레이블 (내부 코드 미노출)
+const WHEN_LABEL = {
+  Pre:   '열기 전',
+  At:    '숏폼에 들어가려는 순간',
+  InUse: '보고 있는 중',
+}
+const AGENCY_LABEL = {
+  supported: '막지 않고 알려줌',
+  flexible:  '조건을 채우면 통과',
+  limited:   '아예 볼 수 없음',
+}
+
+// 앱 환경 참가자용 한 줄 레이블
+function appEnvLabel(app) {
+  const parts = []
+  if (app.os.includes('ios')) parts.push('아이폰')
+  if (app.os.includes('android')) parts.push('안드로이드')
+  if (app.route === 'web') parts.push('웹브라우저')
+  return parts.join('·')
+}
+
 // ── 앱 행 컴포넌트 (기능 상세 앱 목록용) ───────────────────
 function AppRow({ appId, highlighted, onOpenApp }) {
   const [err, setErr] = useState(false)
@@ -45,6 +66,7 @@ function AppRow({ appId, highlighted, onOpenApp }) {
         : <span className="dtl-app-icon"><img src={appIconPath(appId)} alt="" onError={() => setErr(true)} /></span>
       }
       <span className="dtl-app-name">{app.shortName || appId}</span>
+      <span className="dtl-app-env">{appEnvLabel(app)}</span>
     </button>
   )
 }
@@ -95,10 +117,28 @@ function FeatureDetail({ detail, onBack, onOpenApp }) {
         {/* 2) 설명 */}
         {desc && <p className="dtl-desc">{desc}</p>}
 
-        {/* 3) 겪어보기 — 항상 표시. sim 없으면 준비 중 오버레이 */}
+        {/* 3) 기능 속성 — 작동 시점·개입 방식 */}
+        {feature && (WHEN_LABEL[feature.when] || AGENCY_LABEL[feature.agency]) && (
+          <div className="dtl-meta">
+            {WHEN_LABEL[feature.when] && (
+              <div className="dtl-meta-row">
+                <span className="dtl-meta-label">작동 시점</span>
+                <span className="dtl-meta-value">{WHEN_LABEL[feature.when]}</span>
+              </div>
+            )}
+            {AGENCY_LABEL[feature.agency] && (
+              <div className="dtl-meta-row">
+                <span className="dtl-meta-label">개입 방식</span>
+                <span className="dtl-meta-value">{AGENCY_LABEL[feature.agency]}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 4) 겪어보기 — 항상 표시. sim 없으면 준비 중 오버레이 */}
         <button className="c-sim-btn" onClick={() => setShowSim(true)}>겪어보기</button>
 
-        {/* 4) 이 기능이 있는 앱 */}
+        {/* 5) 이 기능이 있는 앱 */}
         <div className="dtl-sec-h">이 기능이 있는 앱</div>
         <div className="dtl-apps">
           {recIds.map((id) => <AppRow key={id} appId={id} highlighted onOpenApp={onOpenApp} />)}

@@ -113,6 +113,9 @@ function hoursDisplay(state) {
 export default function ResultCard({ state, api, onOpenDetail }) {
   const [showAnswers, setShowAnswers] = useState(false)
   const r = recommend(state)
+  const reasonByCode = Object.fromEntries(
+    (r.rationale?.features ?? []).map((f) => [f.code, f.reason]),
+  )
   const summary = buildSummary(state, r.picks)
   const hours = hoursDisplay(state)
 
@@ -151,7 +154,12 @@ export default function ResultCard({ state, api, onOpenDetail }) {
                   className="frec frec-btn"
                   onClick={() => onOpenDetail?.({ type: 'feature', item: f, recAppIds: r.appRecs.map((a) => a.id), recPicks: r.picks })}
                 >
-                  <span className="frec-name">{name ?? f.code}</span>
+                  <div className="frec-text">
+                    <span className="frec-name">{name ?? f.code}</span>
+                    {reasonByCode[f.code] && (
+                      <span className="frec-reason">{reasonByCode[f.code]}</span>
+                    )}
+                  </div>
                   <span className="frec-chevron">›</span>
                 </button>
               )

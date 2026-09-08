@@ -89,13 +89,7 @@ const ROUTE_MAP = {
   '웹브라우저': 'web',
 }
 
-// ── 우회 방지 기능 매핑 ───────────────────────────────────────────
-const BYPASS_FEAT_MAP = {
-  B1: ['4.1.1', '4.1.2'],
-  B2: ['4.1.1'],
-  B3: ['4.2'],
-  B4: ['4.3'],
-}
+// ── BYPASS_FEAT_MAP 제거 — bypassScore 는 app.bypassSupport[Bk] 를 직접 읽는다 (§1)
 
 // ─────────────────────────────────────────────────────────────
 // 기능 3개 확정
@@ -232,7 +226,7 @@ function sortByAgencyRank(rungs, agencyRank) {
  * resolveBy='scope+timing' → scopes 순서대로 1개씩.
  * 그 외 → 단일 code.
  */
-function resolveRungToItems(rung, state) {
+function resolveRungToItems(rung, state, trace) {
   const scopes = state.scopes ?? []
   const timingRank = state.timingRank ?? []
   const items = []
@@ -256,7 +250,8 @@ function resolveRungToItems(rung, state) {
       if (FEATURE_BY_ID[code]) items.push({ rung, code, scope: null, taskGroup, key })
     }
   } catch (e) {
-    // resolve 실패 — 개발 중에 드러나도록 경고를 남긴다
+    // resolve 실패 — trace 에 기록해 결과에서 추적 가능하게 한다
+    if (trace) trace.push({ rule: `F · resolve 실패 [${rung.id}]`, detail: e.message })
     console.warn(`[engine] resolveRungToItems ${rung.id} 실패:`, e.message)
   }
 
@@ -288,7 +283,7 @@ function buildFeaturePicks(state, trace) {
         : [...gradeRungs].sort(makeSortFn(gradeRungs))
 
     for (const rung of sorted) {
-      for (const item of resolveRungToItems(rung, state)) {
+      for (const item of resolveRungToItems(rung, state, trace)) {
         if (!usedKeys.has(item.key)) {
           usedKeys.add(item.key)
           candidates.push({ ...item, grade })
@@ -307,7 +302,13 @@ function buildFeaturePicks(state, trace) {
       .join(', '),
   })
 
-  // §8: 항상 3개. 데이터 이상으로 3개 미만이면 있는 것만 반환.
+  // §8: 항상 3개. 3개 미만은 데이터 오류이며 콘솔에 보고된다.
+  if (candidates.length < 3) {
+    console.error(
+      `[engine] buildFeaturePicks: 후보 ${candidates.length}개 — 3개 미만 (데이터 오류).`,
+      'trace:', trace.filter((t) => t.rule.startsWith('F · resolve 실패')),
+    )
+  }
   return candidates.slice(0, 3)
 }
 
@@ -356,10 +357,10 @@ function computeAppScore(app, state, featureCodes) {
   const hasSchedule = state.dayType === 'daily' || state.dayType === 'split'
   const scheduleScore = hasSchedule && app.features.includes('1.2.1') ? 1 : 0
 
-  // (5) 우회 방지 tie-break: bypassWanted=true 항목 중 대응 기능 보유
+  // (5) 우회 방지 tie-break: bypassWanted=true 항목 중 app.bypassSupport[Bk]=true 인 수
   let bypassScore = 0
   for (const [bk, bv] of Object.entries(bypass)) {
-    if (bv === true && (BYPASS_FEAT_MAP[bk] ?? []).some((f) => app.features.includes(f))) {
+    if (bv === true && app.bypassSupport?.[bk] === true) {
       bypassScore++
     }
   }
@@ -450,17 +451,18 @@ function buildWarnings(state, apps, trace) {
 // rationale (한국어 서술 — 코드·ID·점수 미노출)
 // ─────────────────────────────────────────────────────────────
 
-// 등급별 rationale 문구 — 3단 척도(weak/ok/strong) 기반
+// 등급별 rationale 문구 — 참가자 응답 관계 중심, 3갈래
+// grade 1: 1순위 레벨 + ok / grade 2: 1순위 레벨 + weak / 나머지: 채우기
 const GRADE_REASON = {
-  1: '직접 괜찮다고 하신 기능이에요.',                              // agencyRank[0] + ok
-  2: '조금 약하다고 하셨지만, 가장 선호한 방식에 속해요.',           // agencyRank[0] + weak
-  3: '직접 괜찮다고 하신 기능이에요.',                              // agencyRank[1] + ok
-  4: '조금 약하다고 하셨지만, 선호하신 방식에 속해요.',             // agencyRank[1] + weak
-  5: '직접 괜찮다고 하신 기능이에요.',                              // agencyRank[2] + ok
-  6: '조금 약하다고 하셨지만, 선호하신 방식에 속해요.',             // agencyRank[2] + weak
-  7: '건너뛴 레벨에서 가져온 방식입니다.',
-  8: '아직 확인하지 않은 레벨에서 가져온 방식입니다.',
-  9: '선호보다 센 편이지만 세 가지를 채우기 위해 넣었어요.',         // strong
+  1: '1순위로 고르신 방식이고, 괜찮다고 하신 개입이에요',   // agencyRank[0] + ok
+  2: '1순위로 고르신 방식이에요. 조금 약하다고 하셨어요',   // agencyRank[0] + weak
+  3: '세 가지를 채우기 위해 함께 넣었어요',                 // agencyRank[1] + ok
+  4: '세 가지를 채우기 위해 함께 넣었어요',                 // agencyRank[1] + weak
+  5: '세 가지를 채우기 위해 함께 넣었어요',                 // agencyRank[2] + ok
+  6: '세 가지를 채우기 위해 함께 넣었어요',                 // agencyRank[2] + weak
+  7: '세 가지를 채우기 위해 함께 넣었어요',                 // skipped
+  8: '세 가지를 채우기 위해 함께 넣었어요',                 // unvisited
+  9: '세 가지를 채우기 위해 함께 넣었어요',                 // strong
 }
 
 function buildRationale(featureItems, apps) {
