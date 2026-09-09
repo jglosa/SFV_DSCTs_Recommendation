@@ -103,6 +103,8 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
   const answer = useCallback(
     (cid) => {
       setAnswered((a) => (a[cid] ? a : { ...a, [cid]: true }))
+      // 답변 후 deck에 포커스 복귀 — 바로 위로 밀기가 동작하도록
+      setTimeout(() => scroller.current?.focus({ preventScroll: true }), 0)
     },
     []
   )
@@ -372,6 +374,11 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
               // bypassWanted 초기화 (번복 시 이전 답 제거)
               api.set({ bypassWanted: {} })
               answer(spec.cid)
+              // 다음 카드 append 후 자동 스크롤 — 별도 swipe 불필요
+              setTimeout(() => {
+                const slot = scroller.current?.querySelector(`[data-cid="${spec.cid}"]`)
+                slot?.nextElementSibling?.scrollIntoView({ behavior: 'smooth' })
+              }, 300)
             }}
           />
         )
@@ -388,7 +395,7 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
 
   return (
     <>
-      <div className="deck" ref={scroller}>
+      <div className="deck" ref={scroller} tabIndex={-1}>
         {cards.map((spec, i) => (
           <section className="slot" data-cid={spec.cid} key={spec.cid}>
             {render(spec, i)}

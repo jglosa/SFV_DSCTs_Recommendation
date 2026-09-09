@@ -1427,6 +1427,8 @@ export const BYPASS_OPTS = [
 export function BypassSelectCard({ state, api, onAnswer, answered }) {
   const sc = SCENARIO_BY_ID[state.bypassScenario] ?? null
   const methods = state.bypassMethods ?? {}
+  const cardRef = useRef(null)
+  const handleSwipeRef = useRef(null)
 
   const toggle = (id) => {
     api.set({ bypassMethods: { ...methods, [id]: !methods[id] } })
@@ -1438,10 +1440,46 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
     api.set({ bypassMethods: full })
     onAnswer()
   }
+  handleSwipeRef.current = handleSwipe
+
+  // wheel(트랙패드) + touch(모바일) 위로 스와이프 감지 → handleSwipe 호출
+  // 다음 카드가 없으면 deck scroll-snap이 동작 불가 → JS로 직접 감지 필요
+  useEffect(() => {
+    if (answered) return
+    const el = cardRef.current
+    if (!el) return
+    let triggered = false
+
+    const onWheel = (e) => {
+      if (e.deltaY > 0 && !triggered) {
+        e.preventDefault()
+        triggered = true
+        handleSwipeRef.current()
+      }
+    }
+
+    let startY = 0
+    const onTouchStart = (e) => { startY = e.touches[0].clientY }
+    const onTouchEnd = (e) => {
+      if (startY - e.changedTouches[0].clientY > 30 && !triggered) {
+        triggered = true
+        handleSwipeRef.current()
+      }
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchend', onTouchEnd, { passive: true })
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchend', onTouchEnd)
+    }
+  }, [answered])
 
   return (
-    <div className="c c-paper">
-      <div className="c-pad">
+    <div className="c c-paper" ref={cardRef}>
+      <div className="c-pad" style={answered ? { overflowY: 'hidden' } : undefined}>
         <Tag step="S5" />
         {sc && (
           <div className="scene">
@@ -1729,8 +1767,20 @@ export function S4OXCard({ spec, state, api, answered, onAnswer }) {
   const rungs = rungsForOX(state, agencyId)
   const accepted = state.featureAccepted ?? {}
   const cardRef = useRef(null)
+  const padRef = useRef(null)
+  const onAnswerRef = useRef(onAnswer)
+  onAnswerRef.current = onAnswer
 
   const allAnswered = rungs.length > 0 && rungs.every((r) => accepted[r.id] !== undefined)
+
+  // 모든 항목이 채워지면 → c-pad 맨 아래로 스크롤해 SwipeUp 표시 → 400ms 후 answer 처리
+  useEffect(() => {
+    if (allAnswered && !answered) {
+      padRef.current?.scrollTo({ top: padRef.current.scrollHeight, behavior: 'smooth' })
+      setTimeout(() => onAnswerRef.current(), 400)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allAnswered, answered])
 
   const setAccepted = (id, val) => {
     api.set({ featureAccepted: { ...accepted, [id]: val } })
@@ -1751,7 +1801,7 @@ export function S4OXCard({ spec, state, api, answered, onAnswer }) {
 
   return (
     <div className="c c-paper" ref={cardRef}>
-      <div className="c-pad">
+      <div className="c-pad" ref={padRef} style={answered ? { overflowY: 'hidden' } : undefined}>
         <Tag step="S4" />
         {!isPrimary && (
           <div className="s4-ox-secondary-header">
@@ -1801,9 +1851,18 @@ export function BypassWantedCard({ state, api, onAnswer, answered }) {
   // 모든 표시 항목에 예/아니오가 선택됐을 때 SwipeUp 활성화
   const allAnswered = selected.length > 0 && selected.every(({ id }) => wanted[id] !== undefined)
 
+  const onAnswerRef = useRef(onAnswer)
+  onAnswerRef.current = onAnswer
+
+  // 모든 항목이 채워지면 즉시 answer 처리 — SwipeUp 클릭 없이 바로 swipe 가능
+  useEffect(() => {
+    if (allAnswered && !answered) onAnswerRef.current()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allAnswered, answered])
+
   return (
     <div className="c c-paper">
-      <div className="c-pad">
+      <div className="c-pad" style={answered ? { overflowY: 'hidden' } : undefined}>
         <Tag step="S5" />
         <h2 className="c-q">그럼 그 우회 선택지가 차단되어 있기를 바라나요?</h2>
         <div className="bpw-list">
