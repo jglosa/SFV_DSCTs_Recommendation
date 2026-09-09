@@ -339,26 +339,6 @@ export function MockShorts({ video, picked, onPick, interactive = true, playing 
         </div>
       </div>
 
-      <nav className="yt-nav on-dark">
-        <span className="yt-nav-item">
-          <span className="yt-nav-glyph">⌂</span>홈
-        </span>
-        <span className="yt-nav-item on">
-          <span className="yt-nav-glyph">
-            <ShortsGlyph size={17} />
-          </span>
-          숏폼
-        </span>
-        <span className="yt-nav-item">
-          <span className="yt-nav-plus">＋</span>
-        </span>
-        <span className="yt-nav-item">
-          <span className="yt-nav-glyph">▤</span>구독
-        </span>
-        <span className="yt-nav-item">
-          <span className="yt-nav-glyph">◔</span>나
-        </span>
-      </nav>
     </div>
   )
 }
