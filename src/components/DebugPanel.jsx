@@ -22,47 +22,47 @@ const PRESETS = [
     hot: true,
     patch: {
       env: { devices: ['아이폰·아이패드'], os: ['ios'], route: ['앱'], platforms: ['YouTube', 'Instagram'] },
-      scopes: ['app-tab', 'entry-point', 'content'],
+      scopes: ['shorts-tab', 'shorts-row', 'content'],
       hours: { daily: [22, 23, 24, 1, 2], weekday: [], weekend: [] },
       dayType: 'daily',
       timingRank: ['Pre', 'At', 'InUse'],
       agencyVisited: ['supported', 'flexible', 'limited'],
       simsPlayed: ['push_notification', 'hard_block'],
       agencyRank: ['limited', 'flexible', 'supported'],
-      featureAccepted: { L10: 'ok' },
-      bypassMethods: { B1: true, B2: true, B3: true, B4: true },
-      bypassWanted:  { B1: true, B2: true, B3: true, B4: true },
+      featureAccepted: { 10: 'ok' },
+      bypassMethods: { 'lock-app-settings': true, 'lock-device-settings': true, 'prevent-uninstall': true, 'prevent-multiwindow': true },
+      bypassWanted:  { 'lock-app-settings': true, 'lock-device-settings': true, 'prevent-uninstall': true, 'prevent-multiwindow': true },
     },
   },
   {
     name: '문턱 관리자형',
     patch: {
       env: { devices: ['안드로이드 폰·태블릿'], os: ['android'], route: ['앱'], platforms: ['YouTube'] },
-      scopes: ['app-tab'],
+      scopes: ['shorts-tab'],
       hours: { daily: [], weekday: [23, 24, 1], weekend: [] },
       dayType: 'split',
       timingRank: ['At', 'InUse', 'Pre'],
       agencyVisited: ['supported', 'flexible'],
       simsPlayed: ['confirm', 'timed_wait'],
       agencyRank: ['flexible', 'supported', 'limited'],
-      featureAccepted: { L4: 'ok', L5: 'ok', L7: 'strong' },
-      bypassMethods: { B1: false, B2: false, B3: false, B4: true },
-      bypassWanted:  { B4: true },
+      featureAccepted: { 4: 'ok', 5: 'ok', 7: 'strong' },
+      bypassMethods: { 'lock-app-settings': false, 'lock-device-settings': false, 'prevent-uninstall': false, 'prevent-multiwindow': true },
+      bypassWanted:  { 'prevent-multiwindow': true },
     },
   },
   {
     name: '사후 성찰가형',
     patch: {
       env: { devices: ['아이폰·아이패드', '안드로이드 폰·태블릿'], os: ['ios', 'android'], route: ['앱', '메신저·SNS로 받은 링크'], platforms: ['Instagram', 'TikTok'] },
-      scopes: ['entry-point'],
+      scopes: ['shorts-row'],
       hours: { daily: [], weekday: [13, 14, 15, 16], weekend: [] },
       dayType: 'split',
       timingRank: ['InUse', 'At', 'Pre'],
       agencyVisited: ['supported', 'flexible'],
       simsPlayed: ['push_notification', 'grayscale'],
       agencyRank: ['supported', 'flexible', 'limited'],
-      featureAccepted: { L1: 'ok', L2: 'strong', L3: 'ok' },
-      bypassMethods: { B1: false, B2: false, B3: false, B4: false },
+      featureAccepted: { 1: 'ok', 2: 'strong', 3: 'ok' },
+      bypassMethods: { 'lock-app-settings': false, 'lock-device-settings': false, 'prevent-uninstall': false, 'prevent-multiwindow': false },
       bypassWanted:  {},
     },
   },
@@ -238,17 +238,17 @@ export default function DebugPanel({ state, api, meta, onJump }) {
           <div className="mon-sec">S5 우회·임시해제</div>
           {BYPASS_TARGETS.map((s) => (
             <Row
-              key={s.id}
-              k={RESISTANCE_LABEL[s.id]}
+              key={s.featureId}
+              k={RESISTANCE_LABEL[s.featureId]}
               v={(() => {
-                const m = (state.bypassMethods ?? {})[s.id]
-                const w = (state.bypassWanted ?? {})[s.id]
+                const m = (state.bypassMethods ?? {})[s.featureId]
+                const w = (state.bypassWanted ?? {})[s.featureId]
                 if (m === undefined && w === undefined) return '—'
                 const mStr = m === true ? '사용할 것' : m === false ? '안 쓸 것' : '?'
                 const wStr = w === true ? '차단 원함' : w === false ? '차단 불필요' : '?'
                 return `${mStr} / ${wStr}`
               })()}
-              dim={(state.bypassMethods ?? {})[s.id] === undefined}
+              dim={(state.bypassMethods ?? {})[s.featureId] === undefined}
             />
           ))}
         </div>

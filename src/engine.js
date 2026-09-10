@@ -1,26 +1,25 @@
 // ─────────────────────────────────────────────────────────────
-// 규칙 기반 추천 엔진 v3
+// 규칙 기반 추천 엔진 v4 (features.json v3.0 대응)
 //
 // 입력: store.js initialState 형태의 state 객체
 // 출력: { features, apps, archetype, rationale, envGaps, warnings, trace, … }
 //
 // 핵심 흐름:
-//   featureAccepted / oxStatus / agencyRank  →  9등급 rung 후보풀
-//     → resolveRungCode                      →  기능 코드 3개
-//     → 5점수 앱 점수화                       →  앱 3개
+//   featureAccepted(level 번호) / oxStatus / agencyRank  →  10 레벨 등급화
+//     → itemsForLevel                                    →  기능 후보
+//     → 가중합 정렬                                       →  기능 3개
+//     → 5점수 앱 점수화                                   →  앱 3개
 //
 // 기능·앱은 언제나 정확히 3개를 반환한다 (§8).
-// featureAccepted 값: 'weak' | 'ok' | 'strong'
+// featureAccepted 키: level 번호 (1-10), 값: 'weak' | 'ok' | 'strong'
 // ─────────────────────────────────────────────────────────────
 
-import { LADDER, FEATURE_BY_ID, RESISTANCE_LABEL, description } from './data/features.js'
-import { APPS } from './data/apps.js'
-import { oxStatus, resolveRungCode, recommendationKey, displayName } from './store.js'
+import { LEVELS, INTERVENTIONS, RESISTANCE_LABEL, SCOPE_TO_L10_FEATS } from './data/features.js'
+import { APPS, ROUTE_MAP, inAppPlatforms } from './data/apps.js'
+import { oxStatus, itemsForLevel } from './store.js'
 
 // ── 아키타입 (agencyRank[0] × timingRank[0]) ───────────────────
-// ResultCard.jsx 가 archetype.code / tagline / body 를 읽는다.
 const ARCHETYPE_MAP = {
-  // ── supported (알아차림·알림 중심) ────────────────────────────
   supported_Pre: {
     code:    '사전 감지형',
     tagline: '시작하기 전부터 어디로 향하는지 알아채려 합니다',
@@ -36,7 +35,6 @@ const ARCHETYPE_MAP = {
     tagline: '강제보다 알아차림을 택합니다',
     body:    '지금 무엇을 얼마나 하는지 눈에 보이면 스스로 멈출 수 있습니다. 강한 개입은 오히려 반발을 만든다고 느낍니다.',
   },
-  // ── flexible (조건부 마찰 중심) ────────────────────────────────
   flexible_Pre: {
     code:    '유연한 경계형',
     tagline: '진입 전 작은 마찰이 자동 흐름을 끊어줍니다',
@@ -52,7 +50,6 @@ const ARCHETYPE_MAP = {
     tagline: '보되, 길어지는 걸 막는 쪽입니다',
     body:    '숏폼을 보는 것 자체는 문제로 보지 않습니다. 문제는 길이입니다. 사용 중에 상황을 알려주고 스스로 끊을 여지를 주는 방식을 선호합니다.',
   },
-  // ── limited (경로 차단 중심) ────────────────────────────────────
   limited_Pre: {
     code:    '경계 설계자',
     tagline: '틈이 생기기 전에 막아두는 쪽입니다',
@@ -68,7 +65,6 @@ const ARCHETYPE_MAP = {
     tagline: '보다가도 멈출 수 있어야 합니다',
     body:    '사용 중 강제 개입이 가장 현실적인 방어선입니다. 시작을 막지 않아도, 길어질 때 끊어주는 것이 더 현실적이라고 봅니다.',
   },
-  // ── 기본값 ───────────────────────────────────────────────────
   _default: {
     code:    '자기통제 탐색형',
     tagline: '아직 선호하는 방식을 찾는 중입니다',
@@ -83,211 +79,105 @@ function resolveArchetype(state) {
   return ARCHETYPE_MAP[`${agency}_${timing}`] ?? ARCHETYPE_MAP._default
 }
 
-// ── 경로 정규화 (한국어 → 'app'|'web') ──────────────────────────
-const ROUTE_MAP = {
-  '앱': 'app',
-  '웹브라우저': 'web',
-}
-
-// ── BYPASS_FEAT_MAP 제거 — bypassScore 는 app.bypassSupport[Bk] 를 직접 읽는다 (§1)
+// ── 경로 정규화 — ROUTE_MAP 은 apps.js 에서 import ────────────
 
 // ─────────────────────────────────────────────────────────────
 // 기능 3개 확정
 // ─────────────────────────────────────────────────────────────
 
 /**
- * exploreVisible=false rung의 부모를 반환한다.
- * 부모: 같은 order + 같은 agency + exploreVisible=true 인 rung.
- */
-function findParentRung(rung) {
-  if (rung.exploreVisible) return rung
-  return (
-    LADDER.find(
-      (r) =>
-        r.id !== rung.id &&
-        r.agency === rung.agency &&
-        r.order === rung.order &&
-        r.exploreVisible,
-    ) ?? rung
-  )
-}
-
-/**
- * rung의 9등급을 결정한다.
+ * 레벨의 9등급을 결정한다.
  *
- *   G1: agencyRank[0] + 'ok'  또는 limited가 1순위
+ *   G1: agencyRank[0] + 'ok'  또는 limited 가 1순위
  *   G2: agencyRank[0] + 'weak'
- *   G3: agencyRank[1] + 'ok'
- *   G4: agencyRank[1] + 'weak'
- *   G5: agencyRank[2] + 'ok'
- *   G6: agencyRank[2] + 'weak'
- *   G7: oxStatus='skipped' 또는 limited가 2·3순위 (판단하지 않음)
- *   G8: oxStatus='unvisited' agency의 rung
- *   G9: 'strong'(거부)을 준 rung — 레벨과 무관하게 최하위
+ *   G3~G6: agencyRank[1·2] × 'ok'·'weak'
+ *   G7: skipped 또는 limited 2·3순위
+ *   G8: unvisited
+ *   G9: 'strong'(거부)
  *
- * limited 처리:
- *   - agencyRank[0](1순위): 참가자가 명시적으로 선택한 것 → G1
- *   - agencyRank[1] 또는 [2]: OX가 없어 판단 근거가 없음 → G7(skipped와 동일)
- *   자동 ok 취급이 아니다. 1순위 선택이 유일한 수용 근거다.
- *
- * 레벨 순위가 응답 값보다 앞선다.
- * exploreVisible=false rung은 부모 rung 기준으로 판정한다.
+ * featureAccepted 키: level.level 번호 (1-10)
  */
-function rungGrade(rung, state) {
+function levelGrade(level, state) {
   const agencyRank = state.agencyRank ?? []
   const accepted = state.featureAccepted ?? {}
+  const fa = accepted[level.level]
 
-  // exploreVisible=false rung은 부모 rung 기준으로 등급 결정
-  const ref = rung.exploreVisible ? rung : findParentRung(rung)
-  const fa = accepted[ref.id]
-
-  // G1~G6: agencyRank[i] × ('ok' | 'weak')
   for (let i = 0; i < 3; i++) {
     const agencyAtRank = agencyRank[i]
     if (!agencyAtRank) break
-    if (ref.agency === agencyAtRank) {
-      if (fa === 'ok') return i * 2 + 1              // G1, G3, G5
-      if (fa === 'weak') return i * 2 + 2            // G2, G4, G6
-      // limited: OX 없음. 1순위 선택 → G1. 2·3순위 → G7(skipped 동급)
-      if (ref.agency === 'limited') return i === 0 ? 1 : 7
+    if (level.agency === agencyAtRank) {
+      if (fa === 'ok')   return i * 2 + 1
+      if (fa === 'weak') return i * 2 + 2
+      if (level.agency === 'limited') return i === 0 ? 1 : 7
     }
   }
 
-  // G9: 명시적 거부 ('strong' = 너무 강하다, 레벨 순위 밖에서 최하위)
   if (fa === 'strong') return 9
 
-  // G7 / G8: oxStatus 기반
-  const st = oxStatus(state, ref.agency)
+  const st = oxStatus(state, level.agency)
   if (st === 'skipped') return 7
-  // 'unvisited' 또는 answered이지만 이 rung은 값 없음 → G8
   return 8
 }
 
-// ── 정렬 가중치 — 조정할 때 이 두 값만 바꾼다 ──────────────────
-const SORT_WEIGHT_ORDER    = 0.6   // 강도(order) 가중치
-const SORT_WEIGHT_COVERAGE = 0.4   // 앱 지원 수(coverage.n) 가중치
+// ── 정렬 가중치 ──────────────────────────────────────────────
+const SORT_WEIGHT_LEVEL    = 0.6
+const SORT_WEIGHT_COVERAGE = 0.4
+const MAX_LEVEL            = 10
 
-/**
- * rung 정렬 함수 팩토리.
- * 같은 등급 안에서 아래 점수로 내림차순 정렬한다.
- *   score = SORT_WEIGHT_ORDER × (order / maxOrder)
- *         + SORT_WEIGHT_COVERAGE × (coverage.n / maxCoverage)
- *
- * maxOrder / maxCoverage 는 전달받은 rungs 집합 안에서 계산한다(하드코딩 없음).
- * 동점이면 order 내림차순 → id 오름차순(안정 정렬).
- *
- * 주의: exploreVisible=false rung(L8+capture, L8+altapp 등)은
- *   등급(grade) 판정은 부모 rung 기준으로 받지만(findParentRung 참조),
- *   정렬 점수는 자기 자신의 coverage.n을 사용한다. 의도된 불일치.
- */
-function makeSortFn(rungs) {
-  const maxOrder    = Math.max(...rungs.map((r) => r.order), 1)
-  const maxCoverage = Math.max(...rungs.map((r) => r.coverage?.n ?? 0), 1)
-  const score = (r) =>
-    SORT_WEIGHT_ORDER    * (r.order            / maxOrder) +
-    SORT_WEIGHT_COVERAGE * ((r.coverage?.n ?? 0) / maxCoverage)
-  return (a, b) => {
-    const ds = score(b) - score(a)
-    if (Math.abs(ds) > 1e-9) return ds           // 점수 내림차순
-    if (b.order !== a.order) return b.order - a.order  // 동점 시 order 내림차순
-    return a.id.localeCompare(b.id)              // 마지막 tie-break: id 오름차순
-  }
+function makeScoreFn(items) {
+  const maxCoverage = Math.max(...items.map((f) => f.coverage?.n ?? 0), 1)
+  return (item) =>
+    SORT_WEIGHT_LEVEL    * (item.level / MAX_LEVEL) +
+    SORT_WEIGHT_COVERAGE * ((item.coverage?.n ?? 0) / maxCoverage)
 }
 
-/**
- * G7~G9용 정렬: agencyRank 순서로 묶고, 그 안에서 가중합 정렬.
- * agencyRank에 없는 agency는 맨 뒤.
- * maxOrder / maxCoverage 는 전체 rungs 집합 기준(동일 척도로 비교).
- */
-function sortByAgencyRank(rungs, agencyRank) {
+function sortByAgencyRankItems(items, agencyRank, scoreFn) {
   const rankIndex = (agency) => {
-    const i = agencyRank.indexOf(agency)
+    const i = (agencyRank ?? []).indexOf(agency)
     return i === -1 ? 99 : i
   }
-  const sortFn = makeSortFn(rungs)   // 전체 집합 기준 max
-  const byAgency = {}
-  for (const r of rungs) {
-    ;(byAgency[r.agency] ??= []).push(r)
-  }
-  const sortedAgencies = Object.keys(byAgency).sort(
-    (a, b) => rankIndex(a) - rankIndex(b),
-  )
-  const result = []
-  for (const agency of sortedAgencies) {
-    result.push(...byAgency[agency].sort(sortFn))
-  }
-  return result
-}
-
-/**
- * rung → 추천 item 배열로 변환.
- * item: { rung, code, scope, taskGroup, key }
- *
- * resolveBy='scope+timing' → scopes 순서대로 1개씩.
- * 그 외 → 단일 code.
- */
-function resolveRungToItems(rung, state, trace) {
-  const scopes = state.scopes ?? []
-  const timingRank = state.timingRank ?? []
-  const items = []
-
-  try {
-    if (rung.resolveBy === 'scope+timing') {
-      const codes = resolveRungCode(rung, scopes, timingRank)
-      const codeArr = Array.isArray(codes) ? codes : [codes]
-      for (let i = 0; i < codeArr.length; i++) {
-        const code = codeArr[i]
-        const scope = scopes[i] ?? null
-        const taskGroup = rung.taskGroup ?? null
-        const key = recommendationKey({ code, scope, taskGroup })
-        if (FEATURE_BY_ID[code]) items.push({ rung, code, scope, taskGroup, key })
-      }
-    } else {
-      const result = resolveRungCode(rung, scopes, timingRank)
-      const code = Array.isArray(result) ? result[0] : result
-      const taskGroup = rung.taskGroup ?? null
-      const key = recommendationKey({ code, scope: null, taskGroup })
-      if (FEATURE_BY_ID[code]) items.push({ rung, code, scope: null, taskGroup, key })
-    }
-  } catch (e) {
-    // resolve 실패 — trace 에 기록해 결과에서 추적 가능하게 한다
-    if (trace) trace.push({ rule: `F · resolve 실패 [${rung.id}]`, detail: e.message })
-    console.warn(`[engine] resolveRungToItems ${rung.id} 실패:`, e.message)
-  }
-
-  return items
+  return [...items].sort((a, b) => {
+    const ra = rankIndex(a.agency)
+    const rb = rankIndex(b.agency)
+    if (ra !== rb) return ra - rb
+    return scoreFn(b) - scoreFn(a)
+  })
 }
 
 /**
  * 기능 3개 확정.
- *
- * G1 → G2 → … → G9 순으로 후보를 쌓는다.
- * 각 등급 안에서는 가중합 점수(SORT_WEIGHT_ORDER × order + SORT_WEIGHT_COVERAGE × coverage.n)로 정렬.
- *   - G1~G6: 등급 자체가 agency를 특정하므로 단순 가중합 정렬
- *   - G7~G9: agencyRank 순서로 agency 묶기, 그 안에서 가중합 정렬
- * 3개가 채워지면 더 낮은 등급은 보지 않는다.
+ * G1→G9 순으로 레벨을 순회하며 itemsForLevel 로 후보를 수집.
+ * 점수 = 0.6×(level/10) + 0.4×(coverage.n/max)
  */
 function buildFeaturePicks(state, trace) {
   const agencyRank = state.agencyRank ?? []
-  const rungs = LADDER.map((rung) => ({ rung, grade: rungGrade(rung, state) }))
+  const scopes = state.scopes ?? []
+  const timingRank = state.timingRank ?? []
+
+  const levelsWithGrade = LEVELS.map((level) => ({ level, grade: levelGrade(level, state) }))
+  const scoreFn = makeScoreFn(INTERVENTIONS)
 
   const candidates = []
-  const usedKeys = new Set()
+  const usedIds = new Set()
 
   for (const grade of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
-    const gradeRungs = rungs.filter((r) => r.grade === grade).map((r) => r.rung)
+    const gradeLevels = levelsWithGrade
+      .filter((g) => g.grade === grade)
+      .map((g) => g.level)
+
+    const gradeItems = gradeLevels.flatMap((level) =>
+      itemsForLevel(level, scopes, timingRank)
+    )
 
     const sorted =
       grade >= 7
-        ? sortByAgencyRank(gradeRungs, agencyRank)
-        : [...gradeRungs].sort(makeSortFn(gradeRungs))
+        ? sortByAgencyRankItems(gradeItems, agencyRank, scoreFn)
+        : [...gradeItems].sort((a, b) => scoreFn(b) - scoreFn(a))
 
-    for (const rung of sorted) {
-      for (const item of resolveRungToItems(rung, state, trace)) {
-        if (!usedKeys.has(item.key)) {
-          usedKeys.add(item.key)
-          candidates.push({ ...item, grade })
-        }
+    for (const item of sorted) {
+      if (!usedIds.has(item.id)) {
+        usedIds.add(item.id)
+        candidates.push({ ...item, grade })
       }
     }
 
@@ -298,17 +188,16 @@ function buildFeaturePicks(state, trace) {
     rule: 'F · 기능 후보 (상위 6)',
     detail: candidates
       .slice(0, 6)
-      .map((c) => `${c.rung.id}(G${c.grade})→${c.code}`)
+      .map((c) => `L${c.level}:${c.id}(G${c.grade})`)
       .join(', '),
   })
 
-  // §8: 항상 3개. 3개 미만은 데이터 오류이며 콘솔에 보고된다.
   if (candidates.length < 3) {
     console.error(
       `[engine] buildFeaturePicks: 후보 ${candidates.length}개 — 3개 미만 (데이터 오류).`,
-      'trace:', trace.filter((t) => t.rule.startsWith('F · resolve 실패')),
     )
   }
+
   return candidates.slice(0, 3)
 }
 
@@ -316,7 +205,7 @@ function buildFeaturePicks(state, trace) {
 // 앱 3개 확정
 // ─────────────────────────────────────────────────────────────
 
-function computeAppScore(app, state, featureCodes) {
+function computeAppScore(app, state, featureIds) {
   const env = state.env ?? {}
   const userOs = env.os ?? []
   const userPlatforms = env.platforms ?? []
@@ -324,59 +213,52 @@ function computeAppScore(app, state, featureCodes) {
   const scopes = state.scopes ?? []
   const bypass = state.bypassWanted ?? {}
 
-  // (1) 커버리지: 추천 기능 코드 중 앱이 지원하는 수
-  const coveredCodes = featureCodes.filter((c) => app.features.includes(c))
-  const coverageScore = coveredCodes.length
+  // (1) 커버리지: 추천 기능 id 중 app.features 에 포함된 수 (직접 대응)
+  const coveredIds = featureIds.filter((fid) => (app.features ?? []).includes(fid))
+  const coverageScore = coveredIds.length
 
-  // (2) 범위 적합도: 사용자 플랫폼 × scope → full=2, partial=1
+  // (2) 범위 적합도: 참가자 선택 범위 중 앱이 커버하는 범위 수
+  // level-10 개입 기능 보유 여부로 판단. 하나라도 있으면 +1, 중복 가산 없음.
   let scopeScore = 0
-  for (const p of userPlatforms) {
-    const ps = app.scope?.[p]
-    if (!ps) continue
-    for (const s of scopes) {
-      const lv = ps[s]
-      if (lv === 'full') scopeScore += 2
-      else if (lv === 'partial') scopeScore += 1
+  for (const s of scopes) {
+    const featsForScope = SCOPE_TO_L10_FEATS[s] ?? []
+    if (featsForScope.some((fid) => (app.features ?? []).includes(fid))) {
+      scopeScore += 1
     }
   }
 
-  // (3) 환경 적합도: OS 교집합 + 경로 일치 + 인앱 플랫폼 교집합 + devices
+  // (3) 환경 적합도
   let envScore = 0
   envScore += userOs.filter((o) => app.os.includes(o)).length
   const normalRoutes = [...new Set(userRoute.map((r) => ROUTE_MAP[r]).filter(Boolean))]
   for (const rt of normalRoutes) {
-    if (app.route === rt || app.route === 'app+web') envScore += 1
+    if ((app.worksOn ?? []).includes(rt)) envScore += 1
   }
-  if (app.inAppPlatforms.length > 0) {
-    envScore += userPlatforms.filter((p) => app.inAppPlatforms.includes(p)).length
+  const iap = inAppPlatforms(app)
+  if (iap.length > 0) {
+    envScore += userPlatforms.filter((p) => iap.includes(p)).length
   }
-  // S0 devices 에 PC·노트북 선택 + 앱이 PC 지원 → 가점
-  if (userOs.includes('desktop') && (app.devices ?? '').includes('PC')) envScore += 1
+  if (userOs.includes('desktop') && (app.devices ?? []).includes('pc')) envScore += 1
 
-  // (4) 스케줄: 사용자가 시간 지정 방식 원하고 앱이 1.2.1 지원
+  // (4) 스케줄
   const hasSchedule = state.dayType === 'daily' || state.dayType === 'split'
-  const scheduleScore = hasSchedule && app.features.includes('1.2.1') ? 1 : 0
+  const scheduleScore =
+    hasSchedule && (app.features ?? []).includes('schedule-window') ? 1 : 0
 
-  // (5) 우회 방지 tie-break: bypassWanted=true 항목 중 app.bypassSupport[Bk]=true 인 수
+  // (5) 우회 방지 tie-break: featureId 가 app.features 에 있으면 +1
   let bypassScore = 0
-  for (const [bk, bv] of Object.entries(bypass)) {
-    if (bv === true && app.bypassSupport?.[bk] === true) {
-      bypassScore++
-    }
+  for (const [featureId, bv] of Object.entries(bypass)) {
+    if (bv !== true) continue
+    if ((app.features ?? []).includes(featureId)) bypassScore++
   }
 
-  return { coverageScore, coveredCodes, scopeScore, envScore, scheduleScore, bypassScore }
+  return { coverageScore, coveredIds, scopeScore, envScore, scheduleScore, bypassScore }
 }
 
-/**
- * 앱 3개 확정.
- * 정렬: coverageScore↓ → scopeScore↓ → envScore↓ → scheduleScore↓ → bypassScore↓ → id↑
- * §8: 항상 3개 반환.
- */
-function buildAppPicks(state, featureCodes, trace) {
+function buildAppPicks(state, featureIds, trace) {
   const scored = APPS.map((app) => ({
     ...app,
-    ...computeAppScore(app, state, featureCodes),
+    ...computeAppScore(app, state, featureIds),
   }))
 
   scored.sort((a, b) => {
@@ -413,7 +295,6 @@ function buildWarnings(state, apps, trace) {
   const userOs = state.env?.os ?? []
   const userPlatforms = state.env?.platforms ?? []
 
-  // content 범위 선택 경고 (§5)
   if (scopes.includes('content')) {
     warnings.push({
       title: '콘텐츠 단위 통제',
@@ -421,7 +302,6 @@ function buildWarnings(state, apps, trace) {
     })
   }
 
-  // OS 갭
   for (const os of userOs) {
     if (!apps.some((a) => a.os.includes(os))) {
       const label = { ios: 'iOS', android: 'Android', desktop: 'PC' }[os] ?? os
@@ -429,10 +309,9 @@ function buildWarnings(state, apps, trace) {
     }
   }
 
-  // 플랫폼 갭
   for (const p of userPlatforms) {
     const covered = apps.some(
-      (a) => a.inAppPlatforms.length === 0 || a.inAppPlatforms.includes(p),
+      (a) => inAppPlatforms(a).length === 0 || inAppPlatforms(a).includes(p),
     )
     if (!covered) envGaps.push({ code: p, reason: `추천 앱 중 ${p} 지원 앱이 없습니다` })
   }
@@ -448,27 +327,25 @@ function buildWarnings(state, apps, trace) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// rationale (한국어 서술 — 코드·ID·점수 미노출)
+// rationale
 // ─────────────────────────────────────────────────────────────
 
-// 등급별 rationale 문구 — 참가자 응답 관계 중심, 3갈래
-// grade 1: 1순위 레벨 + ok / grade 2: 1순위 레벨 + weak / 나머지: 채우기
 const GRADE_REASON = {
-  1: '1순위로 고르신 방식이고, 괜찮다고 하신 개입이에요',   // agencyRank[0] + ok
-  2: '1순위로 고르신 방식이에요. 조금 약하다고 하셨어요',   // agencyRank[0] + weak
-  3: '세 가지를 채우기 위해 함께 넣었어요',                 // agencyRank[1] + ok
-  4: '세 가지를 채우기 위해 함께 넣었어요',                 // agencyRank[1] + weak
-  5: '세 가지를 채우기 위해 함께 넣었어요',                 // agencyRank[2] + ok
-  6: '세 가지를 채우기 위해 함께 넣었어요',                 // agencyRank[2] + weak
-  7: '세 가지를 채우기 위해 함께 넣었어요',                 // skipped
-  8: '세 가지를 채우기 위해 함께 넣었어요',                 // unvisited
-  9: '세 가지를 채우기 위해 함께 넣었어요',                 // strong
+  1: '1순위로 고르신 방식이고, 괜찮다고 하신 개입이에요',
+  2: '1순위로 고르신 방식이에요. 조금 약하다고 하셨어요',
+  3: '세 가지를 채우기 위해 함께 넣었어요',
+  4: '세 가지를 채우기 위해 함께 넣었어요',
+  5: '세 가지를 채우기 위해 함께 넣었어요',
+  6: '세 가지를 채우기 위해 함께 넣었어요',
+  7: '세 가지를 채우기 위해 함께 넣었어요',
+  8: '세 가지를 채우기 위해 함께 넣었어요',
+  9: '세 가지를 채우기 위해 함께 넣었어요',
 }
 
 function buildRationale(featureItems, apps) {
   const featureReasons = featureItems.map((item) => ({
-    code: item.code,
-    nameKo: displayName(item),
+    code:   item.id,
+    nameKo: item.nameKo,
     reason: GRADE_REASON[item.grade] ?? '',
   }))
 
@@ -482,9 +359,7 @@ function buildRationale(featureItems, apps) {
     return {
       id: app.id,
       shortName: app.shortName,
-      reason: parts.length
-        ? parts.join(', ') + '.'
-        : '전반적인 적합도를 고려했습니다.',
+      reason: parts.length ? parts.join(', ') + '.' : '전반적인 적합도를 고려했습니다.',
     }
   })
 
@@ -498,63 +373,44 @@ function buildRationale(featureItems, apps) {
 export function recommend(state) {
   const trace = []
 
-  // ── R0: 아키타입 ────────────────────────────────────────────
   const archetype = resolveArchetype(state)
   trace.push({
     rule: 'R0 · 아키타입',
-    detail: `agency=${(state.agencyRank ?? [])[0] ?? '?'} × timing=${(state.timingRank ?? [])[0] ?? '?'} → 「${archetype.keyword}」`,
+    detail: `agency=${(state.agencyRank ?? [])[0] ?? '?'} × timing=${(state.timingRank ?? [])[0] ?? '?'} → 「${archetype.code}」`,
   })
 
   // ── F: 기능 3개 ─────────────────────────────────────────────
   const featureItems = buildFeaturePicks(state, trace)
 
-  // item → 결과 객체 (nameKo는 variant 우선)
-  const features = featureItems.map((item) => {
-    const f = FEATURE_BY_ID[item.code]
-    return {
-      code:      item.code,
-      nameKo:    displayName(item),
-      descKo:    description(item),
-      agency:    item.rung.agency,
-      order:     item.rung.order,
-      scope:     item.scope,
-      taskGroup: item.taskGroup,
-      grade:     item.grade,
-    }
-  })
+  // feature 출력: 기능 객체 전체 + grade + code(=id 별칭, ResultCard/DetailPanel 호환)
+  const features = featureItems.map((item) => ({
+    ...item,
+    code: item.id,
+  }))
 
-  const featureCodes = features.map((f) => f.code)
+  const featureIds = features.map((f) => f.id)
 
   // ── A: 앱 3개 ───────────────────────────────────────────────
-  const apps = buildAppPicks(state, featureCodes, trace)
+  const apps = buildAppPicks(state, featureIds, trace)
 
   // ── W: 경고·갭 ──────────────────────────────────────────────
   const { warnings, envGaps } = buildWarnings(state, apps, trace)
 
-  // ── rationale ───────────────────────────────────────────────
   const rationale = buildRationale(featureItems, apps)
 
   return {
-    // ── 기능 ──
     features,
-    picks: features,      // ResultCard 하위 호환 별칭
+    picks:   features,   // ResultCard 하위 호환
 
-    // ── 앱 ──
     apps,
-    appRecs: apps,        // ResultCard 하위 호환 별칭
+    appRecs: apps,       // ResultCard 하위 호환
 
-    // ── 아키타입 ──
     archetype,
-
-    // ── 서술 ──
     rationale,
-
-    // ── 부가 정보 ──
     envGaps,
     warnings,
     trace,
 
-    // ── ResultCard 하위 호환 stub ──
     resistanceLabel: RESISTANCE_LABEL,
     params: {},
     profile: {
@@ -566,12 +422,11 @@ export function recommend(state) {
         .filter(([, v]) => v === true)
         .map(([k]) => k),
     },
-    protections: [], // Continuous는 추천 슬롯이 아니라 tie-break (§3)
+    protections: [],
   }
 }
 
 // ── 하위 호환 export ──────────────────────────────────────────
-// ResultCard.jsx 등이 참조할 수 있으므로 유지한다.
 export const LABELS = {
   WHEN_LABEL:   { Pre: '진입 전', At: '진입 시점', InUse: '사용 중' },
   AGENCY_LABEL: { limited: '제한형', flexible: '유연형', supported: '지원형' },

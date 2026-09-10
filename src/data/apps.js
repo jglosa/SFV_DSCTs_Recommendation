@@ -12,6 +12,15 @@ export const APPS = raw.apps
 // ── id → app 맵 ──────────────────────────────────────────────
 export const APP_BY_ID = Object.fromEntries(APPS.map((a) => [a.id, a]))
 
+// ── S0 경로 한국어 → 영어 변환 (engine.js, DetailPanel.jsx 공유) ──
+export const ROUTE_MAP = { '앱': 'app', '웹브라우저': 'web' }
+
+// ── inAppPlatforms null 방어 헬퍼 ────────────────────────────
+// 4개 앱(17_NL, 18_CR, 20_J, 21_C)이 null 이다. JSON 은 고치지 않는다.
+export function inAppPlatforms(app) {
+  return app.inAppPlatforms || []
+}
+
 // ── 특정 기능을 가진 앱 id 배열 ──────────────────────────────
 export function appsWithFeature(featureId) {
   return APPS.filter((a) => a.features.includes(featureId)).map((a) => a.id)
@@ -19,20 +28,13 @@ export function appsWithFeature(featureId) {
 
 // ── 환경 조건에 맞는 앱 id 배열 ──────────────────────────────
 // os       : 'android' | 'ios'
-// route    : 'app' | 'web' | 'app+web'  (web은 app+web도 포함)
+// worksOn  : 'app' | 'web'  (v2.0: route → worksOn 배열)
 // platform : 'YouTube' | 'Instagram' | 'TikTok' 등 (빈 inAppPlatforms는 통과)
-export function appsForEnv({ os, route, platform } = {}) {
+export function appsForEnv({ os, worksOn, platform } = {}) {
   return APPS.filter((a) => {
     if (os && !a.os.includes(os)) return false
-    if (route) {
-      const r = a.route
-      if (route === 'web') {
-        if (r !== 'app+web' && r !== 'web') return false
-      } else if (r !== route) {
-        return false
-      }
-    }
-    if (platform && a.inAppPlatforms.length > 0 && !a.inAppPlatforms.includes(platform)) {
+    if (worksOn && !(a.worksOn ?? []).includes(worksOn)) return false
+    if (platform && inAppPlatforms(a).length > 0 && !inAppPlatforms(a).includes(platform)) {
       return false
     }
     return true
@@ -64,12 +66,3 @@ export function platformIconPath(name) {
   return file ? `${import.meta.env.BASE_URL}app_icons/${file}` : null
 }
 
-// ── 특정 앱·플랫폼의 scope 지원 수준 ────────────────────────
-// 반환: 'full' | 'partial' | 'none'
-export function scopeSupport(appId, platform, scopeId) {
-  const app = APP_BY_ID[appId]
-  if (!app) return 'none'
-  const platformScope = app.scope[platform]
-  if (!platformScope) return 'none'
-  return platformScope[scopeId] ?? 'none'
-}

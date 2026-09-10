@@ -70,7 +70,7 @@ function ShortsGlyph({ size = 15 }) {
 }
 
 // 선택 가능한 UI 요소 래퍼
-// dim     : app 선택 시 entry-point / app-tab 을 흐리게 표시 (선택 차단 없음)
+// dim     : app 선택 시 shorts-row / shorts-tab 을 흐리게 표시 (선택 차단 없음)
 // variant : 'grid' | 'nav' | 'inline' — 배지 위치 레이아웃 종류
 //   grid   → display:grid 1fr 76px, 배지가 오른쪽 칸 (겹침 구조적 불가)
 //   nav    → 탭 배지: flex-column, 배지가 아래
@@ -236,8 +236,8 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
         <VidCard v={LONGFORM[0]} />
 
         {/* Shorts 선반 */}
-        {live('entry-point')
-          ? <T id="entry-point" label={SCOPE_DISPLAY['entry-point']} block variant="grid">{shelfSection}</T>
+        {live('shorts-row')
+          ? <T id="shorts-row" label={SCOPE_DISPLAY['shorts-row']} block variant="grid">{shelfSection}</T>
           : shelfSection
         }
 
@@ -251,8 +251,8 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
           <span className="yt-nav-glyph">⌂</span>홈
         </span>
         {/* Shorts 탭 */}
-        {live('app-tab')
-          ? <T id="app-tab" label={cue ? '여기를 누르세요' : SCOPE_DISPLAY['app-tab']} variant="nav">{shortsTab}</T>
+        {live('shorts-tab')
+          ? <T id="shorts-tab" label={cue ? '여기를 누르세요' : SCOPE_DISPLAY['shorts-tab']} variant="nav">{shortsTab}</T>
           : shortsTab
         }
         <span className="yt-nav-item">

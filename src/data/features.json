@@ -1,36 +1,442 @@
 {
- "version": "2.0",
- "source": "DSCT_capability_matrix_v1.2.xlsx + Agency 재편",
+ "version": "3.0",
+ "agencyLevels": [
+  {
+   "id": "supported",
+   "order": 1,
+   "nameKo": "막지는 않고, 스스로 알아차리도록 돕습니다",
+   "example": "알림을 받거나, 화면이 덜 눈에 띄게 바뀝니다"
+  },
+  {
+   "id": "flexible",
+   "order": 2,
+   "nameKo": "잠깐 멈추게 하지만, 조건을 채우면 계속 볼 수 있습니다",
+   "example": "확인을 누르거나, 기다리거나, 미션을 마칩니다"
+  },
+  {
+   "id": "limited",
+   "order": 3,
+   "nameKo": "정해둔 동안에는 아예 볼 수 없습니다",
+   "example": "앱이나 숏폼 영역이 열리지 않습니다"
+  }
+ ],
+
  "scopeLevels": [
   {
    "id": "app",
-   "ko": "앱 전체"
+   "nameKo": "앱 전체",
+   "badge": "앱 전체"
   },
   {
-   "id": "entry-point",
-   "ko": "진입 지점"
+   "id": "shorts-row",
+   "nameKo": "숏폼 추천 줄",
+   "badge": "이 줄"
   },
   {
-   "id": "app-tab",
-   "ko": "숏폼 탭"
+   "id": "shorts-tab",
+   "nameKo": "숏폼 탭",
+   "badge": "이 탭"
   },
   {
    "id": "content",
-   "ko": "채널·주제·키워드"
+   "nameKo": "채널·주제",
+   "badge": "이런 채널·주제"
   }
  ],
+
+ "levels": [
+  {
+   "level": 1,
+   "agency": "supported",
+   "nameKo": "사용 푸시 알림",
+   "descKo": "사용에 대한 푸시 알림이 뜹니다. 알림이 노출될 뿐 사용이 중단되지는 않아요.",
+   "decideParams": "timing",
+   "sim": "push_notification"
+  },
+  {
+   "level": 2,
+   "agency": "supported",
+   "nameKo": "시각적 매력도 경감",
+   "descKo": "특정 요소에 시선을 빼앗기지 않도록 화면이 회색으로 바뀌거나, 자동재생이 차단되거나, 썸네일이 사라집니다.",
+   "decideParams": null,
+   "sim": "grayscale"
+  },
+  {
+   "level": 3,
+   "agency": "supported",
+   "nameKo": "사용 경로 유도",
+   "descKo": "숏폼 대신 다른 앱을 사용하도록 유도, 혹은 강제 이동시킵니다. 숏폼이 아닌 다른 일에 집중해보세요.",
+   "decideParams": null,
+   "sim": "redirect_productivity"
+  },
+  {
+   "level": 4,
+   "agency": "flexible",
+   "nameKo": "의도 확인",
+   "descKo": "시청을 시작하거나 이어갈 것인지 확인해요. 버튼을 누르면 볼 수 있어요.",
+   "decideParams": "timing",
+   "sim": "confirm"
+  },
+  {
+   "level": 5,
+   "agency": "flexible",
+   "nameKo": "사용 전 숨고르기",
+   "descKo": "잠시 기다려야 숏폼에 들어갈 수 있습니다. 기다리는 동안 숨을 고르며 다시 생각해보세요.",
+   "decideParams": null,
+   "sim": "timed_wait"
+  },
+  {
+   "level": 6,
+   "agency": "flexible",
+   "nameKo": "사용 목적 입력",
+   "descKo": "왜 숏폼을 보려고 하는지 의도를 입력해야 들어갈 수 있습니다. 정답은 없으니 자신만의 이유를 적어보세요.",
+   "decideParams": null,
+   "sim": "intention_input"
+  },
+  {
+   "level": 7,
+   "agency": "flexible",
+   "nameKo": "버튼 홀드",
+   "descKo": "버튼을 일정 시간 누르고 있어야 들어갈 수 있습니다. 누르고 있는 동안 다시 생각해보세요.",
+   "decideParams": null,
+   "sim": "mission_hold"
+  },
+  {
+   "level": 8,
+   "agency": "flexible",
+   "nameKo": "간단한 미션 수행",
+   "descKo": "수학 문제를 풀거나, 다른 앱을 경유하거나, 사진을 찍는 등 미션을 수행해야 들어갈 수 있어요. 간단한 미션이지만, 무심코 들어가려던 행동을 한 번 멈추게 해요.",
+   "decideParams": null,
+   "sim": "mission_simple"
+  },
+  {
+   "level": 9,
+   "agency": "flexible",
+   "nameKo": "운동 미션 수행",
+   "descKo": "정해둔 걸음 수를 채우거나, 푸시업 횟수를 채우는 등 운동 미션을 완수해야 들어갈 수 있습니다. 숏폼 대신 몸을 움직이는 시간을 가져보는건 어떨까요?",
+   "decideParams": null,
+   "sim": "mission_exercise"
+  },
+  {
+   "level": 10,
+   "agency": "limited",
+   "nameKo": "완전 차단",
+   "descKo": "앱 전체나 앱 내 특정 부분이 완전히 차단되어 사용할 수 없어요.",
+   "decideParams": ["timing", "scope"],
+   "sim": "hard_block"
+  }
+ ],
+
  "features": [
   {
-   "id": "1.1.1",
-   "name": "Whole App Block",
-   "nameKo": "앱 완전 잠금",
-   "axisRole": "scope",
-   "engineRole": "pick",
+   "id": "notify-entry",
+   "nameKo": "사용 시작 알림",
+   "descKo": "사용이 시작될 때 푸시 알림이 뜹니다. 알림이 노출될 뿐 사용이 중단되지는 않아요.",
+   "codebook": "3.1.1 Reminder at Entry",
+   "role": "intervention",
+   "agency": "supported",
+   "level": 1,
    "when": "At",
-   "agency": "limited",
-   "addressableScope": [
-    "app"
+   "scope": ["app", "shorts-row", "shorts-tab", "content"],
+   "sim": "push_notification",
+   "apps": [
+    "1_S",
+    "12_SZ",
+    "13_M",
+    "17_NL"
    ],
+   "coverage": {
+    "n": 4,
+    "ios": 3,
+    "android": 3
+   }
+  },
+  {
+   "id": "notify-usage",
+   "nameKo": "사용 푸시 알림",
+   "descKo": "정해둔 사용량을 넘기면 푸시 알림이 옵니다. 알림이 노출될 뿐 사용이 중단되지는 않아요.",
+   "codebook": "3.1.2 Passive Reminder",
+   "role": "intervention",
+   "agency": "supported",
+   "level": 1,
+   "when": "InUse",
+   "scope": ["app", "shorts-row", "shorts-tab", "content"],
+   "sim": "push_notification",
+   "apps": [
+    "1_S",
+    "2_SF",
+    "13_M",
+    "14_R",
+    "18_CR",
+    "20_J",
+    "21_C"
+   ],
+   "coverage": {
+    "n": 7,
+    "ios": 5,
+    "android": 4
+   }
+  },
+  {
+   "id": "visual-demotion",
+   "nameKo": "시각적 매력도 경감",
+   "descKo": "특정 요소에 시선을 빼앗기지 않도록 화면이 회색으로 바뀌거나, 자동재생이 차단되거나, 썸네일이 사라집니다.",
+   "codebook": "3.2.2 Visual Demotion",
+   "role": "intervention",
+   "agency": "supported",
+   "level": 2,
+   "when": "Pre",
+   "scope": null,
+   "sim": "grayscale",
+   "apps": [
+    "16_UT",
+    "17_NL",
+    "19_SH",
+    "21_C"
+   ],
+   "coverage": {
+    "n": 4,
+    "ios": 4,
+    "android": 0
+   }
+  },
+  {
+   "id": "path-guide",
+   "nameKo": "사용 경로 유도",
+   "descKo": "숏폼 대신 다른 앱을 사용하도록 유도, 혹은 강제 이동시킵니다. 숏폼이 아닌 다른 일에 집중해보세요.",
+   "codebook": "3.2.3 Intentional Pathing",
+   "role": "intervention",
+   "agency": "supported",
+   "level": 3,
+   "when": "Pre",
+   "scope": null,
+   "sim": "redirect_productivity",
+   "apps": [
+    "4_A",
+    "12_SZ",
+    "16_UT"
+   ],
+   "coverage": {
+    "n": 3,
+    "ios": 3,
+    "android": 2
+   }
+  },
+  {
+   "id": "confirm",
+   "nameKo": "의도 확인",
+   "descKo": "숏폼에 들어가려 할 때, 정말 볼 것인지 한 번 더 확인합니다. 버튼을 누르면 그대로 들어갈 수 있어요.",
+   "codebook": "2.1.1 Confirmation",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 4,
+   "when": "At",
+   "scope": ["app", "shorts-row", "shorts-tab"],
+   "sim": "confirm",
+   "apps": [
+    "4_A",
+    "12_SZ",
+    "18_CR"
+   ],
+   "coverage": {
+    "n": 3,
+    "ios": 3,
+    "android": 2
+   }
+  },
+  {
+   "id": "interrupt",
+   "nameKo": "사용 중 멈춰세우기",
+   "descKo": "사용 한도에 도달하면 팝업이 뜨며 화면을 멈춰 세워 계속 볼 것인지 확인합니다. 버튼을 누르면 그대로 볼 수 있어요.",
+   "codebook": "3.1.3 Interruptive Reminder",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 4,
+   "when": "InUse",
+   "scope": ["app", "shorts-row", "shorts-tab"],
+   "sim": "confirm",
+   "apps": [
+    "3_D",
+    "4_A",
+    "8_SS",
+    "10_SG",
+    "11_SB",
+    "12_SZ"
+   ],
+   "coverage": {
+    "n": 6,
+    "ios": 3,
+    "android": 6
+   }
+  },
+  {
+   "id": "timed-wait",
+   "nameKo": "사용 전 숨고르기",
+   "descKo": "잠시 기다려야 숏폼에 들어갈 수 있습니다. 기다리는 동안 숨을 고르며 다시 생각해보세요.",
+   "codebook": "2.1.2 Timed Wait",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 5,
+   "when": "At",
+   "scope": ["app", "shorts-row", "shorts-tab"],
+   "sim": "timed_wait",
+   "apps": [
+    "2_SF",
+    "4_A",
+    "9_WH",
+    "10_SG",
+    "11_SB",
+    "12_SZ",
+    "16_UT",
+    "20_J",
+    "21_C"
+   ],
+   "coverage": {
+    "n": 9,
+    "ios": 8,
+    "android": 6
+   }
+  },
+  {
+   "id": "intention-input",
+   "nameKo": "사용 목적 입력",
+   "descKo": "왜 숏폼을 보려고 하는지 의도를 입력해야 들어갈 수 있습니다. 정답은 없으니 자신만의 이유를 적어보세요.",
+   "codebook": "2.1.4 Intention Input",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 6,
+   "when": "At",
+   "scope": ["app", "shorts-row", "shorts-tab"],
+   "sim": "intention_input",
+   "apps": [
+    "4_A",
+    "12_SZ",
+    "13_M",
+    "20_J",
+    "21_C"
+   ],
+   "coverage": {
+    "n": 5,
+    "ios": 4,
+    "android": 3
+   }
+  },
+  {
+   "id": "mission-hold",
+   "nameKo": "버튼 홀드",
+   "descKo": "버튼을 일정 시간 누르고 있어야 들어갈 수 있습니다. 누르고 있는 동안 다시 생각해보세요.",
+   "codebook": "2.1.3 Physical Action",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 7,
+   "when": "At",
+   "scope": ["app", "shorts-row", "shorts-tab"],
+   "sim": "mission_hold",
+   "apps": [
+    "9_WH",
+    "18_CR"
+   ],
+   "coverage": {
+    "n": 2,
+    "ios": 2,
+    "android": 1
+   }
+  },
+  {
+   "id": "mission-altapp",
+   "nameKo": "대체 활동 미션 수행",
+   "descKo": "미리 정해둔 앱을 일정 시간 사용해야 들어갈 수 있습니다. 다른 일로 이목을 돌려보세요.",
+   "codebook": "2.1.3 Physical Action",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 8,
+   "when": "At",
+   "scope": ["app"],
+   "sim": "mission_altapp",
+   "apps": [
+    "20_J"
+   ],
+   "coverage": {
+    "n": 1,
+    "ios": 1,
+    "android": 0
+   }
+  },
+  {
+   "id": "mission-capture",
+   "nameKo": "촬영 미션 수행",
+   "descKo": "밖으로 나가 하늘을 찍거나 지정된 장소의 QR을 찍어야 들어갈 수 있습니다. 잠깐이라도 자리를 벗어나 몸을 움직이게 돼요.",
+   "codebook": "2.1.3 Physical Action",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 8,
+   "when": "At",
+   "scope": ["app", "shorts-row", "shorts-tab"],
+   "sim": "mission_capture",
+   "apps": [
+    "2_SF",
+    "18_CR",
+    "20_J"
+   ],
+   "coverage": {
+    "n": 3,
+    "ios": 3,
+    "android": 1
+   }
+  },
+  {
+   "id": "mission-simple",
+   "nameKo": "간단한 미션 수행",
+   "descKo": "간단한 수학 문제를 풀거나, 지정된 문장을 따라 치거나, 폰을 흔드는 등 미션을 완수해야 들어갈 수 있습니다. 간단한 미션이지만, 무심코 들어가려던 행동을 한 번 멈추게 해요.",
+   "codebook": "2.1.3 Physical Action",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 8,
+   "when": "At",
+   "scope": ["app", "shorts-row", "shorts-tab"],
+   "sim": "mission_simple",
+   "apps": [
+    "2_SF",
+    "12_SZ"
+   ],
+   "coverage": {
+    "n": 2,
+    "ios": 2,
+    "android": 2
+   }
+  },
+  {
+   "id": "mission-exercise",
+   "nameKo": "운동 미션 수행",
+   "descKo": "정해둔 걸음 수를 채우거나, 푸시업 횟수를 채우는 등 운동 미션을 완수해야 들어갈 수 있습니다. 숏폼 대신 몸을 움직이는 시간을 가져보는건 어떨까요?",
+   "codebook": "2.1.3 Physical Action",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 9,
+   "when": "At",
+   "scope": ["app", "shorts-row", "shorts-tab"],
+   "sim": "mission_exercise",
+   "apps": [
+    "4_A",
+    "20_J"
+   ],
+   "coverage": {
+    "n": 2,
+    "ios": 2,
+    "android": 1
+   }
+  },
+  {
+   "id": "block-app",
+   "nameKo": "앱 완전 잠금",
+   "descKo": "전체 앱이 완전히 잠겨 열리지 않습니다.",
+   "codebook": "1.1.1 Whole App Block",
+   "role": "intervention",
+   "agency": "limited",
+   "level": 10,
+   "when": "At",
+   "scope": ["app"],
+   "sim": "hard_block",
    "apps": [
     "1_S",
     "2_SF",
@@ -47,24 +453,91 @@
     "n": 10,
     "ios": 7,
     "android": 7
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "앱 자체가 열리지 않습니다. 숏폼뿐 아니라 그 앱의 다른 기능도 쓸 수 없어요."
+   }
   },
   {
-   "id": "1.1.2",
-   "name": "Specific Feature/Keyword Block",
-   "nameKo": "숏츠/릴스 차단",
-   "axisRole": "scope",
-   "engineRole": "pick",
-   "when": "At",
+   "id": "block-content",
+   "nameKo": "채널·주제 차단",
+   "descKo": "지정한 채널이나 주제의 영상이 차단됩니다.",
+   "codebook": "1.1.2 Specific Feature/Keyword Block",
+   "role": "intervention",
    "agency": "limited",
-   "addressableScope": [
-    "app-tab",
-    "content",
-    "entry-point"
+   "level": 10,
+   "when": "At",
+   "scope": ["content"],
+   "sim": "hard_block",
+   "apps": [
+    "1_S",
+    "2_SF",
+    "3_D",
+    "5_N",
+    "6_BS",
+    "14_R",
+    "16_UT"
    ],
+   "coverage": {
+    "n": 7,
+    "ios": 3,
+    "android": 6
+   }
+  },
+  {
+   "id": "block-entry",
+   "nameKo": "진입 경로 없애기",
+   "descKo": "숏폼 탭과 숏폼 추천 피드가 화면에서 사라집니다. 눈에 보이지 않으니 자연스럽게 진입할 생각이 줄어들어요.",
+   "codebook": "3.2.1 Entry Point Removal",
+   "role": "intervention",
+   "agency": "limited",
+   "level": 10,
+   "when": "Pre",
+   "scope": ["shorts-row", "shorts-tab"],
+   "sim": "entry_removed",
+   "apps": [
+    "9_WH",
+    "15_SY",
+    "16_UT",
+    "19_SH",
+    "21_C"
+   ],
+   "coverage": {
+    "n": 5,
+    "ios": 5,
+    "android": 1
+   }
+  },
+  {
+   "id": "block-scroll",
+   "nameKo": "무한 스크롤 방지",
+   "descKo": "첫 숏폼 영상은 볼 수 있지만 다음 영상으로 넘어가는 스크롤이 차단됩니다. 무의식적으로 이어지던 스크롤링을 끊어보세요.",
+   "codebook": "1.1.3 Specific Interaction Block",
+   "role": "intervention",
+   "agency": "limited",
+   "level": 10,
+   "when": "InUse",
+   "scope": ["shorts-row", "shorts-tab"],
+   "sim": "scroll_blocked",
+   "apps": [
+    "5_N",
+    "15_SY",
+    "16_UT"
+   ],
+   "coverage": {
+    "n": 3,
+    "ios": 2,
+    "android": 1
+   }
+  },
+  {
+   "id": "block-shortform",
+   "nameKo": "숏츠/릴스 차단",
+   "descKo": "숏폼 탭이 차단되어 들어갈 수 없습니다. 앱의 나머지 기능은 그대로 사용 가능합니다.",
+   "codebook": "1.1.2 Specific Feature/Keyword Block",
+   "role": "intervention",
+   "agency": "limited",
+   "level": 10,
+   "when": "At",
+   "scope": ["shorts-row", "shorts-tab"],
+   "sim": "hard_block",
    "apps": [
     "1_S",
     "2_SF",
@@ -82,150 +555,25 @@
     "14_R",
     "15_SY",
     "16_UT",
-    "19_SH",
-    "20_J"
+    "19_SH"
    ],
    "coverage": {
-    "n": 18,
-    "ios": 10,
+    "n": 17,
+    "ios": 9,
     "android": 14
-   },
-   "subtypes": [
-    {
-     "group": null,
-     "name": "App-tab scope",
-     "desc": "숏폼 섹션·탭 차단",
-     "apps": [
-      "1_S",
-      "2_SF",
-      "4_A",
-      "5_N",
-      "6_BS",
-      "7_NS",
-      "8_SS",
-      "9_WH",
-      "10_SG",
-      "11_SB",
-      "12_SZ",
-      "13_M",
-      "14_R",
-      "15_SY",
-      "16_UT",
-      "19_SH",
-      "20_J"
-     ],
-     "note": null
-    },
-    {
-     "group": null,
-     "name": "Element scope",
-     "desc": "댓글·스토리·탐색탭·추천·알림",
-     "apps": [
-      "1_S",
-      "2_SF",
-      "9_WH",
-      "13_M",
-      "16_UT",
-      "19_SH"
-     ],
-     "note": null
-    },
-    {
-     "group": null,
-     "name": "Content scope",
-     "desc": "채널·주제·키워드",
-     "apps": [
-      "1_S",
-      "2_SF",
-      "3_D",
-      "6_BS",
-      "13_M",
-      "14_R",
-      "16_UT"
-     ],
-     "note": "웹 한정 여부 미확인"
-    },
-    {
-     "group": null,
-     "name": "Website scope",
-     "desc": "웹사이트·URL",
-     "apps": [
-      "1_S",
-      "2_SF",
-      "4_A",
-      "5_N",
-      "6_BS",
-      "12_SZ",
-      "13_M",
-      "14_R",
-      "20_J"
-     ],
-     "note": null
-    },
-    {
-     "group": null,
-     "name": "Exception path",
-     "desc": "DM으로 받은 릴스만 허용",
-     "apps": [
-      "10_SG",
-      "11_SB"
-     ],
-     "note": null
-    }
-   ],
-   "note": null,
-   "nameKoVariants": {
-    "byScope": {
-     "app-tab": "숏츠/릴스 차단",
-     "content": "채널·주제 차단",
-     "entry-point": "숏츠/릴스 차단",
-     "app": "숏츠/릴스 차단"
-    }
-   },
-   "descKo": "숏폼 영역에만 들어갈 수 없습니다. 앱의 나머지 기능은 그대로 씁니다.",
-   "descKoVariants": {
-    "byScope": {
-     "app": "숏폼 영역에만 들어갈 수 없습니다. 앱의 나머지 기능은 그대로 씁니다.",
-     "entry-point": "숏폼 영역에만 들어갈 수 없습니다. 앱의 나머지 기능은 그대로 씁니다.",
-     "app-tab": "숏폼 영역에만 들어갈 수 없습니다. 앱의 나머지 기능은 그대로 씁니다.",
-     "content": "정해둔 채널이나 주제의 영상만 걸립니다. 나머지 숏폼은 그대로 봅니다."
-    }
    }
   },
   {
-   "id": "1.1.3",
-   "name": "Specific Interaction Block",
-   "nameKo": "무한 스크롤 방지",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "InUse",
-   "agency": "limited",
-   "addressableScope": [
-    "app-tab"
-   ],
-   "apps": [
-    "5_N",
-    "15_SY",
-    "16_UT"
-   ],
-   "coverage": {
-    "n": 3,
-    "ios": 2,
-    "android": 1
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "영상은 볼 수 있지만 다음 영상으로 넘어가지 않습니다. 한 편을 보고 끝냅니다."
-  },
-  {
-   "id": "1.2.1",
-   "name": "Schedule-based Block",
+   "id": "schedule-window",
    "nameKo": "시간 지정 개입",
-   "axisRole": "trigger",
-   "engineRole": "s2",
-   "when": "At",
+   "descKo": "요일과 시간대를 정해두면 그 시간에만 개입이 작동합니다.",
+   "codebook": "1.2.1 Schedule-based Block",
+   "role": "trigger",
    "agency": "limited",
-   "addressableScope": [],
+   "level": null,
+   "when": "At",
+   "scope": ["app","shorts-row", "shorts-tab", "content"],
+   "sim": null,
    "apps": [
     "1_S",
     "2_SF",
@@ -245,20 +593,19 @@
     "n": 13,
     "ios": 9,
     "android": 9
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "요일과 시간대를 정해두면 그 시간에만 개입이 작동합니다."
+   }
   },
   {
-   "id": "1.2.2",
-   "name": "Session-based Block",
+   "id": "session-block",
    "nameKo": "일정 시간 차단",
-   "axisRole": "trigger",
-   "engineRole": "excluded",
-   "when": "At",
+   "descKo": "지금부터 정해둔 시간 동안 개입이 작동합니다.",
+   "codebook": "1.2.2 Session-based Block",
+   "role": "trigger",
    "agency": "limited",
-   "addressableScope": [],
+   "level": null,
+   "when": "Pre",
+   "scope": ["app","shorts-row", "shorts-tab", "content"],
+   "sim": null,
    "apps": [
     "2_SF",
     "4_A",
@@ -275,20 +622,19 @@
     "n": 10,
     "ios": 7,
     "android": 6
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "지금부터 정해둔 시간 동안 제한이 걸립니다."
+   }
   },
   {
-   "id": "1.3.1",
-   "name": "Time Limit Block",
+   "id": "usage-goal",
    "nameKo": "오늘의 사용 목표량",
-   "axisRole": "trigger",
-   "engineRole": "param",
-   "when": "InUse",
+   "descKo": "사용 시간이나 시청 개수로 목표를 정하고, 목표를 넘기면 개입이 작동합니다.",
+   "codebook": "1.3.1 Time Limit Block · 1.3.2 Interaction Limit Block",
+   "role": "trigger",
    "agency": "limited",
-   "addressableScope": [],
+   "level": null,
+   "when": "InUse",
+   "scope": ["app","shorts-row", "shorts-tab", "content"],
+   "sim": null,
    "apps": [
     "1_S",
     "2_SF",
@@ -314,255 +660,143 @@
     "n": 19,
     "ios": 12,
     "android": 13
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "사용 시간이나 시청 개수로 목표를 정하고, 목표를 넘기면 개입이 작동합니다."
-  },
-  {
-   "id": "1.3.2",
-   "name": "Interaction Limit Block",
-   "nameKo": "오늘의 사용 목표량",
-   "axisRole": "trigger",
-   "engineRole": "param",
-   "when": "InUse",
-   "agency": "limited",
-   "addressableScope": [],
-   "apps": [
-    "2_SF",
-    "3_D",
-    "10_SG",
-    "12_SZ",
-    "13_M",
-    "17_NL",
-    "20_J"
-   ],
-   "coverage": {
-    "n": 7,
-    "ios": 5,
-    "android": 5
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "사용 시간이나 시청 개수로 목표를 정하고, 목표를 넘기면 개입이 작동합니다."
-  },
-  {
-   "id": "2.1.1",
-   "name": "Confirmation",
-   "nameKo": "의도 확인",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "At",
-   "agency": "flexible",
-   "addressableScope": [],
-   "apps": [
-    "4_A",
-    "12_SZ",
-    "18_CR"
-   ],
-   "coverage": {
-    "n": 3,
-    "ios": 3,
-    "android": 2
-   },
-   "subtypes": [],
-   "note": "S4에서 한 문항으로 통합",
-   "descKo": "정말 볼 것인지 묻는 화면이 뜹니다. 버튼을 한 번 누르면 그대로 들어갑니다."
-  },
-  {
-   "id": "2.1.2",
-   "name": "Timed Wait",
-   "nameKo": "사용 전 숨고르기",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "At",
-   "agency": "flexible",
-   "addressableScope": [],
-   "apps": [
-    "2_SF",
-    "4_A",
-    "9_WH",
-    "10_SG",
-    "11_SB",
-    "12_SZ",
-    "16_UT",
-    "20_J",
-    "21_C"
-   ],
-   "coverage": {
-    "n": 9,
-    "ios": 8,
-    "android": 6
-   },
-   "subtypes": [
-    {
-     "group": null,
-     "name": "Timed Wait",
-     "desc": "정해진 시간 대기",
-     "apps": [
-      "2_SF",
-      "4_A",
-      "9_WH",
-      "10_SG",
-      "11_SB",
-      "12_SZ",
-      "16_UT",
-      "20_J",
-      "21_C"
-     ],
-     "note": "4_A 호흡 운동 포함. 12_SZ 점증형"
-    }
-   ],
-   "note": "4_A 호흡 운동 흡수 (앱 수 변화 없음)",
-   "descKo": "들어가기 전에 정해진 시간만큼 기다려야 합니다. 기다리는 동안 다시 생각해볼 수 있어요."
-  },
-  {
-   "id": "2.1.3",
-   "name": "Physical Action",
-   "nameKo": "미션 수행",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "At",
-   "agency": "flexible",
-   "addressableScope": [],
-   "apps": [
-    "2_SF",
-    "4_A",
-    "9_WH",
-    "12_SZ",
-    "18_CR",
-    "20_J"
-   ],
-   "coverage": {
-    "n": 6,
-    "ios": 6,
-    "android": 4
-   },
-   "subtypes": [
-    {
-     "group": "Low Effort",
-     "name": "Random sentence typing",
-     "desc": "랜덤 문장 입력",
-     "apps": [
-      "2_SF"
-     ],
-     "note": "약 군에서 가장 낮음"
-    },
-    {
-     "group": "Low Effort",
-     "name": "Math problem solve",
-     "desc": "수학 문제 풀이",
-     "apps": [
-      "2_SF",
-      "12_SZ"
-     ],
-     "note": "분기 문항의 시작점"
-    },
-    {
-     "group": "Low Effort",
-     "name": "Button hold",
-     "desc": "버튼을 일정 시간 누르고 있기",
-     "apps": [
-      "9_WH",
-      "12_SZ",
-      "18_CR"
-     ],
-     "note": "9_WH 홀드 시간 설정 가능. 상대 강도 미정"
-    },
-    {
-     "group": "Low Effort",
-     "name": "Device motion",
-     "desc": "폰 흔들기",
-     "apps": [
-      "2_SF"
-     ],
-     "note": "상대 강도 미정"
-    },
-    {
-     "group": "High Effort",
-     "name": "Exercise",
-     "desc": "푸시업, 3천보 걷기",
-     "apps": [
-      "4_A",
-      "20_J"
-     ],
-     "note": null
-    },
-    {
-     "group": "High Effort",
-     "name": "Capture",
-     "desc": "QR·하늘 등 대상 촬영",
-     "apps": [
-      "2_SF",
-      "18_CR",
-      "20_J"
-     ],
-     "note": "촬영 대상은 구분하지 않음"
-    },
-    {
-     "group": "High Effort",
-     "name": "Alternative app use",
-     "desc": "지정 앱을 일정 시간 사용",
-     "apps": [
-      "2_SF",
-      "20_J"
-     ],
-     "note": "2_SF는 교육 앱 30분"
-    }
-   ],
-   "note": "21_C 제외, Breathing은 2.1.2로 이관. 약/강 2군 분기",
-   "nameKoVariants": {
-    "byTaskGroup": {
-     "simple": "간단한 미션 수행",
-     "exercise": "운동 미션 수행",
-     "capture": "촬영 미션 수행",
-     "altapp": "대체 활동 미션 수행"
-    }
-   },
-   "descKo": "정해둔 미션을 마쳐야 들어갈 수 있습니다.",
-   "descKoVariants": {
-    "byTaskGroup": {
-     "simple": "버튼을 오래 누르거나 간단한 문제를 풀어야 들어갈 수 있습니다.",
-     "exercise": "정해둔 걸음 수를 채우거나 운동을 마쳐야 들어갈 수 있습니다.",
-     "capture": "정해둔 대상을 카메라로 찍어야 들어갈 수 있습니다. 몸을 움직여 자리를 벗어나게 만듭니다.",
-     "altapp": "미리 정해둔 앱을 일정 시간 사용해야 들어갈 수 있습니다."
-    }
    }
   },
   {
-   "id": "2.1.4",
-   "name": "Intention Input",
-   "nameKo": "사용 목적 입력",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "At",
-   "agency": "flexible",
-   "addressableScope": [],
+   "id": "lock-app-settings",
+   "nameKo": "개입 설정 변경 불가 모드",
+   "descKo": "개입 설정을 쉽게 바꾸거나 끌 수 없습니다.",
+   "codebook": "4.1.1 Hard Lock Settings · 4.1.2 Effortful Unlock Settings",
+   "role": "bypass",
+   "agency": "limited",
+   "level": null,
+   "when": "Continuous",
+   "scope": null,
+   "sim": null,
    "apps": [
-    "4_A",
+    "1_S",
+    "2_SF",
+    "3_D",
+    "5_N",
+    "9_WH",
+    "10_SG",
     "12_SZ",
     "13_M",
+    "16_UT",
+    "17_NL",
+    "19_SH",
     "20_J",
     "21_C"
    ],
    "coverage": {
-    "n": 5,
-    "ios": 4,
-    "android": 3
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "무엇을 하려고 여는지 적어야 들어갈 수 있습니다. 스스로 목적을 확인하게 됩니다."
+    "n": 13,
+    "ios": 10,
+    "android": 8
+   }
   },
   {
-   "id": "2.2",
-   "name": "Pause",
+   "id": "lock-device-settings",
+   "nameKo": "기기 설정 변경 불가 모드",
+   "descKo": "기기의 시스템 설정을 바꿔 개입을 피하려는 시도를 막습니다.",
+   "codebook": "4.1.1 Hard Lock Settings",
+   "role": "bypass",
+   "agency": "limited",
+   "level": null,
+   "when": "Continuous",
+   "scope": null,
+   "sim": null,
+   "apps": [
+    "2_SF",
+    "20_J"
+   ],
+   "coverage": {
+    "n": 2,
+    "ios": 2,
+    "android": 1
+   }
+  },
+  {
+   "id": "prevent-multiwindow",
+   "nameKo": "다른 창 우회 차단",
+   "descKo": "작은 창이나 분할 화면으로 보려는 시도를 막습니다.",
+   "codebook": "4.3 Multitasking Block",
+   "role": "bypass",
+   "agency": "limited",
+   "level": null,
+   "when": "Continuous",
+   "scope": null,
+   "sim": null,
+   "apps": [
+    "1_S",
+    "2_SF",
+    "14_R"
+   ],
+   "coverage": {
+    "n": 3,
+    "ios": 2,
+    "android": 3
+   }
+  },
+  {
+   "id": "prevent-uninstall",
+   "nameKo": "앱 삭제 방지",
+   "descKo": "앱을 지워서 개입을 피하는 것을 막습니다.",
+   "codebook": "4.2 Uninstall Prevention",
+   "role": "bypass",
+   "agency": "limited",
+   "level": null,
+   "when": "Continuous",
+   "scope": null,
+   "sim": null,
+   "apps": [
+    "2_SF",
+    "9_WH",
+    "10_SG",
+    "12_SZ",
+    "14_R",
+    "20_J",
+    "21_C"
+   ],
+   "coverage": {
+    "n": 7,
+    "ios": 6,
+    "android": 5
+   }
+  },
+  {
+   "id": "social",
+   "nameKo": "함께 지키기",
+   "descKo": "사용량을 다른 사람과 공유하거나, 해제할 때 다른 사람의 승인을 받습니다.",
+   "codebook": "3.3 Social Accountability",
+   "role": "exclude",
+   "agency": "supported",
+   "level": null,
+   "when": "Continuous",
+   "scope": null,
+   "sim": null,
+   "apps": [
+    "1_S",
+    "2_SF",
+    "14_R",
+    "20_J"
+   ],
+   "coverage": {
+    "n": 4,
+    "ios": 3,
+    "android": 3
+   }
+  },
+  {
+   "id": "pause",
    "nameKo": "잠시 멈춤 허용",
-   "axisRole": "flexibility",
-   "engineRole": "excluded",
-   "when": "Pre",
+   "descKo": "걸어둔 제한을 잠시 끌 수 있습니다. 정해진 시간이 지나면 다시 켜져요.",
+   "codebook": "2.2 Pause",
+   "role": "exclude",
    "agency": "flexible",
-   "addressableScope": [],
+   "level": null,
+   "when": "Pre",
+   "scope": null,
+   "sim": null,
    "apps": [
     "2_SF",
     "6_BS",
@@ -578,899 +812,30 @@
     "n": 9,
     "ios": 5,
     "android": 7
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "걸어둔 제한을 잠시 끌 수 있습니다. 정해진 시간이 지나면 다시 켜져요."
-  },
-  {
-   "id": "3.1.1",
-   "name": "Reminder at Entry",
-   "nameKo": "사용 시작 알림",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "At",
-   "agency": "supported",
-   "addressableScope": [],
-   "apps": [
-    "1_S",
-    "12_SZ",
-    "13_M",
-    "17_NL"
-   ],
-   "coverage": {
-    "n": 4,
-    "ios": 3,
-    "android": 3
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "숏폼을 열면 알림이 한 번 뜹니다. 알림을 무시하고 그대로 볼 수 있어요."
-  },
-  {
-   "id": "3.1.2",
-   "name": "Passive Reminder",
-   "nameKo": "사용 푸시 알림",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "InUse",
-   "agency": "supported",
-   "addressableScope": [],
-   "apps": [
-    "1_S",
-    "2_SF",
-    "13_M",
-    "14_R",
-    "18_CR",
-    "20_J",
-    "21_C"
-   ],
-   "coverage": {
-    "n": 7,
-    "ios": 5,
-    "android": 4
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "지정해둔 앱을 열거나 정해둔 사용량을 넘기면 푸시 알림이 옵니다."
-  },
-  {
-   "id": "3.1.3",
-   "name": "Interruptive Reminder",
-   "nameKo": "사용 중 멈춰세우기",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "InUse",
-   "agency": "flexible",
-   "addressableScope": [],
-   "apps": [
-    "3_D",
-    "4_A",
-    "8_SS",
-    "10_SG",
-    "11_SB",
-    "12_SZ"
-   ],
-   "coverage": {
-    "n": 6,
-    "ios": 3,
-    "android": 6
-   },
-   "subtypes": [],
-   "note": "S4에서 한 문항으로 통합",
-   "descKo": "보고 있는 중에 화면을 덮는 창이 뜹니다. 버튼을 한 번 누르면 계속 볼 수 있어요."
-  },
-  {
-   "id": "3.2.1",
-   "name": "Entry Point Removal",
-   "nameKo": "진입 경로 없애기",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "Pre",
-   "agency": "limited",
-   "addressableScope": [
-    "entry-point",
-    "app"
-   ],
-   "apps": [
-    "9_WH",
-    "15_SY",
-    "16_UT",
-    "19_SH",
-    "21_C"
-   ],
-   "coverage": {
-    "n": 5,
-    "ios": 5,
-    "android": 1
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "숏폼으로 가는 길이 화면에서 사라집니다. 홈에서 숏폼 줄과 탭이 보이지 않아요."
-  },
-  {
-   "id": "3.2.2",
-   "name": "Visual Demotion",
-   "nameKo": "시각적 매력도 경감",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "Pre",
-   "agency": "supported",
-   "addressableScope": [
-    "entry-point",
-    "app"
-   ],
-   "apps": [
-    "16_UT",
-    "17_NL",
-    "19_SH",
-    "21_C"
-   ],
-   "coverage": {
-    "n": 4,
-    "ios": 4,
-    "android": 0
-   },
-   "subtypes": [
-    {
-     "group": "경험",
-     "name": "Thumbnail block",
-     "desc": "썸네일 차단",
-     "apps": [
-      "16_UT",
-      "19_SH"
-     ],
-     "note": null
-    },
-    {
-     "group": "경험",
-     "name": "Grayscale / blur",
-     "desc": "회색조·블러",
-     "apps": [
-      "16_UT",
-      "19_SH"
-     ],
-     "note": null
-    },
-    {
-     "group": "코딩만",
-     "name": "Autoplay disable",
-     "desc": "자동재생 차단",
-     "apps": [
-      "16_UT"
-     ],
-     "note": "3.2.2에 유지"
-    },
-    {
-     "group": "코딩만",
-     "name": "Icon demotion",
-     "desc": "홈 화면 아이콘 흐리게",
-     "apps": [
-      "17_NL",
-      "21_C"
-     ],
-     "note": null
-    }
-   ],
-   "note": "Android 0개. 경험 제시는 썸네일·회색조만",
-   "descKo": "숏폼 화면이 회색으로 바뀌거나 썸네일이 흐려집니다. 볼 수는 있지만 눈길이 덜 갑니다."
-  },
-  {
-   "id": "3.2.3",
-   "name": "Intentional Pathing",
-   "nameKo": "사용 경로 유도",
-   "axisRole": "form",
-   "engineRole": "pick",
-   "when": "Pre",
-   "agency": "supported",
-   "addressableScope": [],
-   "apps": [
-    "4_A",
-    "12_SZ"
-   ],
-   "coverage": {
-    "n": 2,
-    "ios": 2,
-    "android": 2
-   },
-   "subtypes": [],
-   "note": null,
-   "descKo": "차단해둔 앱을 열면 미리 정해둔 앱으로 이동됩니다. 원래 하려던 일로 방향을 돌려줍니다."
-  },
-  {
-   "id": "3.3",
-   "name": "Social Accountability",
-   "nameKo": "함께 지키기",
-   "axisRole": "layer",
-   "engineRole": "excluded",
-   "when": "Continuous",
-   "agency": "supported",
-   "addressableScope": [],
-   "apps": [
-    "1_S",
-    "2_SF",
-    "14_R",
-    "20_J"
-   ],
-   "coverage": {
-    "n": 4,
-    "ios": 3,
-    "android": 3
-   },
-   "subtypes": [
-    {
-     "group": null,
-     "name": "Social accountability",
-     "desc": "승인, 비교, 리더보드",
-     "apps": [
-      "1_S",
-      "2_SF",
-      "14_R",
-      "20_J"
-     ],
-     "note": "분할하지 않음"
-    }
-   ],
-   "note": null,
-   "descKo": "사용량을 다른 사람과 공유하거나, 해제할 때 다른 사람의 승인을 받습니다."
-  },
-  {
-   "id": "4.1.1",
-   "name": "Hard Lock Settings",
-   "nameKo": "개입 설정 변경 불가 모드",
-   "axisRole": "protection",
-   "engineRole": "s5",
-   "when": "Continuous",
-   "agency": "limited",
-   "addressableScope": [],
-   "apps": [
-    "1_S",
-    "2_SF",
-    "3_D",
-    "5_N",
-    "9_WH",
-    "10_SG",
-    "12_SZ",
-    "13_M",
-    "16_UT",
-    "19_SH",
-    "20_J",
-    "21_C"
-   ],
-   "coverage": {
-    "n": 12,
-    "ios": 9,
-    "android": 8
-   },
-   "subtypes": [
-    {
-     "group": null,
-     "name": "설정 잠금",
-     "desc": "비밀번호·PIN·패턴·시간창·모드 단계",
-     "apps": [
-      "1_S",
-      "2_SF",
-      "3_D",
-      "5_N",
-      "9_WH",
-      "10_SG",
-      "12_SZ",
-      "13_M",
-      "16_UT",
-      "19_SH",
-      "20_J",
-      "21_C"
-     ],
-     "note": null
-    },
-    {
-     "group": null,
-     "name": "OS settings access block",
-     "desc": "기기 설정·로그아웃·날짜 변경 차단",
-     "apps": [
-      "2_SF",
-      "20_J"
-     ],
-     "note": "S5에서 별도 항목"
-    }
-   ],
-   "note": null,
-   "descKo": "걸어둔 설정을 마음대로 바꾸거나 끌 수 없습니다."
-  },
-  {
-   "id": "4.1.2",
-   "name": "Effortful Unlock Settings",
-   "nameKo": "개입 설정 변경 불가 모드",
-   "axisRole": "protection",
-   "engineRole": "s5",
-   "when": "Continuous",
-   "agency": "flexible",
-   "addressableScope": [],
-   "apps": [
-    "1_S",
-    "2_SF",
-    "17_NL"
-   ],
-   "coverage": {
-    "n": 3,
-    "ios": 3,
-    "android": 2
-   },
-   "subtypes": [
-    {
-     "group": null,
-     "name": "노력 해제",
-     "desc": "문구·랜덤 입력, 대기시간, 예약, QR, 타인 승인",
-     "apps": [
-      "1_S",
-      "2_SF",
-      "17_NL"
-     ],
-     "note": "17_NL 방식 미상"
-    }
-   ],
-   "note": null,
-   "descKo": "걸어둔 설정을 바꾸려면 정해진 절차를 거쳐야 합니다."
-  },
-  {
-   "id": "4.2",
-   "name": "Uninstall Prevention",
-   "nameKo": "앱 삭제 방지",
-   "axisRole": "protection",
-   "engineRole": "s5",
-   "when": "Continuous",
-   "agency": "limited",
-   "addressableScope": [],
-   "apps": [
-    "2_SF",
-    "9_WH",
-    "10_SG",
-    "12_SZ",
-    "14_R",
-    "20_J",
-    "21_C"
-   ],
-   "coverage": {
-    "n": 7,
-    "ios": 6,
-    "android": 5
-   },
-   "subtypes": [
-    {
-     "group": null,
-     "name": "Uninstall prevention",
-     "desc": "앱 삭제 방지",
-     "apps": [
-      "2_SF",
-      "9_WH",
-      "10_SG",
-      "12_SZ",
-      "14_R",
-      "20_J",
-      "21_C"
-     ],
-     "note": "21_C는 설치·구매까지"
-    }
-   ],
-   "note": null,
-   "descKo": "앱을 지워서 제한을 피하는 것을 막습니다."
-  },
-  {
-   "id": "4.3",
-   "name": "Multitasking Block",
-   "nameKo": "다른 창 우회 차단",
-   "axisRole": "protection",
-   "engineRole": "s5",
-   "when": "Continuous",
-   "agency": "limited",
-   "addressableScope": [],
-   "apps": [
-    "1_S",
-    "2_SF",
-    "14_R"
-   ],
-   "coverage": {
-    "n": 3,
-    "ios": 2,
-    "android": 3
-   },
-   "subtypes": [
-    {
-     "group": null,
-     "name": "Multitasking block",
-     "desc": "PIP, 플로팅, 분할화면",
-     "apps": [
-      "1_S",
-      "2_SF",
-      "14_R"
-     ],
-     "note": "1_S는 PIP만"
-    }
-   ],
-   "note": null,
-   "descKo": "작은 창이나 화면 분할로 몰래 보는 것을 막습니다."
+   }
   }
  ],
- "ladder": [
-  {
-   "id": "L1",
-   "agency": "supported",
-   "order": 1,
-   "nameKo": "사용 푸시 알림",
-   "resolveBy": "timing",
-   "resolve": {
-    "byTiming": {
-     "At": "3.1.1",
-     "InUse": "3.1.2"
-    },
-    "default": "3.1.2"
-   },
-   "sim": "push_notification",
-   "taskGroup": null,
-   "exploreVisible": true,
-   "coverage": {
-    "n": 9,
-    "ios": 7,
-    "android": 5,
-    "apps": [
-     "1_S",
-     "2_SF",
-     "12_SZ",
-     "13_M",
-     "14_R",
-     "17_NL",
-     "18_CR",
-     "20_J",
-     "21_C"
-    ]
-   }
-  },
-  {
-   "id": "L2",
-   "agency": "supported",
-   "order": 2,
-   "nameKo": "시각적 매력도 경감",
-   "resolveBy": null,
-   "resolve": {
-    "fixed": "3.2.2"
-   },
-   "sim": "grayscale",
-   "taskGroup": null,
-   "exploreVisible": true,
-   "coverage": {
-    "n": 4,
-    "ios": 4,
-    "android": 0,
-    "apps": [
-     "16_UT",
-     "17_NL",
-     "19_SH",
-     "21_C"
-    ]
-   }
-  },
-  {
-   "id": "L3",
-   "agency": "supported",
-   "order": 3,
-   "nameKo": "사용 경로 유도",
-   "resolveBy": null,
-   "resolve": {
-    "fixed": "3.2.3"
-   },
-   "sim": "redirect_productivity",
-   "taskGroup": null,
-   "exploreVisible": true,
-   "coverage": {
-    "n": 2,
-    "ios": 2,
-    "android": 2,
-    "apps": [
-     "4_A",
-     "12_SZ"
-    ]
-   }
-  },
-  {
-   "id": "L4",
-   "agency": "flexible",
-   "order": 4,
-   "nameKo": "의도 확인",
-   "resolveBy": "timing",
-   "resolve": {
-    "byTiming": {
-     "At": "2.1.1",
-     "InUse": "3.1.3"
-    },
-    "default": "3.1.3"
-   },
-   "sim": "confirm",
-   "taskGroup": null,
-   "exploreVisible": true,
-   "coverage": {
-    "n": 7,
-    "ios": 4,
-    "android": 6,
-    "apps": [
-     "3_D",
-     "4_A",
-     "8_SS",
-     "10_SG",
-     "11_SB",
-     "12_SZ",
-     "18_CR"
-    ]
-   }
-  },
-  {
-   "id": "L5",
-   "agency": "flexible",
-   "order": 5,
-   "nameKo": "사용 전 숨고르기",
-   "resolveBy": null,
-   "resolve": {
-    "fixed": "2.1.2"
-   },
-   "sim": "timed_wait",
-   "taskGroup": null,
-   "exploreVisible": true,
-   "coverage": {
-    "n": 9,
-    "ios": 8,
-    "android": 6,
-    "apps": [
-     "2_SF",
-     "4_A",
-     "9_WH",
-     "10_SG",
-     "11_SB",
-     "12_SZ",
-     "16_UT",
-     "20_J",
-     "21_C"
-    ]
-   }
-  },
-  {
-   "id": "L6",
-   "agency": "flexible",
-   "order": 6,
-   "nameKo": "사용 목적 입력",
-   "resolveBy": null,
-   "resolve": {
-    "fixed": "2.1.4"
-   },
-   "sim": "intention_input",
-   "taskGroup": null,
-   "exploreVisible": true,
-   "coverage": {
-    "n": 5,
-    "ios": 4,
-    "android": 3,
-    "apps": [
-     "4_A",
-     "12_SZ",
-     "13_M",
-     "20_J",
-     "21_C"
-    ]
-   }
-  },
-  {
-   "id": "L7",
-   "agency": "flexible",
-   "order": 7,
-   "nameKo": "버튼 홀드",
-   "resolveBy": null,
-   "resolve": {
-    "fixed": "2.1.3"
-   },
-   "sim": "mission_hold",
-   "taskGroup": "hold",
-   "exploreVisible": true,
-   "coverage": {
-    "n": 3,
-    "ios": 3,
-    "android": 2,
-    "apps": [
-     "9_WH",
-     "12_SZ",
-     "18_CR"
-    ]
-   }
-  },
-  {
-   "id": "L8",
-   "agency": "flexible",
-   "order": 8,
-   "nameKo": "간단한 미션 수행",
-   "resolveBy": null,
-   "resolve": {
-    "fixed": "2.1.3"
-   },
-   "sim": "mission_simple",
-   "taskGroup": "simple",
-   "exploreVisible": true,
-   "coverage": {
-    "n": 2,
-    "ios": 2,
-    "android": 2,
-    "apps": [
-     "2_SF",
-     "12_SZ"
-    ]
-   }
-  },
-  {
-   "id": "L9",
-   "agency": "flexible",
-   "order": 9,
-   "nameKo": "운동 미션 수행",
-   "resolveBy": null,
-   "resolve": {
-    "fixed": "2.1.3"
-   },
-   "sim": "mission_exercise",
-   "taskGroup": "exercise",
-   "exploreVisible": true,
-   "coverage": {
-    "n": 2,
-    "ios": 2,
-    "android": 1,
-    "apps": [
-     "4_A",
-     "20_J"
-    ]
-   }
-  },
-  {
-   "id": "L10",
-   "agency": "limited",
-   "order": 10,
-   "nameKo": "완전 차단",
-   "resolveBy": "scope+timing",
-   "resolve": {
-    "byScope": {
-     "app": {
-      "any": "1.1.1"
-     },
-     "entry-point": {
-      "any": "3.2.1"
-     },
-     "app-tab": {
-      "byTiming": {
-       "At": "1.1.2",
-       "InUse": "1.1.3"
-      },
-      "default": "1.1.2"
-     },
-     "content": {
-      "any": "1.1.2"
-     }
-    },
-    "default": "1.1.2"
-   },
-   "sim": "hard_block",
-   "taskGroup": null,
-   "exploreVisible": true,
-   "coverage": {
-    "n": 20,
-    "ios": 12,
-    "android": 14,
-    "apps": [
-     "1_S",
-     "2_SF",
-     "3_D",
-     "4_A",
-     "5_N",
-     "6_BS",
-     "7_NS",
-     "8_SS",
-     "9_WH",
-     "10_SG",
-     "11_SB",
-     "12_SZ",
-     "13_M",
-     "14_R",
-     "15_SY",
-     "16_UT",
-     "17_NL",
-     "19_SH",
-     "20_J",
-     "21_C"
-    ]
-   }
-  },
-  {
-   "id": "L8+capture",
-   "agency": "flexible",
-   "order": 8,
-   "nameKo": "촬영 미션 수행",
-   "resolveBy": null,
-   "resolve": {
-    "fixed": "2.1.3"
-   },
-   "sim": "mission_capture",
-   "taskGroup": "capture",
-   "exploreVisible": false,
-   "coverage": {
-    "n": 3,
-    "ios": 3,
-    "android": 1,
-    "apps": [
-     "2_SF",
-     "18_CR",
-     "20_J"
-    ]
-   },
-   "note": "추천 후보이지만 S4 탐색·O/X 목록에 노출하지 않는다. L8에 O를 주면 후보에 포함"
-  },
-  {
-   "id": "L8+altapp",
-   "agency": "flexible",
-   "order": 8,
-   "nameKo": "대체 활동 미션 수행",
-   "resolveBy": null,
-   "resolve": {
-    "fixed": "2.1.3"
-   },
-   "sim": "mission_altapp",
-   "taskGroup": "altapp",
-   "exploreVisible": false,
-   "coverage": {
-    "n": 2,
-    "ios": 2,
-    "android": 1,
-    "apps": [
-     "2_SF",
-     "20_J"
-    ]
-   },
-   "note": "추천 후보이지만 S4 탐색·O/X 목록에 노출하지 않는다. L8에 O를 주면 후보에 포함"
-  }
- ],
+
  "bypassTargets": [
   {
-   "id": "B1",
+   "featureId": "lock-app-settings",
    "nameKo": "개입 설정 변경 불가 모드",
-   "codes": [
-    "4.1.1",
-    "4.1.2"
-   ],
-   "apps": [
-    "1_S",
-    "2_SF",
-    "3_D",
-    "5_N",
-    "9_WH",
-    "10_SG",
-    "12_SZ",
-    "13_M",
-    "16_UT",
-    "17_NL",
-    "19_SH",
-    "20_J",
-    "21_C"
-   ],
-   "coverage": {
-    "n": 13
-   }
+   "optionKo": "차단 개입 설정 변경: 해제, 차단 시간대 변경 등"
   },
   {
-   "id": "B2",
+   "featureId": "lock-device-settings",
    "nameKo": "기기 설정 변경 불가 모드",
-   "codes": [
-    "4.1.1"
-   ],
-   "apps": [
-    "2_SF",
-    "20_J"
-   ],
-   "coverage": {
-    "n": 2
-   }
+   "optionKo": "기기 시스템 설정에서 권한 삭제, 시스템 시간대 변경 등"
   },
   {
-   "id": "B3",
+   "featureId": "prevent-uninstall",
    "nameKo": "앱 삭제 방지",
-   "codes": [
-    "4.2"
-   ],
-   "apps": [
-    "2_SF",
-    "9_WH",
-    "10_SG",
-    "12_SZ",
-    "14_R",
-    "20_J",
-    "21_C"
-   ],
-   "coverage": {
-    "n": 7
-   }
+   "optionKo": "자기 통제 앱 설치 삭제"
   },
   {
-   "id": "B4",
+   "featureId": "prevent-multiwindow",
    "nameKo": "다른 창 우회 차단",
-   "codes": [
-    "4.3"
-   ],
-   "apps": [
-    "1_S",
-    "2_SF",
-    "14_R"
-   ],
-   "coverage": {
-    "n": 3
-   }
-  }
- ],
- "sims": [
-  {
-   "id": "push_notification",
-   "label": "알림이 뜨고 무시하고 계속 볼 수 있음"
-  },
-  {
-   "id": "grayscale",
-   "label": "숏폼 화면이 회색조로 바뀜"
-  },
-  {
-   "id": "redirect_productivity",
-   "label": "차단된 앱을 열면 미리 정해둔 앱으로 이동"
-  },
-  {
-   "id": "confirm",
-   "label": "정말 볼 것인지 묻고 버튼 한 번으로 통과"
-  },
-  {
-   "id": "timed_wait",
-   "label": "정해진 시간 동안 대기"
-  },
-  {
-   "id": "intention_input",
-   "label": "목적을 입력해야 통과"
-  },
-  {
-   "id": "mission_simple",
-   "label": "버튼 길게 누르기 또는 간단한 문제"
-  },
-  {
-   "id": "mission_exercise",
-   "label": "걸음 수나 운동 완료"
-  },
-  {
-   "id": "mission_capture",
-   "label": "카메라 화면. 촬영 버튼을 누르면 완료 처리",
-   "stub": true
-  },
-  {
-   "id": "mission_altapp",
-   "label": "정해둔 앱 사용 화면. 버튼을 누르면 완료 처리",
-   "stub": true
-  },
-  {
-   "id": "hard_block",
-   "label": "차단 화면이 뜨고 통과 경로가 없음"
-  }
- ],
- "agencyLevels": [
-  {
-   "id": "supported",
-   "order": 1,
-   "nameKo": "막지는 않고, 스스로 알아차리도록 돕습니다",
-   "example": "알림을 받거나, 화면이 덜 눈에 띄게 바뀝니다"
-  },
-  {
-   "id": "flexible",
-   "order": 2,
-   "nameKo": "잠깐 멈추게 하지만, 조건을 채우면 계속 볼 수 있습니다",
-   "example": "확인을 누르거나, 기다리거나, 미션을 마칩니다"
-  },
-  {
-   "id": "limited",
-   "order": 3,
-   "nameKo": "정해둔 동안에는 아예 볼 수 없습니다",
-   "example": "앱이나 숏폼 영역이 열리지 않습니다"
+   "optionKo": "작은 창이나 화면 분할로 보는 것"
   }
  ]
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { recommend } from '../engine.js'
-import { SCOPE_LEVELS, RESISTANCE_LABEL, LADDER_RUNGS, FEATURE_BY_ID } from '../data/features.js'
-import { displayName } from '../store.js'
+import { SCOPE_LEVELS, RESISTANCE_LABEL } from '../data/features.js'
 import { VARIANTS } from './Intervention.jsx'
 import { rangesOf } from './Clock24.jsx'
 import { appIconPath } from '../data/apps.js'
@@ -25,7 +24,6 @@ function AppIcon({ id, shortName, idx, onClick }) {
 }
 
 // ── 응답 요약 자연어 문단 빌더 ────────────────────────────────
-// 값이 없는 절은 빠진다. 내부 코드·영어명 없음.
 function buildSummary(state, picks) {
   const parts = []
 
@@ -68,14 +66,7 @@ function buildSummary(state, picks) {
     parts.push(`${timeStr}에 제한을 두고 싶다고 하셨어요.`)
   }
 
-  // 절 3: 임계선
-  const threshold = state.ladderThreshold
-  if (threshold !== null && threshold !== undefined && threshold > 0) {
-    const rung = LADDER_RUNGS[threshold - 1]
-    if (rung) parts.push(`'${rung.nameKo}' 정도까지는 괜찮다고 하셨어요.`)
-  }
-
-  // 절 4: 우회 방지
+  // 절 3: 우회 방지
   const blocked = Object.entries(state.bypassWanted ?? {})
     .filter(([, v]) => v === true)
     .map(([k]) => RESISTANCE_LABEL[k])
@@ -84,11 +75,9 @@ function buildSummary(state, picks) {
     parts.push(`${blocked.map((b) => `'${b}'`).join(', ')}은(는) 막혀 있어야 한다고 하셨습니다.`)
   }
 
-  // 절 5: 추천 (displayName 이 undefined 면 해당 항목 제외)
+  // 절 4: 추천
   if (picks.length) {
-    const names = picks
-      .map((f) => displayName({ code: f.code, scope: f.scope, taskGroup: f.taskGroup }))
-      .filter(Boolean)
+    const names = picks.map((f) => f.nameKo).filter(Boolean)
     if (names.length) {
       parts.push(`그래서 ${names.map((n) => `'${n}'`).join(', ')}을(를) 추천했어요.`)
     }
@@ -97,7 +86,7 @@ function buildSummary(state, picks) {
   return parts.join(' ')
 }
 
-// ── 시간대 포맷 (답변 자세히 보기용) ─────────────────────────
+// ── 시간대 포맷 ───────────────────────────────────────────────
 function hoursDisplay(state) {
   const fmt = (arr) =>
     arr.length ? `${rangesOf(arr).join(', ')} (${arr.length}시간)` : '지정 안 함'
@@ -114,14 +103,15 @@ function hoursDisplay(state) {
 export default function ResultCard({ state, api, onOpenDetail }) {
   const [showAnswers, setShowAnswers] = useState(false)
   const r = recommend(state)
-  // 기능 카드 부제: {작동 시점} · {개입 방식} — WHEN_LABEL/AGENCY_LABEL 재사용
+
+  // 기능 카드 부제: {작동 시점} · {개입 방식}
   const featureSubtitle = (f) => {
-    const ft = FEATURE_BY_ID[f.code]
-    const w = ft && WHEN_LABEL[ft.when]
-    const a = ft && AGENCY_LABEL[ft.agency]
+    const w = WHEN_LABEL[f.when]
+    const a = AGENCY_LABEL[f.agency]
     if (w && a) return `${w} · ${a}`
     return w || a || ''
   }
+
   const summary = buildSummary(state, r.picks)
   const hours = hoursDisplay(state)
 
@@ -136,7 +126,7 @@ export default function ResultCard({ state, api, onOpenDetail }) {
     <div className="c c-result">
       <div className="res-scroll">
 
-        {/* 0) 아키타입 — 성격유형 키워드 + 한 문단 설명 */}
+        {/* 0) 아키타입 */}
         <div className="res-hero">
           <div className="res-eyebrow">나의 유형</div>
           <p className="res-code">{r.archetype.code}</p>
@@ -149,30 +139,24 @@ export default function ResultCard({ state, api, onOpenDetail }) {
           {/* 1) 추천 기능 3개 — 이름만, 누르면 기능 상세 */}
           <div className="sec">
             <div className="sec-h"><span>추천 기능</span></div>
-            {r.picks.map((f) => {
-              const name = displayName({ code: f.code, scope: f.scope, taskGroup: f.taskGroup })
-              if (!name && process.env.NODE_ENV !== 'production') {
-                console.warn('[ResultCard] displayName undefined for feature', f)
-              }
-              return (
-                <button
-                  key={f.code}
-                  className="frec frec-btn"
-                  onClick={() => onOpenDetail?.({ type: 'feature', item: f, recAppIds: r.appRecs.map((a) => a.id), recPicks: r.picks })}
-                >
-                  <div className="frec-text">
-                    <span className="frec-name">{name ?? f.code}</span>
-                    {featureSubtitle(f) && (
-                      <span className="frec-reason">{featureSubtitle(f)}</span>
-                    )}
-                  </div>
-                  <span className="frec-chevron">›</span>
-                </button>
-              )
-            })}
+            {r.picks.map((f) => (
+              <button
+                key={f.code}
+                className="frec frec-btn"
+                onClick={() => onOpenDetail?.({ type: 'feature', item: f, recAppIds: r.appRecs.map((a) => a.id), recPicks: r.picks })}
+              >
+                <div className="frec-text">
+                  <span className="frec-name">{f.nameKo}</span>
+                  {featureSubtitle(f) && (
+                    <span className="frec-reason">{featureSubtitle(f)}</span>
+                  )}
+                </div>
+                <span className="frec-chevron">›</span>
+              </button>
+            ))}
           </div>
 
-          {/* 2) 추천 앱 3개 — 아이콘 + 이름, 누르면 앱 상세 */}
+          {/* 2) 추천 앱 3개 */}
           {r.appRecs.length > 0 && (
             <div className="sec">
               <div className="sec-h"><span>추천 앱</span></div>
@@ -190,15 +174,13 @@ export default function ResultCard({ state, api, onOpenDetail }) {
             </div>
           )}
 
-          {/* 3) 이렇게 추천한 이유 — 자연어 한 문단 */}
+          {/* 3) 이렇게 추천한 이유 */}
           <div className="sec">
             <div className="sec-h"><span>이렇게 추천한 이유</span></div>
-            <p className="res-reason">
-              {summary}
-            </p>
+            <p className="res-reason">{summary}</p>
           </div>
 
-          {/* 4) 답변 자세히 보기 — 접힘 */}
+          {/* 4) 답변 자세히 보기 */}
           <div className="sec">
             <div className="sec-h">
               <span>답변 자세히 보기</span>
@@ -228,16 +210,6 @@ export default function ResultCard({ state, api, onOpenDetail }) {
                         {state.timingRank
                           .map((w, i) => `${i + 1}. ${VARIANTS[w]?.shortName ?? w}`)
                           .join('  ')}
-                      </td>
-                    </tr>
-                  )}
-                  {state.ladderThreshold !== null && state.ladderThreshold !== undefined && (
-                    <tr>
-                      <th>개입 강도</th>
-                      <td>
-                        {state.ladderThreshold > 0
-                          ? `'${LADDER_RUNGS[state.ladderThreshold - 1]?.nameKo}' 까지 수용`
-                          : '모두 거부'}
                       </td>
                     </tr>
                   )}

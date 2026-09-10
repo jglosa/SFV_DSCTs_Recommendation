@@ -1,5 +1,5 @@
 import { useReducer } from 'react'
-import { FEATURE_BY_ID, EXPLORE_RUNGS, RUNGS_BY_AGENCY } from './data/features.js'
+import { LEVELS, INTERVENTIONS, FEATURE_BY_ID, normalizeScope } from './data/features.js'
 
 // ─────────────────────────────────────────────────────────────
 // 단일 진실 상태. S0~S5 흐름에 맞춰 필드가 정렬되어 있다.
@@ -12,10 +12,10 @@ export const initialState = {
   env: { devices: [], os: [], route: [], platforms: [] },
   envOther: {},
 
-  // S1 — scopeLevels id 배열 (app / entry-point / app-tab / content)
+  // S1 — scopeLevels id 배열 (app / shorts-row / shorts-tab / content)
   scopes: [],
 
-  // S2 — 스케줄 (scheduleNeeded 제거: 항상 null이며 dayType 이 동일 의미를 담는다)
+  // S2 — 스케줄 (dayType: null | 'none' | 'daily' | 'split')
   hours: {},
   dayType: null,
 
@@ -27,12 +27,12 @@ export const initialState = {
   agencyVisited: [],        // 탐색한 agency id. 중복 없이 방문 순서대로. 로그용
   simsPlayed: [],           // 실행한 sim id. 중복 허용. 로그용
   agencyRank: [],           // ['flexible','supported','limited'] 세 개 순위
-  featureAccepted: {},      // L id → 'weak' | 'ok' | 'strong'
+  featureAccepted: {},      // level 번호(1-10) → 'weak' | 'ok' | 'strong'
 
   // S5 — 우회 방지
   bypassScenario: null,     // 시나리오 id (분석용, 추천 계산 미사용)
-  bypassMethods: {},        // 'B1'~'B4' → true | false  우회에 쓸 것 같다고 답한 방법 (분석용)
-  bypassWanted: {},         // 'B1'~'B4' → true | false  막혀 있기를 바라는지 (추천 tie-break 용)
+  bypassMethods: {},        // featureId → true | false  우회에 쓸 것 같다고 답한 방법 (분석용)
+  bypassWanted: {},         // featureId → true | false  막혀 있기를 바라는지 (추천 tie-break 용)
   oxSkipped: [],            // O/X 를 건너뛰겠다고 선택한 agency id 배열
 
   // 수집 데이터
@@ -84,8 +84,6 @@ export function envQuery(state) {
 }
 
 // ── [하위호환 스텁] Deck.jsx useEffect 의존성 ────────────────────
-// Rollup이 정적으로 검증하므로 export 선언은 유지한다.
-// LADDER_INDIVIDUAL=[]이므로 intensity-indiv 카드 0장 → 실제 호출 없음.
 /** @deprecated 이분 탐색 폐기. Deck.jsx 교체 전 스텁. */
 export function nextProbeOrder() { return null }
 /** @deprecated 이분 탐색 폐기. Deck.jsx 교체 전 스텁. */
@@ -121,130 +119,90 @@ export function oxTargets(state) {
 }
 
 /**
- * 특정 agency 레벨의 exploreVisible rung 을 order 오름차순으로 반환한다.
- * limited 는 항상 빈 배열.
+ * 특정 agency 의 레벨 배열을 level 오름차순으로 반환한다.
+ * limited 는 항상 빈 배열 (OX 를 받지 않는다).
+ * 반환 객체에 id: l.level 을 추가해 Cards.jsx 와 호환한다.
  */
 export function rungsForOX(state, agencyId) {
   if (!agencyId || agencyId === 'limited') return []
-  return (RUNGS_BY_AGENCY[agencyId] ?? [])
-    .filter((r) => r.exploreVisible)
-    .sort((a, b) => a.order - b.order)
+  return LEVELS
+    .filter((l) => l.agency === agencyId)
+    .sort((a, b) => a.level - b.level)
+    .map((l) => ({ ...l, id: l.level }))   // id 별칭: Cards.jsx 호환
 }
 
 /**
  * 특정 agency 에 대한 O/X 진행 상태.
- *   featureAccepted 에 해당 레벨 rung 키가 하나라도 있으면 'answered'
+ *   featureAccepted 에 해당 레벨 번호 키가 하나라도 있으면 'answered'
  *   oxSkipped 에 있으면 'skipped'
  *   그 외 'unvisited'
  */
 export function oxStatus(state, agencyId) {
   const rungs = rungsForOX(state, agencyId)
   const accepted = state.featureAccepted ?? {}
-  if (rungs.some((r) => accepted[r.id] !== undefined)) return 'answered'
+  if (rungs.some((r) => accepted[r.level] !== undefined)) return 'answered'
   if ((state.oxSkipped ?? []).includes(agencyId)) return 'skipped'
   return 'unvisited'
 }
 
 /**
- * featureAccepted 가 'ok' 또는 'weak' 인 rung (수용한 것). order 내림차순.
+ * featureAccepted 가 'ok' 또는 'weak' 인 레벨 (수용한 것). level 내림차순.
  * 'strong'(거부)은 포함하지 않는다.
  */
 export function acceptedRungs(state) {
   const accepted = state.featureAccepted ?? {}
-  return EXPLORE_RUNGS
-    .filter((r) => accepted[r.id] === 'ok' || accepted[r.id] === 'weak')
-    .sort((a, b) => b.order - a.order)
+  return LEVELS
+    .filter((l) => accepted[l.level] === 'ok' || accepted[l.level] === 'weak')
+    .sort((a, b) => b.level - a.level)
 }
 
 /**
- * rung의 resolveBy 테이블에 따라 feature 코드(또는 코드 배열)를 해석한다.
+ * 특정 레벨에서 조건에 맞는 개입 기능 배열을 반환한다.
  *
- *   null:          featureIds[0] 하나를 반환
- *   'timing':      resolve.byTiming에서 timingRank 순으로 첫 일치.
- *                  없으면 resolve.default.
- *   'scope+timing': scopes 각각에 대해 resolve.byScope를 해석.
- *                  항목에 any가 있으면 그 코드,
- *                  byTiming이 있으면 timingRank 순으로 첫 일치,
- *                  없으면 항목의 default (또는 최상위 default).
- *                  결과는 코드 배열이다.
+ * level.decideParams 에 따라 필터링한다:
+ *   null                → 전부 반환 (L8: 세 항목 모두 후보)
+ *   'timing'            → timingRank 순으로 첫 시점 항목만
+ *   ['timing','scope']  → scope 교집합 → timing 첫 시점 항목만
  *
- * 테이블에 없는 값을 만나면 예외를 던진다. 조용히 기본값으로 넘기지 않는다.
+ * 시점 폴백: timingRank 1순위에 없으면 2순위, 3순위 순으로 시도.
+ *            세 시점 모두 없으면 timing 조건 무시하고 pool 그대로 반환.
+ * scopes 가 비어 있으면 scope 조건을 무시한다.
+ * engine.js 가 호출한다.
  */
-export function resolveRungCode(rung, scopes, timingRank) {
-  if (!rung.resolveBy) {
-    const fixed = rung.resolve?.fixed
-    if (!fixed) throw new Error(`rung ${rung.id}: resolve.fixed 비어 있음`)
-    return fixed
+export function itemsForLevel(level, scopes, timingRank) {
+  const dp = level.decideParams   // null | 'timing' | ['timing','scope']
+  const candidates = INTERVENTIONS.filter((f) => f.level === level.level)
+
+  if (candidates.length === 0) return []
+
+  // decideParams = null → 전부 후보, 필터 없음
+  if (dp === null) return candidates
+
+  const useScope  = Array.isArray(dp) && dp.includes('scope')
+  const useTiming = dp === 'timing'   || (Array.isArray(dp) && dp.includes('timing'))
+
+  // ── scope 필터 ──────────────────────────────────────────────
+  let pool = candidates
+  if (useScope && (scopes ?? []).length > 0) {
+    const filtered = candidates.filter((f) => {
+      const fs = normalizeScope(f.scope)
+      if (fs.length === 0) return true   // scope null/[] 항목은 무조건 통과
+      return fs.some((s) => (scopes ?? []).includes(s))
+    })
+    // 교집합이 있으면 적용, 없으면 scope 조건 무시
+    if (filtered.length > 0) pool = filtered
   }
 
-  if (rung.resolveBy === 'timing') {
-    const { byTiming, default: def } = rung.resolve
-    for (const t of (timingRank ?? [])) {
-      if (byTiming?.[t] !== undefined) return byTiming[t]
+  // ── timing 필터 (폴백 포함) ──────────────────────────────────
+  if (useTiming) {
+    const ranks = timingRank ?? []
+    for (const when of ranks) {
+      const byTiming = pool.filter((f) => f.when === when)
+      if (byTiming.length > 0) return byTiming
     }
-    if (def !== undefined) return def
-    throw new Error(`rung ${rung.id}: byTiming 일치 없음, default 없음 (timingRank=${JSON.stringify(timingRank)})`)
+    // 세 시점 모두 없으면 timing 조건 무시하고 pool 반환
+    return pool
   }
 
-  if (rung.resolveBy === 'scope+timing') {
-    const { byScope, default: def } = rung.resolve
-    const results = []
-    for (const scope of (scopes ?? [])) {
-      const entry = byScope?.[scope]
-      if (entry === undefined) throw new Error(`rung ${rung.id}: scope '${scope}' 테이블 없음`)
-      if (entry.any !== undefined) {
-        results.push(entry.any)
-      } else if (entry.byTiming) {
-        let found = false
-        for (const t of (timingRank ?? [])) {
-          if (entry.byTiming[t] !== undefined) {
-            results.push(entry.byTiming[t])
-            found = true
-            break
-          }
-        }
-        if (!found) {
-          const fallback = entry.default ?? def
-          if (fallback === undefined) {
-            throw new Error(`rung ${rung.id}, scope '${scope}': byTiming 일치 없음, default 없음 (timingRank=${JSON.stringify(timingRank)})`)
-          }
-          results.push(fallback)
-        }
-      } else {
-        throw new Error(`rung ${rung.id}, scope '${scope}': any/byTiming 모두 없음`)
-      }
-    }
-    return results
-  }
-
-  throw new Error(`rung ${rung.id}: 알 수 없는 resolveBy '${rung.resolveBy}'`)
+  return pool
 }
-
-/**
- * 중복 제거용 키. code + scope + taskGroup 조합.
- * 1.1.2는 scope에 따라 다른 추천, 2.1.3은 taskGroup에 따라 다른 추천이므로
- * 코드만으로 dedupe하면 항목이 사라진다.
- */
-export function recommendationKey(item) {
-  return `${item.code}|${item.scope ?? ''}|${item.taskGroup ?? ''}`
-}
-
-/**
- * 화면에 표시할 이름. nameKoVariants를 먼저 보고, 없으면 nameKo를 반환한다.
- *   1.1.2: nameKoVariants.byScope
- *   2.1.3: nameKoVariants.byTaskGroup
- */
-export function displayName(item) {
-  const f = FEATURE_BY_ID[item.code]
-  if (!f) return item.code
-  if (f.nameKoVariants?.byScope && item.scope) {
-    const v = f.nameKoVariants.byScope[item.scope]
-    if (v !== undefined) return v
-  }
-  if (f.nameKoVariants?.byTaskGroup && item.taskGroup) {
-    const v = f.nameKoVariants.byTaskGroup[item.taskGroup]
-    if (v !== undefined) return v
-  }
-  return f.nameKo
-}
-

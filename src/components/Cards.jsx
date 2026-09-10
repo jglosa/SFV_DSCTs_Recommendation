@@ -3,8 +3,8 @@ import { MockHome, MockShorts } from './MockYouTube.jsx'
 import { VIDEO_POOL } from '../data/videos.js'
 import Intervention, { VARIANTS, SIM_INUSE_COUNT } from './Intervention.jsx'
 import Clock24, { rangesOf } from './Clock24.jsx'
-import { AGENCY_LEVELS, ENFORCEMENT, RUNGS_BY_AGENCY, SIMULATIONS, description } from '../data/features.js'
-import { canProceedFromExplore, displayName, rungsForOX } from '../store.js'
+import { AGENCY_LEVELS, INTERVENTIONS, SIMULATIONS, BYPASS_TARGETS } from '../data/features.js'
+import { canProceedFromExplore, rungsForOX } from '../store.js'
 import { SCENARIOS, SCENARIO_BY_ID } from '../data/scenarios.js'
 import { STEP_LABEL } from '../deck.js'
 
@@ -504,10 +504,10 @@ export function SimHomeCard({ spec, onAnswer, answered }) {
     <div className="c c-video">
       <div className="c-screen full">
         <MockHome
-          targets={['app-tab']}
+          targets={['shorts-tab']}
           cue
           onPick={(id) => {
-            if (id === 'app-tab' && !answered) setFired(true)
+            if (id === 'shorts-tab' && !answered) setFired(true)
           }}
         />
       </div>
@@ -1063,6 +1063,92 @@ function HardBlockSim({ onClose }) {
   )
 }
 
+// ── entry_removed: 진입 경로 없애기 — S3 Pre 시뮬레이션 재사용 ──
+// MockHome preBlocked 로 숏폼 탭·선반이 사라진 화면을 그대로 보여준다.
+function EntryRemovedSim({ onClose }) {
+  return (
+    <div className="isim">
+      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
+      <div className="isim-screen">
+        <MockHome preBlocked />
+        <div className="isim-env-banner">
+          <p className="isim-env-msg">숏폼 탭과 추천 피드가 보이지 않아요</p>
+          <div className="isim-env-btns">
+            <button className="iv-btn sub" onClick={onClose}>닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── scroll_blocked: 무한 스크롤 방지 ────────────────────────
+// 영상은 보이지만 위로 스와이프해도 다음으로 넘어가지 않고 제자리에서 튕긴다.
+function ScrollBlockedSim({ onClose }) {
+  const [swipeCount, setSwipeCount] = useState(0)
+  const [bouncing, setBouncing] = useState(false)
+  const screenRef = useRef(null)
+  const bouncingRef = useRef(false)
+
+  const triggerRef = useRef(null)
+  triggerRef.current = () => {
+    if (bouncingRef.current) return
+    bouncingRef.current = true
+    setBouncing(true)
+    setSwipeCount((c) => c + 1)
+    setTimeout(() => { setBouncing(false); bouncingRef.current = false }, 400)
+  }
+
+  useEffect(() => {
+    const el = screenRef.current
+    if (!el) return
+    let startY = null
+    const onTouchStart = (e) => { e.preventDefault(); startY = e.touches[0].clientY }
+    const onTouchEnd = (e) => {
+      if (startY !== null && startY - e.changedTouches[0].clientY > 30) triggerRef.current()
+      startY = null
+    }
+    let mouseY = null
+    const onMouseDown = (e) => { mouseY = e.clientY }
+    const onMouseUp = (e) => {
+      if (mouseY !== null && mouseY - e.clientY > 30) triggerRef.current()
+      mouseY = null
+    }
+    const onWheel = (e) => { e.preventDefault(); if (e.deltaY > 0) triggerRef.current() }
+    el.addEventListener('touchstart', onTouchStart, { passive: false })
+    el.addEventListener('touchend', onTouchEnd)
+    el.addEventListener('mousedown', onMouseDown)
+    el.addEventListener('mouseup', onMouseUp)
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchend', onTouchEnd)
+      el.removeEventListener('mousedown', onMouseDown)
+      el.removeEventListener('mouseup', onMouseUp)
+      el.removeEventListener('wheel', onWheel)
+    }
+  }, [])
+
+  const msg = swipeCount >= 2
+    ? '무한 스크롤이 차단되어 있어요'
+    : '영상은 볼 수 있지만 다음으로 넘어가지 않아요'
+
+  return (
+    <div className="isim">
+      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
+      <div className={`isim-screen${bouncing ? ' isim-bounce' : ''}`} ref={screenRef}>
+        <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
+        <div className={'isim-env-banner' + (bouncing ? ' isim-env-banner--active' : '')}>
+          <p className="isim-env-msg">{msg}</p>
+          <div className="isim-env-btns">
+            <button className="iv-btn" onClick={onClose}>닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // sim id → 오버레이 내용 컴포넌트 (InterventionSim 2단계에서 렌더됨)
 const SIM_COMPONENTS = {
   confirm: ConfirmSim,
@@ -1081,6 +1167,8 @@ const ENV_SIM_COMPONENTS = {
   grayscale: GrayscaleSim,
   push_notification: PushNotificationSim,
   redirect_productivity: RedirectProductivitySim,
+  entry_removed: EntryRemovedSim,      // block-entry: 진입 경로 자체가 없음
+  scroll_blocked: ScrollBlockedSim,   // block-scroll: 영상은 보이나 스와이프 차단
 }
 
 // ── 공통 껍데기 ────────────────────────────────────────────
@@ -1133,8 +1221,8 @@ export function InterventionSim({ simId, featureName, onClose }) {
 const S4_REJECT = '과해요'
 const S4_ACCEPT = '괜찮아요'
 
-// enforcement 레벨 id → { nameKo, microcopy } 조회 맵
-const ENF_BY_ID = Object.fromEntries(ENFORCEMENT.map((e) => [e.id, e]))
+// v3.0: ENFORCEMENT 삭제 → ENF_BY_ID 불필요. IntensityCard 는 dead code (LADDER_INDIVIDUAL=[]).
+const ENF_BY_ID = {}
 
 // 겪어보기 시뮬레이션이 준비된 unit — E2·E3 상호작용 과제만
 // u05: One-Tap / Soft Timer  u06: Math Task  u07: Breathing  u08: Physical Action
@@ -1225,8 +1313,7 @@ export function IntensityIndivCard({ spec, state, api, onAnswer }) {
   const item = spec.item
   const hasSim = SIMULATIONS[item.sim] !== null
 
-  // 설명: featureIds[0] 기준. resolveBy: timing 항목은 첫 번째 featureId 사용.
-  const desc = description({ code: item.featureIds?.[0] ?? '' })
+  const desc = item.descKo ?? ''
 
   const handlePick = (accepted) => {
     setLocalPick(accepted ? 'accepted' : 'rejected')
@@ -1274,8 +1361,8 @@ export function IntensityIndivCard({ spec, state, api, onAnswer }) {
   )
 }
 
-// ══ S4-B 이분 탐색 카드 (LADDER_RUNGS, 동적 주입) ══════════
-// spec.rung: LADDER_RUNGS 의 해당 rung 객체
+// ══ S4-B 이분 탐색 카드 (동적 주입, dead code) ══════════
+// spec.rung: LADDER_RUNGS=[] 이므로 실제 생성되지 않음
 // handlePick 이 ladderProbes 를 갱신하고, onAnswer 로 effect 트리거
 export function IntensitySearchCard({ spec, state, api, onAnswer }) {
   const [localPick, setLocalPick] = useState(null) // 'accepted' | 'rejected' | null
@@ -1284,7 +1371,7 @@ export function IntensitySearchCard({ spec, state, api, onAnswer }) {
   const rung = spec.rung
   const hasSim = SIMULATIONS[rung.sim] !== null
 
-  const desc = description({ code: rung.featureIds?.[0] ?? '' })
+  const desc = rung.descKo ?? ''
 
   const handlePick = (accepted) => {
     setLocalPick(accepted ? 'accepted' : 'rejected')
@@ -1415,13 +1502,6 @@ export function BypassScenarioCard({ state, api, onAnswer }) {
   )
 }
 
-// ── S5 공통 선택 항목 레이블 ──
-export const BYPASS_OPTS = [
-  { id: 'B1', label: '차단 개입 설정 변경: 해제, 차단 시간대 변경 등' },
-  { id: 'B2', label: '기기 시스템 설정에서 권한 삭제, 시스템 시간대 변경 등' },
-  { id: 'B3', label: '자기 통제 앱 설치 삭제' },
-  { id: 'B4', label: '작은 창이나 화면 분할로 보는 것' },
-]
 
 // ══ S5-2 우회 방법 복수 선택 ══════════════════════════════
 export function BypassSelectCard({ state, api, onAnswer, answered }) {
@@ -1436,7 +1516,7 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
 
   const handleSwipe = () => {
     // 선택되지 않은 항목은 false 로 확정 (미응답과 거부 구분 없음)
-    const full = Object.fromEntries(BYPASS_OPTS.map(({ id }) => [id, methods[id] === true]))
+    const full = Object.fromEntries(BYPASS_TARGETS.map((b) => [b.featureId, methods[b.featureId] === true]))
     api.set({ bypassMethods: full })
     onAnswer()
   }
@@ -1490,14 +1570,14 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
         <h2 className="c-q">이 상황에서 차단 기능을 피하기 위해 어떤 방법을 선택하실 것 같으세요?</h2>
         <p className="c-p">복수 선택 가능</p>
         <div className="c-opts">
-          {BYPASS_OPTS.map(({ id, label }) => (
+          {BYPASS_TARGETS.map((b) => (
             <button
-              key={id}
-              className={'c-opt' + (methods[id] ? ' on' : '')}
-              onClick={() => toggle(id)}
+              key={b.featureId}
+              className={'c-opt' + (methods[b.featureId] ? ' on' : '')}
+              onClick={() => toggle(b.featureId)}
             >
-              <span className="c-box">{methods[id] ? '✓' : ''}</span>
-              {label}
+              <span className="c-box">{methods[b.featureId] ? '✓' : ''}</span>
+              {b.optionKo}
             </button>
           ))}
         </div>
@@ -1513,8 +1593,8 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
 // ── 탐색 패널 내부: rung 한 행 ─────────────────────────
 // onSim: 겪어보기 클릭 시 부모(S4AgencyDetail)에 rung 전달 — iOS 스태킹 문제 방지
 function RungRow({ rung, state, api, gaugeFilled, gaugeTotal, onSim }) {
-  const hasSim = rung.sim && SIMULATIONS[rung.sim] !== null
-  const desc = description({ code: rung.resolve?.fixed ?? rung.id })
+  const hasSim = rung.sim && SIMULATIONS[rung.sim] === true
+  const desc = rung.descKo ?? ''
 
   const handleSim = () => {
     const played = state.simsPlayed ?? []
@@ -1535,12 +1615,12 @@ function RungRow({ rung, state, api, gaugeFilled, gaugeTotal, onSim }) {
 // ── 탐색 패널 내부: agency 레벨 상세 화면 ──────────────
 function S4AgencyDetail({ level, state, api, onBack }) {
   const [activeSim, setActiveSim] = useState(null) // { rung, hasSim } | null
-  const rungs = (RUNGS_BY_AGENCY[level.id] ?? [])
-    .filter((r) => r.exploreVisible)
-    .sort((a, b) => a.order - b.order)
+  // v3.0: agency 에 속한 개입 기능을 level 순으로 정렬
+  const rungs = INTERVENTIONS
+    .filter((f) => f.agency === level.id)
+    .sort((a, b) => a.level - b.level)
 
-  // limited는 항목이 하나뿐이므로 게이지 미표시
-  const showGauge = level.id !== 'limited' && rungs.length > 1
+  const showGauge = rungs.length > 1
 
   return (
     <div className="dtl">
@@ -1731,7 +1811,7 @@ export function S4RankCard({ state, api, answered, onAnswer }) {
 // val: 'weak' | 'ok' | 'strong' | undefined
 function OXRow({ rung, val, onWeak, onOk, onStrong }) {
   const [showSim, setShowSim] = useState(false)
-  const hasSim = rung.sim && SIMULATIONS[rung.sim] !== null
+  const hasSim = rung.sim && SIMULATIONS[rung.sim] === true
   return (
     <div className="s4-ox-row">
       <div className="s4-ox-name-row">
@@ -1771,6 +1851,7 @@ export function S4OXCard({ spec, state, api, answered, onAnswer }) {
   const onAnswerRef = useRef(onAnswer)
   onAnswerRef.current = onAnswer
 
+  // rungsForOX 가 반환하는 객체에는 id: l.level(숫자) 별칭이 있다
   const allAnswered = rungs.length > 0 && rungs.every((r) => accepted[r.id] !== undefined)
 
   // 모든 항목이 채워지면 → c-pad 맨 아래로 스크롤해 SwipeUp 표시 → 400ms 후 answer 처리
@@ -1842,14 +1923,14 @@ export function BypassWantedCard({ state, api, onAnswer, answered }) {
   const wanted = state.bypassWanted ?? {}
 
   // 두 번째 카드에서 선택된 항목만 표시
-  const selected = BYPASS_OPTS.filter(({ id }) => methods[id] === true)
+  const selected = BYPASS_TARGETS.filter((b) => methods[b.featureId] === true)
 
   const setWanted = (id, val) => {
     api.set({ bypassWanted: { ...wanted, [id]: val } })
   }
 
   // 모든 표시 항목에 예/아니오가 선택됐을 때 SwipeUp 활성화
-  const allAnswered = selected.length > 0 && selected.every(({ id }) => wanted[id] !== undefined)
+  const allAnswered = selected.length > 0 && selected.every((b) => wanted[b.featureId] !== undefined)
 
   const onAnswerRef = useRef(onAnswer)
   onAnswerRef.current = onAnswer
@@ -1866,17 +1947,17 @@ export function BypassWantedCard({ state, api, onAnswer, answered }) {
         <Tag step="S5" />
         <h2 className="c-q">그럼 그 우회 선택지가 차단되어 있기를 바라나요?</h2>
         <div className="bpw-list">
-          {selected.map(({ id, label }) => (
-            <div key={id} className="bpw-item">
-              <div className="bpw-label">{label}</div>
+          {selected.map((b) => (
+            <div key={b.featureId} className="bpw-item">
+              <div className="bpw-label">{b.optionKo}</div>
               <div className="yesno">
                 <button
-                  className={'yesno-btn' + (wanted[id] === false ? ' picked' : '')}
-                  onClick={() => setWanted(id, false)}
+                  className={'yesno-btn' + (wanted[b.featureId] === false ? ' picked' : '')}
+                  onClick={() => setWanted(b.featureId, false)}
                 >괜찮아요</button>
                 <button
-                  className={'yesno-btn' + (wanted[id] === true ? ' picked' : '')}
-                  onClick={() => setWanted(id, true)}
+                  className={'yesno-btn' + (wanted[b.featureId] === true ? ' picked' : '')}
+                  onClick={() => setWanted(b.featureId, true)}
                 >차단해요</button>
               </div>
             </div>

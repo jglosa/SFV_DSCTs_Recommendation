@@ -1284,6 +1284,15 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .isim-env-msg { font-size: 15px; font-weight: 700; color: #fff; margin: 0; text-align: center; }
 .isim-env-btns { display: flex; gap: 8px; }
 .isim-env-btns .iv-btn { flex: 1; }
+/* scroll_blocked: 스와이프 시 배너 강조 */
+.isim-env-banner--active { background: rgba(210,45,45,.88); }
+/* scroll_blocked: 화면 튕김 애니메이션 */
+@keyframes isimBounce {
+  0%,100% { transform: translateY(0); }
+  30%     { transform: translateY(-18px); }
+  65%     { transform: translateY(5px); }
+}
+.isim-screen.isim-bounce { animation: isimBounce .4s ease; }
 /* 화면 하단 안내 문구 (push_notification — 막지 않음 명시) */
 .isim-env-note {
   position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
@@ -1364,6 +1373,8 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .dtl-feat-list { display: flex; flex-direction: column; gap: 6px; }
 .dtl-feat-row { padding: 12px 14px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border); }
 .dtl-feat-row.highlight { border-color: var(--mint-deep); background: var(--mint-soft); }
+.dtl-feat-row--link { display: block; width: 100%; text-align: left; cursor: pointer; }
+.dtl-feat-row--link:active { opacity: .7; }
 .dtl-feat-name { font-size: 14px; font-weight: 600; color: var(--ink); display: block; }
 .dtl-feat-desc { font-size: 13px; color: var(--slate); line-height: 1.6; display: block; margin-top: 5px; }
 .dtl-env-table {
