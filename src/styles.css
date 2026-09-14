@@ -48,7 +48,16 @@ html, body {
   margin: 0; padding: 0; height: 100%;
   font-family: var(--sans); background: var(--bg);
   overscroll-behavior: none;
+  /* 조작 화면 — 텍스트 복사 불필요, 드래그 선택·컨텍스트 메뉴 방지 */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
+/* 입력란 예외: 타이핑·선택 허용 */
+.isim-textarea,
+.isim-input { user-select: text; -webkit-user-select: text; }
+/* 시연자 모니터 예외: 로그 복사 허용 */
+.sidecar { user-select: text; -webkit-user-select: text; }
 #root { height: 100%; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px; }
@@ -1015,6 +1024,27 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .mon-k { font-size: 9.5px; color: var(--ink-2); min-width: 52px; flex-shrink: 0; }
 .mon-v { font-family: var(--sans); font-size: 11px; color: var(--ink); line-height: 1.45; word-break: break-word; }
 
+/* 등급표 (DebugPanel 결과 화면 전용) */
+.grade-row { padding: 5px 0; border-top: 1px solid var(--border); }
+.grade-row:first-child { border-top: none; }
+.grade-hdr { display: flex; flex-wrap: wrap; gap: 4px; align-items: baseline; line-height: 1.6; }
+.grade-g { font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--mint-deep); min-width: 22px; }
+.grade-lv { font-family: var(--mono); font-size: 9.5px; color: var(--ink-2); min-width: 20px; }
+.grade-name { font-family: var(--sans); font-size: 10.5px; color: var(--ink); flex: 1; min-width: 60px; word-break: break-word; }
+.grade-meta { font-size: 9.5px; color: var(--ink-2); white-space: nowrap; }
+.grade-ans { font-size: 9.5px; font-weight: 600; padding: 0 3px; border-radius: 3px; }
+.grade-ans.ok { color: var(--mint-deep); }
+.grade-ans.strong { color: #ef4444; }
+.grade-ans.weak { color: var(--ink-2); }
+.grade-summary { font-family: var(--mono); font-size: 9px; color: var(--ink-2); margin-bottom: 6px; word-break: break-all; line-height: 1.5; }
+.grade-dp { font-family: var(--mono); font-size: 8.5px; color: var(--ink-2); opacity: .6; padding: 0 0 2px 22px; }
+.grade-items { padding: 1px 0 0 22px; }
+.grade-item { font-size: 9.5px; color: var(--ink); line-height: 1.65; word-break: break-word; }
+.grade-item.picked { color: var(--mint-deep); font-weight: 700; }
+.grade-item.dropped { opacity: .35; }
+.grade-item-meta { font-family: var(--mono); font-size: 8.5px; color: var(--ink-2); }
+.grade-drop { color: #f97316; }
+
 /* ── ResultCard v2 업데이트 ────────────────────────────────── */
 /* 추천 기능 — 버튼형 카드 */
 .frec-btn {
@@ -1244,6 +1274,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: 118px; height: 118px; border-radius: 50%;
   background: var(--ink); border: none; cursor: pointer;
+  touch-action: none;
 }
 /* mission_capture */
 .isim-viewfinder {
@@ -1393,6 +1424,31 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   font-size: 10px; font-weight: 700; color: var(--mint-deep);
   background: var(--mint-soft); border-radius: 4px;
   padding: 1px 5px; letter-spacing: .04em; white-space: nowrap;
+}
+
+/* ── S1 범위 목록 ───────────────────────────────────────── */
+.s1-scope-list { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+.s1-scope-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-radius: 10px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  transition: border-color .15s, background .15s;
+}
+.s1-scope-item.on { border-color: var(--mint-deep); background: var(--mint-soft); }
+.s1-scope-name { font-size: 14px; font-weight: 600; color: var(--ink); flex-shrink: 0; }
+.s1-scope-desc { font-size: 12px; color: var(--ink-2); flex: 1; }
+.s1-scope-check { font-size: 13px; color: var(--mint-deep); font-weight: 700; flex-shrink: 0; }
+
+/* S1 오버레이 내부 레이아웃 — 배너 고정 + MockHome 나머지 채움 */
+.s1-scope-body { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+.s1-scope-mock { flex: 1; min-height: 0; overflow: hidden; }
+
+/* 선택 완료 버튼 — 헤더 우측, 진한 배경 + 흰 글씨 */
+.s1-scope-done {
+  margin-left: auto;
+  background: var(--ink); color: #fff;
+  padding: 6px 16px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
 }
 
 /* ── S4 탐색 오버레이 / 카드 ───────────────────────────── */

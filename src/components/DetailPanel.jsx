@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FEATURE_BY_ID, FEATURES, SIMULATIONS, SCOPE_DISPLAY, SCOPE_LEVELS, normalizeScope } from '../data/features.js'
+import { FEATURE_BY_ID, FEATURES, SCOPE_DISPLAY, SCOPE_LEVELS } from '../data/features.js'
 import { APP_BY_ID, appIconPath, ROUTE_MAP, inAppPlatforms as getInAppPlatforms } from '../data/apps.js'
 import { SimNotReady, InterventionSim } from './Cards.jsx'
 
@@ -77,7 +77,7 @@ function FeatureDetail({ detail, onBack, onOpenApp, onOpenDetail }) {
   const name = item.nameKo ?? feature?.nameKo ?? featureId
   const desc = item.descKo ?? feature?.descKo ?? ''
   const simId = feature?.sim
-  const hasLiveSim = simId != null && SIMULATIONS[simId] === true
+  const hasLiveSim = simId != null
 
   // 앱 목록: features[].apps 역방향 참조
   const allAppIds = feature?.apps ?? []
@@ -114,11 +114,11 @@ function FeatureDetail({ detail, onBack, onOpenApp, onOpenDetail }) {
                 <span className="dtl-meta-value">{AGENCY_LABEL[feature.agency]}</span>
               </div>
             )}
-            {normalizeScope(feature.scope).length > 0 && (
+            {(feature.scope ?? []).length > 0 && (
               <div className="dtl-meta-row">
                 <span className="dtl-meta-label">통제 범위</span>
                 <span className="dtl-meta-value">
-                  {normalizeScope(feature.scope).map((s) => SCOPE_LEVELS[s] ?? s).join(' · ')}
+                  {(feature.scope ?? []).map((s) => SCOPE_LEVELS[s] ?? s).join(' · ')}
                 </span>
               </div>
             )}

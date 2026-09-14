@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { STEP_LABEL, cardTitle } from '../deck.js'
 import { SCOPE_LEVELS, BYPASS_TARGETS, RESISTANCE_LABEL } from '../data/features.js'
 import { VARIANTS } from './Intervention.jsx'
 import { rangesOf } from './Clock24.jsx'
+import { recommend } from '../engine.js'
 
 // ─────────────────────────────────────────────────────────────
 // 시연·모니터 패널. 데스크톱에서만 보이고 휴대폰 폭에서는 CSS로 숨는다.
@@ -16,55 +18,89 @@ import { rangesOf } from './Clock24.jsx'
 // 여기에 반영되지 않는다. 기기 간 동기화는 서버(웹소켓)가 필요하다.
 // ─────────────────────────────────────────────────────────────
 
+// ── 공통 기본값 ───────────────────────────────────────────────
+const DEFAULT_ENV = {
+  devices:   ['mobile'],
+  os:        ['ios', 'android'],
+  route:     ['앱'],
+  platforms: ['YouTube', 'Instagram'],
+}
+const DEFAULT_PATCH = {
+  hours:        { daily: [22, 23, 24, 1, 2], weekday: [], weekend: [] },
+  dayType:      'daily',
+  bypassMethods: {},
+  bypassWanted: { 'lock-app-settings': true, 'prevent-uninstall': true },
+  simsPlayed:   [],
+  oxSkipped:    [],
+}
+
+function makePreset({ env: envOverride, ...rest }) {
+  return {
+    ...DEFAULT_PATCH,
+    env:          { ...DEFAULT_ENV, ...envOverride },
+    agencyVisited: rest.agencyRank,
+    ...rest,
+  }
+}
+
 const PRESETS = [
   {
-    name: '경계 설계자형',
-    hot: true,
-    patch: {
-      env: { devices: ['아이폰·아이패드'], os: ['ios'], route: ['앱'], platforms: ['YouTube', 'Instagram'] },
-      scopes: ['shorts-tab', 'shorts-row', 'content'],
-      hours: { daily: [22, 23, 24, 1, 2], weekday: [], weekend: [] },
-      dayType: 'daily',
-      timingRank: ['Pre', 'At', 'InUse'],
-      agencyVisited: ['supported', 'flexible', 'limited'],
-      simsPlayed: ['push_notification', 'hard_block'],
-      agencyRank: ['limited', 'flexible', 'supported'],
+    name: 'P1 · 최소 응답',
+    patch: makePreset({
+      agencyRank:      ['supported', 'flexible', 'limited'],
+      featureAccepted: { 1: 'ok' },
+      scopes:          ['shorts-tab'],
+      timingRank:      ['At', 'InUse', 'Pre'],
+      oxSkipped:       ['flexible'],
+    }),
+  },
+  {
+    name: 'P2 · 전부 수용',
+    patch: makePreset({
+      agencyRank:      ['flexible', 'limited', 'supported'],
+      featureAccepted: { 4: 'ok', 5: 'ok', 6: 'ok', 7: 'ok', 8: 'ok', 9: 'ok' },
+      scopes:          ['app', 'shorts-row', 'shorts-tab', 'content'],
+      timingRank:      ['At', 'InUse', 'Pre'],
+    }),
+  },
+  {
+    name: 'P3 · 전부 과함',
+    patch: makePreset({
+      agencyRank:      ['flexible', 'supported', 'limited'],
+      featureAccepted: { 1: 'strong', 2: 'strong', 3: 'strong', 4: 'strong', 5: 'strong',
+                         6: 'strong', 7: 'strong', 8: 'strong', 9: 'strong' },
+      scopes:          ['shorts-tab'],
+      timingRank:      ['InUse', 'At', 'Pre'],
+    }),
+  },
+  {
+    name: 'P4 · 완전 차단',
+    patch: makePreset({
+      agencyRank:      ['limited', 'flexible', 'supported'],
       featureAccepted: { 10: 'ok' },
-      bypassMethods: { 'lock-app-settings': true, 'lock-device-settings': true, 'prevent-uninstall': true, 'prevent-multiwindow': true },
-      bypassWanted:  { 'lock-app-settings': true, 'lock-device-settings': true, 'prevent-uninstall': true, 'prevent-multiwindow': true },
-    },
+      scopes:          ['app', 'shorts-row', 'shorts-tab', 'content'],
+      timingRank:      ['InUse', 'At', 'Pre'],
+    }),
   },
   {
-    name: '문턱 관리자형',
-    patch: {
-      env: { devices: ['안드로이드 폰·태블릿'], os: ['android'], route: ['앱'], platforms: ['YouTube'] },
-      scopes: ['shorts-tab'],
-      hours: { daily: [], weekday: [23, 24, 1], weekend: [] },
-      dayType: 'split',
-      timingRank: ['At', 'InUse', 'Pre'],
-      agencyVisited: ['supported', 'flexible'],
-      simsPlayed: ['confirm', 'timed_wait'],
-      agencyRank: ['flexible', 'supported', 'limited'],
-      featureAccepted: { 4: 'ok', 5: 'ok', 7: 'strong' },
-      bypassMethods: { 'lock-app-settings': false, 'lock-device-settings': false, 'prevent-uninstall': false, 'prevent-multiwindow': true },
-      bypassWanted:  { 'prevent-multiwindow': true },
-    },
+    name: 'P5 · 평가 최소',
+    patch: makePreset({
+      agencyRank:      ['flexible', 'supported', 'limited'],
+      featureAccepted: { 4: 'ok' },
+      scopes:          ['shorts-tab'],
+      timingRank:      ['At', 'InUse', 'Pre'],
+      oxSkipped:       ['supported'],
+    }),
   },
   {
-    name: '사후 성찰가형',
-    patch: {
-      env: { devices: ['아이폰·아이패드', '안드로이드 폰·태블릿'], os: ['ios', 'android'], route: ['앱', '메신저·SNS로 받은 링크'], platforms: ['Instagram', 'TikTok'] },
-      scopes: ['shorts-row'],
-      hours: { daily: [], weekday: [13, 14, 15, 16], weekend: [] },
-      dayType: 'split',
-      timingRank: ['InUse', 'At', 'Pre'],
-      agencyVisited: ['supported', 'flexible'],
-      simsPlayed: ['push_notification', 'grayscale'],
-      agencyRank: ['supported', 'flexible', 'limited'],
-      featureAccepted: { 1: 'ok', 2: 'strong', 3: 'ok' },
-      bypassMethods: { 'lock-app-settings': false, 'lock-device-settings': false, 'prevent-uninstall': false, 'prevent-multiwindow': false },
-      bypassWanted:  {},
-    },
+    name: 'P6 · 지원 없는 환경',
+    patch: makePreset({
+      env:             { os: ['android'], platforms: ['YouTube'] },
+      agencyRank:      ['supported', 'flexible', 'limited'],
+      featureAccepted: { 1: 'ok', 2: 'ok', 3: 'ok' },
+      scopes:          ['shorts-tab'],
+      timingRank:      ['Pre', 'At', 'InUse'],
+    }),
   },
 ]
 
@@ -83,6 +119,17 @@ export default function DebugPanel({ state, api, meta, onJump }) {
   const cards = meta?.cards || []
   const active = meta?.active ?? 0
   const order = meta?.order || []
+  const [activePreset, setActivePreset] = useState(null)
+
+  const injectPreset = (p) => {
+    setActivePreset(p.name)
+    api.set(p.patch)
+    const resultIdx = cards.findIndex((c) => c.type === 'result')
+    if (resultIdx !== -1) onJump({ i: resultIdx, k: Math.random() })
+  }
+
+  const isResult = cards[active]?.type === 'result'
+  const gradeTable = isResult ? recommend(state).gradeTable : null
 
   const envLine = (key) => {
     const v = state.env[key] || []
@@ -254,26 +301,89 @@ export default function DebugPanel({ state, api, meta, onJump }) {
         </div>
       </div>
 
+      {/* ── 등급 목록 (결과 화면에서만) ── */}
+      {isResult && gradeTable && (
+        <div className="sc-group">
+          <div className="sc-label">레벨 등급표 (G 오름차순)</div>
+          {/* 입력 요약 */}
+          <div className="grade-summary">
+            {`agencyRank:[${(state.agencyRank ?? []).join(',')}]`}
+            {`  fa:{${Object.entries(state.featureAccepted ?? {}).map(([k,v]) => `${k}:${v}`).join(',')}}`}
+            {`  scopes:[${(state.scopes ?? []).join(',')}]`}
+            {`  timing:[${(state.timingRank ?? []).join(',')}]`}
+            {`  oxSkipped:[${(state.oxSkipped ?? []).join(',')}]`}
+          </div>
+          <div className="mon-box">
+            {gradeTable.map((row) => {
+              const rankStr = row.rank === -1 ? 'rank -' : `rank ${row.rank + 1}`
+              const dpStr = row.decideParams === null
+                ? 'null'
+                : JSON.stringify(row.decideParams)
+              return (
+                <div className="grade-row" key={row.level}>
+                  <div className="grade-hdr">
+                    <span className="grade-g">G{row.grade}</span>
+                    <span className="grade-lv">L{row.level}</span>
+                    <span className="grade-name">{row.nameKo}</span>
+                    <span className="grade-meta">{row.agency}  {rankStr}</span>
+                    <span className={`grade-ans ${row.answer ?? 'none'}`}>{row.answer ?? 'none'}</span>
+                  </div>
+                  <div className="grade-dp">
+                    {`dp:${dpStr}`}
+                    {row.fallback && ` [${row.fallback} 폴백]`}
+                  </div>
+                  {row.items.length > 0 && (
+                    <div className="grade-items">
+                      {row.items.map((it) => (
+                        <div
+                          key={it.id}
+                          className={`grade-item${it.picked ? ' picked' : ''}${!it.passed ? ' dropped' : ''}`}
+                        >
+                          {it.picked ? '★ ' : '· '}
+                          {it.nameKo}
+                          <span className="grade-item-meta">
+                            {'  '}{it.when}
+                            {it.scope.length > 0 ? '  ' + it.scope.join(',') : ''}
+                            {'  '}(앱 {it.coverage}개)
+                            {it.dropReason && (
+                              <span className="grade-drop">  [{it.dropReason}]</span>
+                            )}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* ── 프리셋 ── */}
       <div className="sc-group">
         <div className="sc-label">응답 프리셋 주입</div>
         <p className="sc-tiny">
-          결과 카드에서 프리셋을 바꿔가며 비교하는 용도. 주입하면 결과가 즉시 다시
-          계산됩니다.
+          주입하면 결과 화면으로 이동하고 등급표가 갱신됩니다.
         </p>
+        {activePreset && (
+          <p className="sc-tiny" style={{ color: 'var(--mint-deep)', marginBottom: 4 }}>
+            현재: {activePreset}
+          </p>
+        )}
         <div className="sc-fill">
           {PRESETS.map((p) => (
             <button
               key={p.name}
-              className={'sc-mini' + (p.hot ? ' hot' : '')}
-              onClick={() => api.set(p.patch)}
+              className={'sc-mini' + (activePreset === p.name ? ' hot' : '')}
+              onClick={() => injectPreset(p)}
             >
               {p.name}
             </button>
           ))}
         </div>
         <div style={{ marginTop: 6 }}>
-          <button className="sc-btn wide" onClick={api.reset}>
+          <button className="sc-btn wide" onClick={() => { setActivePreset(null); api.reset() }}>
             처음부터 다시 (덱 초기화)
           </button>
         </div>

@@ -12,6 +12,7 @@ import {
   MultiCard,
   NoteCard,
   RankCard,
+  S1ScopePanel,
   S4ExploreCard,
   S4ExplorePanel,
   S4OXCard,
@@ -50,6 +51,8 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
 
   // S4 레벨 순위 결정 후 s4-ox 조건부 주입 대기열
   const s4RankQueue = useRef([])
+  // S1 범위 선택 오버레이 열림 상태
+  const [s1ScopeOpen, setS1ScopeOpen] = useState(false)
   // S4 탐색 오버레이 열림 상태
   const [s4ExploreOpen, setS4ExploreOpen] = useState(false)
 
@@ -254,7 +257,14 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
           />
         )
       case 'scope-home':
-        return <ScopeHomeCard state={state} api={api} onAnswer={onAnswer} />
+        return (
+          <ScopeHomeCard
+            state={state}
+            api={api}
+            onAnswer={onAnswer}
+            onOpenScopeOverlay={() => setS1ScopeOpen(true)}
+          />
+        )
       case 'scope-shorts':
         return (
           <ScopeShortsCard
@@ -414,6 +424,21 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
       )}
 
       {/* step-pill 제거: S# 배지는 참가자 화면에 표시하지 않음 */}
+
+      {/* S1 범위 선택 오버레이 — .viewport 위에 겹쳐서 scroll-snap 과 분리 */}
+      {s1ScopeOpen && (
+        <S1ScopePanel
+          state={state}
+          api={api}
+          onClose={() => setS1ScopeOpen(false)}
+          onDone={() => {
+            setS1ScopeOpen(false)
+            const sc = cards.find((c) => c.type === 'scope-home')
+            if (!sc) return
+            if ((state.scopes ?? []).length > 0) answer(sc.cid)
+          }}
+        />
+      )}
 
       {/* S4 탐색 오버레이 — .viewport 위에 겹쳐서 scroll-snap 과 분리 */}
       {s4ExploreOpen && (

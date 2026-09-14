@@ -25,22 +25,26 @@
   {
    "id": "app",
    "nameKo": "앱 전체",
-   "badge": "앱 전체"
+   "badge": "앱 전체",
+   "descKo": "앱을 아예 열 수 없게"
   },
   {
    "id": "shorts-row",
    "nameKo": "숏폼 추천 줄",
-   "badge": "이 줄"
+   "badge": "이 줄",
+   "descKo": "피드에 뜨는 숏폼 칸만"
   },
   {
    "id": "shorts-tab",
    "nameKo": "숏폼 탭",
-   "badge": "이 탭"
+   "badge": "이 탭",
+   "descKo": "숏폼 영역 자체를"
   },
   {
    "id": "content",
    "nameKo": "채널·주제",
-   "badge": "이런 채널·주제"
+   "badge": "이런 채널·주제",
+   "descKo": "특정 채널이나 주제만"
   }
  ],
 
@@ -456,6 +460,42 @@
    }
   },
   {
+   "id": "block-shortform",
+   "nameKo": "숏츠/릴스 차단",
+   "descKo": "숏폼 탭이 차단되어 들어갈 수 없습니다. 앱의 나머지 기능은 그대로 사용 가능합니다.",
+   "codebook": "1.1.2 Specific Feature/Keyword Block",
+   "role": "intervention",
+   "agency": "limited",
+   "level": 10,
+   "when": "At",
+   "scope": ["shorts-row", "shorts-tab"],
+   "sim": "hard_block",
+   "apps": [
+    "1_S",
+    "2_SF",
+    "3_D",
+    "4_A",
+    "5_N",
+    "6_BS",
+    "7_NS",
+    "8_SS",
+    "9_WH",
+    "10_SG",
+    "11_SB",
+    "12_SZ",
+    "13_M",
+    "14_R",
+    "15_SY",
+    "16_UT",
+    "19_SH"
+   ],
+   "coverage": {
+    "n": 17,
+    "ios": 9,
+    "android": 14
+   }
+  },
+  {
    "id": "block-content",
    "nameKo": "채널·주제 차단",
    "descKo": "지정한 채널이나 주제의 영상이 차단됩니다.",
@@ -525,42 +565,6 @@
     "n": 3,
     "ios": 2,
     "android": 1
-   }
-  },
-  {
-   "id": "block-shortform",
-   "nameKo": "숏츠/릴스 차단",
-   "descKo": "숏폼 탭이 차단되어 들어갈 수 없습니다. 앱의 나머지 기능은 그대로 사용 가능합니다.",
-   "codebook": "1.1.2 Specific Feature/Keyword Block",
-   "role": "intervention",
-   "agency": "limited",
-   "level": 10,
-   "when": "At",
-   "scope": ["shorts-row", "shorts-tab"],
-   "sim": "hard_block",
-   "apps": [
-    "1_S",
-    "2_SF",
-    "3_D",
-    "4_A",
-    "5_N",
-    "6_BS",
-    "7_NS",
-    "8_SS",
-    "9_WH",
-    "10_SG",
-    "11_SB",
-    "12_SZ",
-    "13_M",
-    "14_R",
-    "15_SY",
-    "16_UT",
-    "19_SH"
-   ],
-   "coverage": {
-    "n": 17,
-    "ios": 9,
-    "android": 14
    }
   },
   {
@@ -820,22 +824,34 @@
   {
    "featureId": "lock-app-settings",
    "nameKo": "개입 설정 변경 불가 모드",
-   "optionKo": "차단 개입 설정 변경: 해제, 차단 시간대 변경 등"
+   "optionKo": "차단 개입 설정 변경: 해제, 차단 시간대 변경 등",
+   "scene": "카페에서 공부하다 지쳤습니다. 차단 앱 설정으로 들어가 차단 시간대를 바꾸려 합니다.",
+   "action": "차단 앱 설정 변경",
+   "question": "이 우회는 막혀 있어야 한다고 생각하세요?"
   },
   {
    "featureId": "lock-device-settings",
    "nameKo": "기기 설정 변경 불가 모드",
-   "optionKo": "기기 시스템 설정에서 권한 삭제, 시스템 시간대 변경 등"
+   "optionKo": "기기 시스템 설정에서 권한 삭제, 시스템 시간대 변경 등",
+   "scene": "기기 날짜·시간 설정을 바꾸거나 계정에서 로그아웃하면 차단이 풀릴 수도 있습니다.",
+   "action": "OS 설정 변경으로 차단 우회",
+   "question": "이 우회는 막혀 있어야 한다고 생각하세요?"
   },
   {
    "featureId": "prevent-uninstall",
    "nameKo": "앱 삭제 방지",
-   "optionKo": "자기 통제 앱 설치 삭제"
+   "optionKo": "자기 통제 앱 설치 삭제",
+   "scene": "새벽 1시. 차단이 번거롭게 느껴져 차단 앱을 지워버릴까 생각합니다.",
+   "action": "차단 앱 삭제 후 재설치",
+   "question": "이 우회는 막혀 있어야 한다고 생각하세요?"
   },
   {
    "featureId": "prevent-multiwindow",
    "nameKo": "다른 창 우회 차단",
-   "optionKo": "작은 창이나 화면 분할로 보는 것"
+   "optionKo": "작은 창이나 화면 분할로 보는 것",
+   "scene": "차단이 걸려 있지만 PIP(화면 속 화면)나 분할화면을 쓰면 옆에서 볼 수 있습니다.",
+   "action": "PIP·분할화면으로 계속 보기",
+   "question": "이 우회는 막혀 있어야 한다고 생각하세요?"
   }
  ]
 }

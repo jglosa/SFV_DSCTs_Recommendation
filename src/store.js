@@ -1,5 +1,5 @@
 import { useReducer } from 'react'
-import { LEVELS, INTERVENTIONS, FEATURE_BY_ID, normalizeScope } from './data/features.js'
+import { LEVELS, INTERVENTIONS, FEATURE_BY_ID } from './data/features.js'
 
 // ─────────────────────────────────────────────────────────────
 // 단일 진실 상태. S0~S5 흐름에 맞춰 필드가 정렬되어 있다.
@@ -98,33 +98,21 @@ export function canProceedFromExplore(state) {
 }
 
 /**
- * O/X 를 받아야 할 agency id 배열 (순서 있음).
- *   1) agencyRank[0] — limited 면 제외
- *   2) agencyVisited 중 1순위가 아니고 limited 가 아닌 레벨
+ * O/X 를 받아야 할 agency id 배열 (최대 2개).
+ *   agencyRank[0] (1순위) 와 agencyRank[1] (2순위) 만 반환한다.
+ *   3순위는 묻지 않는다. limited 제외 없음.
  */
 export function oxTargets(state) {
-  const rank = state.agencyRank ?? []
-  const visited = state.agencyVisited ?? []
-  const top = rank[0]
-  const targets = []
-
-  if (top && top !== 'limited') targets.push(top)
-
-  for (const id of visited) {
-    if (id !== top && id !== 'limited' && !targets.includes(id)) {
-      targets.push(id)
-    }
-  }
-  return targets
+  return (state.agencyRank ?? []).slice(0, 2).filter(Boolean)
 }
 
 /**
  * 특정 agency 의 레벨 배열을 level 오름차순으로 반환한다.
- * limited 는 항상 빈 배열 (OX 를 받지 않는다).
+ * limited 는 level 10 하나를 반환한다 (항목 한 개짜리 O/X 카드).
  * 반환 객체에 id: l.level 을 추가해 Cards.jsx 와 호환한다.
  */
 export function rungsForOX(state, agencyId) {
-  if (!agencyId || agencyId === 'limited') return []
+  if (!agencyId) return []
   return LEVELS
     .filter((l) => l.agency === agencyId)
     .sort((a, b) => a.level - b.level)
@@ -181,11 +169,36 @@ export function itemsForLevel(level, scopes, timingRank) {
   const useScope  = Array.isArray(dp) && dp.includes('scope')
   const useTiming = dp === 'timing'   || (Array.isArray(dp) && dp.includes('timing'))
 
+  // ── scope + timing 복합: 범위별 독립 처리 (L10 전용) ─────────
+  // 범위는 '막아달라' 는 요구, 시점은 순위. 범위가 시점보다 우선한다.
+  // 각 범위를 독립적으로 처리하고 결과를 합친다.
+  if (useScope && useTiming && (scopes ?? []).length > 0) {
+    const seenIds = new Set()
+    const results = []
+    for (const scope of (scopes ?? [])) {
+      const byScope = candidates.filter((f) => {
+        const fs = f.scope ?? []
+        return fs.length === 0 || fs.includes(scope)
+      })
+      if (byScope.length === 0) continue
+      let picked = null
+      for (const when of (timingRank ?? [])) {
+        const hit = byScope.filter((f) => f.when === when)
+        if (hit.length > 0) { picked = hit; break }
+      }
+      if (!picked) picked = byScope   // 세 시점 모두 없으면 폴백
+      for (const item of picked) {
+        if (!seenIds.has(item.id)) { seenIds.add(item.id); results.push(item) }
+      }
+    }
+    return results
+  }
+
   // ── scope 필터 ──────────────────────────────────────────────
   let pool = candidates
   if (useScope && (scopes ?? []).length > 0) {
     const filtered = candidates.filter((f) => {
-      const fs = normalizeScope(f.scope)
+      const fs = f.scope ?? []
       if (fs.length === 0) return true   // scope null/[] 항목은 무조건 통과
       return fs.some((s) => (scopes ?? []).includes(s))
     })

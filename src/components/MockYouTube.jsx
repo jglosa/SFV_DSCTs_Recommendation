@@ -241,7 +241,7 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
           : shelfSection
         }
 
-        {LONGFORM.slice(1).map((v) => (
+        {LONGFORM.slice(1, 3).map((v) => (
           <VidCard key={v.t} v={v} />
         ))}
       </div>

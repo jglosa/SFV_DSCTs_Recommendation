@@ -74,15 +74,7 @@ export function buildScript() {
 
     ...S0_QUESTIONS.map((q) => ({ type: 'multi', ...q, title: q.q })),
 
-    {
-      type: 'note',
-      step: 'S1',
-      title: '통제 범위 안내',
-      heading: '앱 전체를 지울 필요는 없어요',
-      body:
-        '숏폼으로 이어지는 길목만 골라서 막을 수 있습니다. 실제 앱 화면에서 막고 싶은 곳을 직접 눌러주세요.',
-    },
-    { type: 'scope-home', step: 'S1', title: '홈 화면에서 고르기' },
+    { type: 'scope-home', step: 'S1', title: '통제 범위 선택' },
 
     { type: 'schedule-type', step: 'S2', title: '개입 시간 유형 선택' },
     // 시계 카드는 Deck.jsx가 dayType에 따라 동적으로 주입 (0·1·2장)

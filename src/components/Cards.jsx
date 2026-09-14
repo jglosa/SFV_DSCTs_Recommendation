@@ -3,7 +3,7 @@ import { MockHome, MockShorts } from './MockYouTube.jsx'
 import { VIDEO_POOL } from '../data/videos.js'
 import Intervention, { VARIANTS, SIM_INUSE_COUNT } from './Intervention.jsx'
 import Clock24, { rangesOf } from './Clock24.jsx'
-import { AGENCY_LEVELS, INTERVENTIONS, SIMULATIONS, BYPASS_TARGETS } from '../data/features.js'
+import { AGENCY_LEVELS, INTERVENTIONS, BYPASS_TARGETS, SCOPE_LEVELS_ARRAY } from '../data/features.js'
 import { canProceedFromExplore, rungsForOX } from '../store.js'
 import { SCENARIOS, SCENARIO_BY_ID } from '../data/scenarios.js'
 import { STEP_LABEL } from '../deck.js'
@@ -46,15 +46,16 @@ export function IntroCard({ onAnswer, answered }) {
           <em>이제 되찾아 봐요</em>
         </h1>
         <p className="c-p">
-          숏폼 비디오를 보다가 의도치 않게 너무 많은 시간을 흘려보낸 적이 있나요?
-          주도권을 되찾고 싶은데 뭘 어떻게 해야 할지 모르겠다면, 여기서
-          시작해보세요.
+          숏폼 비디오를 보다 보니 생각보다 훨씬 많은 시간을 보내고 있었던 적이
+          있나요? 숏폼을 조금 덜 보거나, 내가 원하는 방식으로 사용하고 싶지만
+          어떻게 해야 할지 잘 모르겠다면 여기서 시작해보세요.
         </p>
         <p className="c-p">
-          숏폼 사용을 스스로 조절하도록 돕는 많은 기술들 중에서,
-          여러분에게 맞는 기능을 추천합니다. 질문에 답하고, 실제 숏폼
-          사용 환경처럼 직접 써보면서 무엇을 통제하고 싶은지, 어떻게 통제하고
-          싶은지 생각해보세요.
+          숏폼 사용을 스스로 조절할 수 있도록 도와주는 여러 기능 중에서
+          여러분에게 잘 맞는 기능을 추천해드립니다. 간단한 질문에 답하고,
+          실제로 숏폼을 사용하는 것처럼 직접 기능을 체험해보세요. 체험하면서
+          숏폼을 사용할 때 무엇을 바꾸고 싶은지, 어떤 방식이 나에게 도움이 될지
+          생각해볼 수 있습니다.
         </p>
         <div className="c-foot">
           질문에 답하거나 시뮬레이션이 끝나면 위로 스와이프하라는 안내가
@@ -146,32 +147,63 @@ export function MultiCard({ spec, value = [], other = '', onAnswer, onOther, ico
   )
 }
 
-// ══ S1 통제 범위 : 홈 화면 (앱·진입점·탭·콘텐츠 4개 타겟 통합) ═══
-// content 타겟은 칩 묶음(이런 채널·주제)으로만 진입한다.
-// 채널 이름 등 구체적 대상은 수집하지 않는다 (추천에 쓰이지 않음).
-export function ScopeHomeCard({ state, api, onAnswer }) {
+// ══ S1 통제 범위 : 안내 + 범위 목록 + 화면 선택 (오버레이 방식) ════
+// MockYouTube 는 오버레이 안에서 열린다. 이 카드는 목록만 표시한다.
+export function ScopeHomeCard({ state, api, onAnswer, onOpenScopeOverlay }) {
+  const selected = state.scopes ?? []
+
+  return (
+    <div className="c c-paper">
+      <div className="c-pad">
+        <Tag step="S1" />
+        <h2 className="c-q">어느 부분을 막고 싶으신가요?</h2>
+        <p className="c-p">앱 전체를 지울 필요는 없어요. 숏폼으로 이어지는 길목만 골라서 막을 수 있습니다.</p>
+        <ul className="s1-scope-list">
+          {SCOPE_LEVELS_ARRAY.map((s) => (
+            <li key={s.id} className={'s1-scope-item' + (selected.includes(s.id) ? ' on' : '')}>
+              <span className="s1-scope-name">{s.nameKo}</span>
+              <span className="s1-scope-desc">{s.descKo}</span>
+              {selected.includes(s.id) && <span className="s1-scope-check">✓</span>}
+            </li>
+          ))}
+        </ul>
+        <button className="c-start" onClick={onOpenScopeOverlay}>
+          화면에서 고르기
+        </button>
+        {selected.length > 0 && (
+          <SwipeUp />
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ══ S1 통제 범위 : 오버레이 (Deck.jsx 에서 렌더링) ════════════════
+// position:absolute; inset:0 으로 .viewport 전체 덮음 (.dtl CSS 재사용)
+export function S1ScopePanel({ state, api, onClose, onDone }) {
   const pick = (id) => {
-    const has = state.scopes.includes(id)
-    const scopes = has ? state.scopes.filter((s) => s !== id) : [...state.scopes, id]
+    const has = (state.scopes ?? []).includes(id)
+    const scopes = has ? state.scopes.filter((s) => s !== id) : [...(state.scopes ?? []), id]
     api.set({ scopes })
-    if (scopes.length) onAnswer(true)
   }
 
   return (
-    <div className="c c-device">
-      <div className="c-ask">
-        <Tag step="S1" tone="dark" />
-        <h2 className="c-ask-q">막고 싶은 곳을 화면에서 눌러주세요</h2>
+    <div className="dtl">
+      <div className="dtl-nav">
+        <button className="s1-scope-done" onClick={onDone}>선택 완료</button>
       </div>
-      <div className="c-screen">
-        <MockHome
-          picked={state.scopes}
-          onPick={pick}
-          selectable
-        />
+      <div className="dtl-body s1-scope-body">
+        <div className="sim-pre-banner">
+          막고 싶은 곳을 화면에서 눌러주세요. 여러 곳을 선택할 수 있습니다.
+        </div>
+        <div className="s1-scope-mock">
+          <MockHome
+            picked={state.scopes ?? []}
+            onPick={pick}
+            selectable
+          />
+        </div>
       </div>
-
-      {state.scopes.length > 0 && <SwipeUp tone="dark" />}
     </div>
   )
 }
@@ -755,7 +787,6 @@ function MissionHoldSim({ onPass, onClose }) {
           onPointerUp={stopHold}
           onPointerLeave={stopHold}
           onPointerCancel={stopHold}
-          style={{ touchAction: 'none', userSelect: 'none' }}
         />
       </div>
       <div className="iv-actions">
@@ -1311,7 +1342,7 @@ export function IntensityIndivCard({ spec, state, api, onAnswer }) {
   const [showSim, setShowSim] = useState(false)
   const cardRef = useRef(null)
   const item = spec.item
-  const hasSim = SIMULATIONS[item.sim] !== null
+  const hasSim = item.sim != null
 
   const desc = item.descKo ?? ''
 
@@ -1369,7 +1400,7 @@ export function IntensitySearchCard({ spec, state, api, onAnswer }) {
   const [showSim, setShowSim] = useState(false)
   const cardRef = useRef(null)
   const rung = spec.rung
-  const hasSim = SIMULATIONS[rung.sim] !== null
+  const hasSim = rung.sim != null
 
   const desc = rung.descKo ?? ''
 
@@ -1593,7 +1624,7 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
 // ── 탐색 패널 내부: rung 한 행 ─────────────────────────
 // onSim: 겪어보기 클릭 시 부모(S4AgencyDetail)에 rung 전달 — iOS 스태킹 문제 방지
 function RungRow({ rung, state, api, gaugeFilled, gaugeTotal, onSim }) {
-  const hasSim = rung.sim && SIMULATIONS[rung.sim] === true
+  const hasSim = rung.sim != null
   const desc = rung.descKo ?? ''
 
   const handleSim = () => {
@@ -1811,7 +1842,7 @@ export function S4RankCard({ state, api, answered, onAnswer }) {
 // val: 'weak' | 'ok' | 'strong' | undefined
 function OXRow({ rung, val, onWeak, onOk, onStrong }) {
   const [showSim, setShowSim] = useState(false)
-  const hasSim = rung.sim && SIMULATIONS[rung.sim] === true
+  const hasSim = rung.sim != null
   return (
     <div className="s4-ox-row">
       <div className="s4-ox-name-row">

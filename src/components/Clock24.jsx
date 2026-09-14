@@ -50,41 +50,73 @@ export function rangesOf(hours) {
 }
 
 export default function Clock24({ hours, onChange }) {
-  const drag = useRef(null)
+  const drag = useRef(null)   // null | 'on' | 'off'
+  const svgRef = useRef(null)
+
+  // 클라이언트 좌표 → h (1~24). 도넛 고리 밖이면 null.
+  const hFromPoint = (clientX, clientY) => {
+    const rect = svgRef.current.getBoundingClientRect()
+    const dx = (clientX - rect.left) * (264 / rect.width) - CX
+    const dy = (clientY - rect.top) * (264 / rect.height) - CY
+    const r = Math.sqrt(dx * dx + dy * dy)
+    if (r < R_IN || r > R_OUT) return null
+    const angleFromTop = ((Math.atan2(dy, dx) * 180 / Math.PI) + 90 + 360) % 360
+    return Math.round(angleFromTop / 15) % 24 || 24
+  }
 
   const apply = (h) => {
+    if (h === null) return
     const has = hours.includes(h)
     if (drag.current === 'on' && has) return
     if (drag.current === 'off' && !has) return
     onChange(has ? hours.filter((x) => x !== h) : [...hours, h])
   }
 
-  const end = () => (drag.current = null)
+  const handlePointerDown = (e) => {
+    e.preventDefault()
+    e.stopPropagation()   // 카드 덱 swipe 발동 방지
+    const h = hFromPoint(e.clientX, e.clientY)
+    if (h === null) return
+    drag.current = hours.includes(h) ? 'off' : 'on'
+    svgRef.current.setPointerCapture(e.pointerId)   // 이동 추적 — 모바일 터치 포함
+    apply(h)
+  }
+
+  const handlePointerMove = (e) => {
+    if (!drag.current) return
+    apply(hFromPoint(e.clientX, e.clientY))
+  }
+
+  const handlePointerUp = () => { drag.current = null }
 
   return (
-    <div className="clock24" onPointerUp={end} onPointerLeave={end} onPointerCancel={end}>
-      <svg viewBox="0 0 264 264" width="100%" role="group" aria-label="24시간 시계">
+    <div className="clock24">
+      <svg
+        ref={svgRef}
+        viewBox="0 0 264 264"
+        width="100%"
+        role="group"
+        aria-label="24시간 시계"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
+        {/* 이벤트 수신용 투명 배경 (fill="none" 영역 커버) */}
+        <rect x="0" y="0" width="264" height="264" fill="transparent" />
+
         {/* 배경 고리 */}
         <circle cx={CX} cy={CY} r={(R_OUT + R_IN) / 2} fill="none" stroke="#fff" strokeWidth={R_OUT - R_IN} />
         <circle cx={CX} cy={CY} r={R_OUT} fill="none" stroke="var(--paper-3)" strokeWidth="1" />
         <circle cx={CX} cy={CY} r={R_IN} fill="none" stroke="var(--paper-3)" strokeWidth="1" />
 
-        {Array.from({ length: 24 }, (_, i) => i + 1).map((h) => {
-          const on = hours.includes(h)
-          return (
-            <path
-              key={h}
-              d={wedge(h)}
-              className={'wedge' + (on ? ' on' : '')}
-              onPointerDown={(e) => {
-                e.preventDefault()
-                drag.current = hours.includes(h) ? 'off' : 'on'
-                apply(h)
-              }}
-              onPointerEnter={() => drag.current && apply(h)}
-            />
-          )
-        })}
+        {Array.from({ length: 24 }, (_, i) => i + 1).map((h) => (
+          <path
+            key={h}
+            d={wedge(h)}
+            className={'wedge' + (hours.includes(h) ? ' on' : '')}
+          />
+        ))}
 
         {/* 시각 라벨 */}
         {Array.from({ length: 24 }, (_, i) => i + 1).map((h) => {
