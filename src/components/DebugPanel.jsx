@@ -129,7 +129,7 @@ export default function DebugPanel({ state, api, meta, onJump }) {
   }
 
   const isResult = cards[active]?.type === 'result'
-  const gradeTable = isResult ? recommend(state).gradeTable : null
+  const { gradeTable = null, appTable = null } = isResult ? recommend(state) : {}
 
   const envLine = (key) => {
     const v = state.env[key] || []
@@ -353,6 +353,44 @@ export default function DebugPanel({ state, api, meta, onJump }) {
                       ))}
                     </div>
                   )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── 앱 점수표 (결과 화면에서만) ── */}
+      {isResult && appTable && (
+        <div className="sc-group">
+          <div className="sc-label">앱 점수표</div>
+          <div className="grade-summary">
+            {`userMobileOs:[${appTable.userMobileOs.join(',')}]`}
+            {`  pool:${appTable.poolSize}개`}
+            {appTable.excludedIds.length > 0 && `  excluded:[${appTable.excludedIds.join(',')}]`}
+          </div>
+          <div className="mon-box">
+            {appTable.rows.map((row, i) => {
+              // 바로 위 행과 비교해 처음으로 달라진 점수 키
+              const prev = appTable.rows[i - 1]
+              const KEYS = ['osMatchCount','coverageScore','scopeScore','envScore','scheduleScore','bypassScore']
+              const LABELS = ['OS','C','S','E','Sc','B']
+              const diffKey = prev
+                ? KEYS.find((k) => row[k] !== prev[k])
+                : null
+              return (
+                <div key={row.id} className={`at-row${row.picked ? ' at-picked' : ''}`}>
+                  <span className="at-pick">{row.picked ? '★' : '·'}</span>
+                  <span className="at-id">{row.id}</span>
+                  <span className="at-name">{row.shortName}</span>
+                  <span className="at-os">[{row.os.join(',')}]</span>
+                  <span className="at-scores">
+                    {KEYS.map((k, ki) => (
+                      <span key={k} className={`at-s${k === diffKey ? ' at-diff' : ''}`}>
+                        {LABELS[ki]}{row[k]}
+                      </span>
+                    ))}
+                  </span>
                 </div>
               )
             })}

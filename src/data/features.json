@@ -26,19 +26,19 @@
    "id": "app",
    "nameKo": "앱 전체",
    "badge": "앱 전체",
-   "descKo": "앱을 아예 열 수 없게"
+   "descKo": "앱 사용 전체에 대해"
   },
   {
    "id": "shorts-row",
    "nameKo": "숏폼 추천 줄",
    "badge": "이 줄",
-   "descKo": "피드에 뜨는 숏폼 칸만"
+   "descKo": "피드에 뜨는 추천 숏폼 비디오들"
   },
   {
    "id": "shorts-tab",
    "nameKo": "숏폼 탭",
    "badge": "이 탭",
-   "descKo": "숏폼 영역 자체를"
+   "descKo": "숏폼 탭으로 들어가는 하단 메뉴"
   },
   {
    "id": "content",

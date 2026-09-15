@@ -3,7 +3,7 @@ import { MockHome, MockShorts } from './MockYouTube.jsx'
 import { VIDEO_POOL } from '../data/videos.js'
 import Intervention, { VARIANTS, SIM_INUSE_COUNT } from './Intervention.jsx'
 import Clock24, { rangesOf } from './Clock24.jsx'
-import { AGENCY_LEVELS, INTERVENTIONS, BYPASS_TARGETS, SCOPE_LEVELS_ARRAY } from '../data/features.js'
+import { AGENCY_LEVELS, INTERVENTIONS, BYPASS_TARGETS, SCOPE_LEVELS_ARRAY, LEVELS } from '../data/features.js'
 import { canProceedFromExplore, rungsForOX } from '../store.js'
 import { SCENARIOS, SCENARIO_BY_ID } from '../data/scenarios.js'
 import { STEP_LABEL } from '../deck.js'
@@ -189,9 +189,6 @@ export function S1ScopePanel({ state, api, onClose, onDone }) {
 
   return (
     <div className="dtl">
-      <div className="dtl-nav">
-        <button className="s1-scope-done" onClick={onDone}>선택 완료</button>
-      </div>
       <div className="dtl-body s1-scope-body">
         <div className="sim-pre-banner">
           막고 싶은 곳을 화면에서 눌러주세요. 여러 곳을 선택할 수 있습니다.
@@ -202,6 +199,9 @@ export function S1ScopePanel({ state, api, onClose, onDone }) {
             onPick={pick}
             selectable
           />
+        </div>
+        <div className="s1-scope-footer">
+          <button className="s1-scope-done" onClick={onDone}>선택 완료</button>
         </div>
       </div>
     </div>
@@ -292,8 +292,8 @@ export function ScheduleCard({ state, api, onAnswer, hoursKey }) {
         <Clock24 hours={hoursVal} onChange={write} />
 
         {hoursVal.length > 0 && (
-          <div className="presets">
-            <button className="cat-chip" onClick={() => write([])}>지우기</button>
+          <div className="presets" style={{ justifyContent: 'center', marginTop: 16 }}>
+            <button className="cat-chip" onClick={() => write([])}>재설정</button>
           </div>
         )}
 
@@ -1646,10 +1646,29 @@ function RungRow({ rung, state, api, gaugeFilled, gaugeTotal, onSim }) {
 // ── 탐색 패널 내부: agency 레벨 상세 화면 ──────────────
 function S4AgencyDetail({ level, state, api, onBack }) {
   const [activeSim, setActiveSim] = useState(null) // { rung, hasSim } | null
-  // v3.0: agency 에 속한 개입 기능을 level 순으로 정렬
-  const rungs = INTERVENTIONS
+  // v3.0: agency 에 속한 개입 기능을 level 순으로 정렬.
+  // 각 level 의 대표 개입만 탐색에 노출한다 (나머지는 추천 엔진에서만 사용).
+  // 대표 결정 우선순위:
+  //   1순위 — f.id === level.sim  (level4: confirm.id === "confirm" → 의도 확인만)
+  //   2순위 — f.sim === level.sim  (level8: mission-simple.sim === "mission_simple" → 간단한 미션만)
+  //   level.sim 없으면 모두 표시
+  const levelSimMap = Object.fromEntries(LEVELS.map((l) => [l.level, l.sim]))
+  const allRungs = INTERVENTIONS
     .filter((f) => f.agency === level.id)
     .sort((a, b) => a.level - b.level)
+  const repId = {}
+  for (const f of allRungs) {
+    const ls = levelSimMap[f.level]
+    if (ls && f.id === ls && !repId[f.level]) repId[f.level] = f.id  // id 일치 우선
+  }
+  for (const f of allRungs) {
+    const ls = levelSimMap[f.level]
+    if (ls && !repId[f.level] && f.sim === ls) repId[f.level] = f.id  // sim 일치 폴백
+  }
+  const rungs = allRungs.filter((f) => {
+    const ls = levelSimMap[f.level]
+    return !ls || f.id === repId[f.level]
+  })
 
   const showGauge = rungs.length > 1
 

@@ -14,61 +14,80 @@
 // featureAccepted 키: level 번호 (1-10), 값: 'weak' | 'ok' | 'strong'
 // ─────────────────────────────────────────────────────────────
 
-import { LEVELS, INTERVENTIONS, RESISTANCE_LABEL, SCOPE_TO_L10_FEATS } from './data/features.js'
+import { LEVELS, INTERVENTIONS, RESISTANCE_LABEL } from './data/features.js'
 import { APPS, ROUTE_MAP, inAppPlatforms } from './data/apps.js'
 import { itemsForLevel } from './store.js'
 
 // ── 아키타입 (agencyRank[0] × timingRank[0]) ───────────────────
+// 키에서 이미지 경로 생성: 소문자 + InUse→in, _default→default
+// 예) supported_InUse → archetypes/supported_in.png
+function archetypeImagePath(key) {
+  const slug = key === '_default'
+    ? 'default'
+    : key.toLowerCase().replace('inuse', 'in')
+  return `${import.meta.env.BASE_URL}archetypes/${slug}.png`
+}
+
 const ARCHETYPE_MAP = {
   supported_Pre: {
-    code:    '사전 감지형',
-    tagline: '시작하기 전부터 어디로 향하는지 알아채려 합니다',
-    body:    '화면이 덜 눈에 띄거나 경로가 바뀌면 충분합니다. 강제가 아니라 환경을 바꾸는 방식을 선호합니다.',
+    code:    '배치 조정형',
+    tagline: '손에 덜 닿는 곳에 두면 덜 집게 됩니다',
+    body:    '당신은 의지로 참기보다 환경을 바꾸는 쪽을 택합니다. 눈에 덜 띄고 손이 덜 가면 그걸로 충분하다고 봅니다. 강제로 막는건 오히려 반발을 만든다고 생각합니다.',
+    image:   archetypeImagePath('supported_Pre'),
   },
   supported_At: {
-    code:    '진입 알림형',
-    tagline: '들어가는 순간 한 번 알려주는 것으로 충분합니다',
-    body:    '알림을 무시하고도 볼 수 있지만, 순간을 알아채는 것이 결정에 영향을 줍니다. 결정은 내가 합니다.',
+    code:    '입구 알림형',
+    tagline: '들어갈 때 한 번 소리가 나면 됩니다',
+    body:    '당신은 강제로 막히는 것을 원하지 않습니다. 다만 무심코 열었다는 걸 그 순간에 알고 싶어 합니다. 알아차리기만 하면 그다음은 스스로 정할 수 있다고 믿습니다.',
+    image:   archetypeImagePath('supported_At'),
   },
   supported_InUse: {
-    code:    '사후 성찰가',
-    tagline: '강제보다 알아차림을 택합니다',
-    body:    '지금 무엇을 얼마나 하는지 눈에 보이면 스스로 멈출 수 있습니다. 강한 개입은 오히려 반발을 만든다고 느낍니다.',
+    code:    '시간 감지형',
+    tagline: '얼마나 지났는지 알면 멈출 수 있습니다',
+    body:    '당신은 숏폼을 보는 것 자체를 문제로 보지 않습니다. 문제는 시간 감각을 잃는 것입니다. 지금 얼마나 왔는지 보이면 스스로 끊을 수 있다고 생각합니다.',
+    image:   archetypeImagePath('supported_InUse'),
   },
   flexible_Pre: {
-    code:    '유연한 경계형',
-    tagline: '진입 전 작은 마찰이 자동 흐름을 끊어줍니다',
-    body:    '완전히 막기보다, 조건을 채우면 들어갈 수 있습니다. 선택의 여지를 남기되 무의식적 접근만 막는 방식입니다.',
+    code:    '우회로 설계형',
+    tagline: '한 번 더 돌아가게 하면 발길이 줄어듭니다',
+    body:    '당신은 길을 막기보다 멀게 만드는 쪽을 택합니다. 가려면 갈 수 있지만 한 번 더 거쳐야 한다면, 그 사이에 마음이 바뀔 여지가 생긴다고 봅니다.',
+    image:   archetypeImagePath('flexible_Pre'),
   },
   flexible_At: {
-    code:    '문턱 조율자',
-    tagline: '열려는 순간에 잠깐 멈추는 쪽이 맞습니다',
-    body:    '완전히 못 보게 하는 것보다, 열려는 순간에 잠깐 멈추는 쪽이 맞다고 봅니다. 자동으로 손이 가는 흐름만 끊어지면 충분합니다.',
+    code:    '관문 통과형',
+    tagline: '열리긴 하되 그냥 열리진 않아야 합니다',
+    body:    '당신은 완전히 잠그는 것까지는 원하지 않습니다. 다만 손이 저절로 가는 흐름은 끊겨야 한다고 봅니다. 한 번 힘을 들여야 열린다면 그 자체가 판단의 순간이 됩니다.',
+    image:   archetypeImagePath('flexible_At'),
   },
   flexible_InUse: {
-    code:    '유연한 조율자',
-    tagline: '보되, 길어지는 걸 막는 쪽입니다',
-    body:    '숏폼을 보는 것 자체는 문제로 보지 않습니다. 문제는 길이입니다. 사용 중에 상황을 알려주고 스스로 끊을 여지를 주는 방식을 선호합니다.',
+    code:    '중간 점검형',
+    tagline: '보다가도 한 번은 멈춰 세워져야 합니다',
+    body:    '당신은 시작을 막는 것보다 이어지는 것을 끊는 데 관심이 있습니다. 한 편이 열 편이 되기 전에 누군가 물어봐 주기를 바랍니다.',
+    image:   archetypeImagePath('flexible_InUse'),
   },
   limited_Pre: {
-    code:    '경계 설계자',
-    tagline: '틈이 생기기 전에 막아두는 쪽입니다',
-    body:    '유혹이 시작되기 전 단계에서 경로 자체를 닫아두는 방식을 선호합니다. 지금 판단을 믿기보다, 여유 있을 때 정한 규칙이 나중까지 버텨주기를 기대합니다.',
+    code:    '경계 차단형',
+    tagline: '애초에 길이 없으면 고민할 일도 없습니다',
+    body:    '당신은 그 순간의 자신을 믿지 않습니다. 대신 여유 있을 때 정한 규칙이 나중까지 버텨주기를 기대합니다. 유혹 앞에서 고르는 것보다 고를 일이 없는 편이 낫다고 봅니다.',
+    image:   archetypeImagePath('limited_Pre'),
   },
   limited_At: {
-    code:    '문턱 관리자',
-    tagline: '들어가는 순간에 한 번 걸리게 하는 쪽입니다',
-    body:    '완전히 못 보게 하는 것보다, 열려는 순간에 잠깐 멈추는 쪽이 맞다고 봅니다. 자동으로 손이 가는 흐름만 끊어지면 충분하다고 느낍니다.',
+    code:    '입구 봉쇄형',
+    tagline: '열려고 하면 열리지 않아야 합니다',
+    body:    '당신은 통과할 수 있는 절차라면 결국 통과하게 된다고 봅니다. 손이 가는 건 막을 수 없더라도, 그 손이 닿는 곳이 닫혀 있어야 한다고 생각합니다.',
+    image:   archetypeImagePath('limited_At'),
   },
   limited_InUse: {
-    code:    '사용 중 제한형',
-    tagline: '보다가도 멈출 수 있어야 합니다',
-    body:    '사용 중 강제 개입이 가장 현실적인 방어선입니다. 시작을 막지 않아도, 길어질 때 끊어주는 것이 더 현실적이라고 봅니다.',
+    code:    '종료 집행형',
+    tagline: '시작은 몰라도 끝은 정해져 있어야 합니다',
+    body:    '당신은 보기 시작하는 것까지는 막지 않아도 된다고 봅니다. 다만 한번 시작하면 스스로 멈추기 어렵다는 것을 알기에, 정해진 지점에서 끊기기를 바랍니다.',
+    image:   archetypeImagePath('limited_InUse'),
   },
   _default: {
-    code:    '자기통제 탐색형',
-    tagline: '아직 선호하는 방식을 찾는 중입니다',
-    body:    '추천된 기능을 하나씩 시도해보세요. 사용해보면서 나에게 맞는 방식이 드러납니다.',
+    code:    '방향 탐색형',
+    tagline: '아직 어느 쪽이 맞는지 고르는 중입니다',
+    body:    '추천된 기능을 하나씩 겪어보세요. 써보면서 나에게 맞는 방식이 드러납니다.',
+    image:   archetypeImagePath('_default'),
   },
 }
 
@@ -84,18 +103,18 @@ function resolveArchetype(state) {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * 레벨의 7등급을 결정한다. 조회표 방식.
+ *   Level의 Grade 결정
  *
- *   i = agencyRank.indexOf(level.agency)
- *   i=0: ok→1, weak→2, strong→5
- *   i=1: ok→3, weak→4, strong→6
- *   i>=2 또는 -1 또는 응답 없음: 7
+ *   i = agencyRank.indexOf(level.agency) -> agency level 순위
+ *   i=0: ok→1, weak→2, strong→5 -> 1순위
+ *   i=1: ok→3, weak→4, strong→6 -> 2순위 
+ *   i>=2 또는 -1 또는 응답 없음: 7 -> 3순위 혹은 응답 없음
  *
  * featureAccepted 키: level.level 번호 (1-10)
  */
 function levelGrade(level, state) {
   const agencyRank = state.agencyRank ?? []
-  const fa = (state.featureAccepted ?? {})[level.level]
+  const fa = (state.featureAccepted ?? {})[level.level] // feature accepted 응답
 
   if (fa === undefined) return 7
 
@@ -113,18 +132,19 @@ function levelGrade(level, state) {
   return 7
 }
 
-// ── 사전식 정렬: level 내림차순 → coverage.n 내림차순 → id 오름차순 ──
+// ── intervention ordering: level 내림차순 → coverage.n 내림차순 → id 오름차순 ──
+// 한 Grade 안의 모든 features를 받아서 정렬 
 function lexSort(items) {
   return [...items].sort((a, b) => {
-    if (b.level !== a.level) return b.level - a.level
+    if (b.level !== a.level) return b.level - a.level // level 내림차순 -> 강한 개입 먼저
     const ca = a.coverage?.n ?? 0
     const cb = b.coverage?.n ?? 0
-    if (cb !== ca) return cb - ca
-    return a.id.localeCompare(b.id)
+    if (cb !== ca) return cb - ca // 같은 레벨 안에서는 지원 앱 수 많은것 먼저
+    return a.id.localeCompare(b.id) // 전부 같으면 id 오름차순 
   })
 }
 
-// ── G7: agencyRank 순으로 먼저 묶고, 그 안에서 사전식 ──────────
+// ── G7만 agencyRank 순으로 정렬하는 단계 가장 앞에 추가 + 이후는 lexSort와 같음 ────────
 function sortG7(items, agencyRank) {
   const rankIndex = (agency) => {
     const i = (agencyRank ?? []).indexOf(agency)
@@ -133,7 +153,7 @@ function sortG7(items, agencyRank) {
   return [...items].sort((a, b) => {
     const ra = rankIndex(a.agency)
     const rb = rankIndex(b.agency)
-    if (ra !== rb) return ra - rb
+    if (ra !== rb) return ra - rb // agencyRank순으로 먼저 묶음
     if (b.level !== a.level) return b.level - a.level
     const ca = a.coverage?.n ?? 0
     const cb = b.coverage?.n ?? 0
@@ -329,7 +349,7 @@ function buildGradeTable(state, pickedIds) {
 
 /**
  * 기능 3개 확정.
- * G1→G7 순으로 레벨을 순회하며 itemsForLevel 로 후보를 수집.
+ * G1→G7 순으로 Grade를 순회하며 itemsForLevel 로 후보를 수집.
  * 동일 등급 내 정렬: level 내림차순 → coverage.n 내림차순 → id 오름차순.
  * G7 은 agencyRank 순으로 먼저 묶은 뒤 사전식 정렬.
  */
@@ -343,7 +363,7 @@ function buildFeaturePicks(state, trace) {
   const candidates = []
   const usedIds = new Set()
 
-  for (const grade of [1, 2, 3, 4, 5, 6, 7]) {
+  for (const grade of [1, 2, 3, 4, 5, 6, 7]) { // Grade 순회하며 내부 featuer 후보 수집
     const gradeLevels = levelsWithGrade
       .filter((g) => g.grade === grade)
       .map((g) => g.level)
@@ -352,18 +372,18 @@ function buildFeaturePicks(state, trace) {
       itemsForLevel(level, scopes, timingRank)
     )
 
-    const sorted = grade === 7
+    const sorted = grade === 7 // 각 Grade 내부 feature의 sorting. G7의 경우에만 다른 sorting 함수 사용
       ? sortG7(gradeItems, agencyRank)
       : lexSort(gradeItems)
 
-    for (const item of sorted) {
+    for (const item of sorted) { // 중복제거
       if (!usedIds.has(item.id)) {
         usedIds.add(item.id)
         candidates.push({ ...item, grade })
       }
     }
 
-    if (candidates.length >= 3) break
+    if (candidates.length >= 3) break // 3개 이상이면 Grade 순회 종료
   }
 
   trace.push({
@@ -395,32 +415,31 @@ function computeAppScore(app, state, featureIds, userMobileOs) {
   const scopes = state.scopes ?? []
   const bypass = state.bypassWanted ?? {}
 
-  // (0) OS 완전 지원: userMobileOs 의 모든 OS 를 앱이 지원하면 1, 아니면 0
-  // userMobileOs 가 비어 있으면(desktop 만 등) 모든 앱에 1 — 갈림을 만들지 않는다
-  const osFullScore =
-    userMobileOs.length === 0 || userMobileOs.every((o) => app.os.includes(o)) ? 1 : 0
+  // (0) OS 매칭 수: userMobileOs 중 app.os 에 포함된 개수.
+  // userMobileOs 가 비어 있으면 0 으로 통일 — 모바일 OS 미선택 시 갈림 없음.
+  const osMatchCount = userMobileOs.length === 0
+    ? 0
+    : userMobileOs.filter((o) => app.os.includes(o)).length
 
-  // (1) 커버리지: 추천 기능 id 중 app.features 에 포함된 수 (직접 대응)
+  // (1) 커버리지: 추천 기능 id 중 app.features 에 포함된 수 
   const coveredIds = featureIds.filter((fid) => (app.features ?? []).includes(fid))
   const coverageScore = coveredIds.length
 
-  // (2) 범위 적합도: 참가자 선택 범위 중 앱이 커버하는 범위 수
-  // level-10 개입 기능 보유 여부로 판단. 하나라도 있으면 +1, 중복 가산 없음.
-  let scopeScore = 0
-  for (const s of scopes) {
-    const featsForScope = SCOPE_TO_L10_FEATS[s] ?? []
-    if (featsForScope.some((fid) => (app.features ?? []).includes(fid))) {
-      scopeScore += 1
-    }
-  }
+  // (2) 범위 적합도: 참가자가 고른 범위 중 app 이외의 범위가 하나라도 있고
+  // inAppPlatforms(app) 가 비어 있지 않으면 1, 아니면 0.
+  // app 범위만 선택한 경우 모든 앱에 1 (갈림 없음).
+  const nonAppScopes = scopes.filter((s) => s !== 'app')
+  const scopeScore =
+    scopes.length > 0 && nonAppScopes.length === 0
+      ? 1  // app 만 선택 → 모든 앱 동점
+      : nonAppScopes.length > 0 && inAppPlatforms(app).length > 0
+        ? 1
+        : 0
 
   // (3) 환경 적합도
   let envScore = 0
-  envScore += userOs.filter((o) => app.os.includes(o)).length
   const normalRoutes = [...new Set(userRoute.map((r) => ROUTE_MAP[r]).filter(Boolean))]
-  for (const rt of normalRoutes) {
-    if ((app.worksOn ?? []).includes(rt)) envScore += 1
-  }
+  envScore += normalRoutes.filter((rt) => (app.worksOn ?? []).includes(rt)).length
   const iap = inAppPlatforms(app)
   if (iap.length > 0) {
     envScore += userPlatforms.filter((p) => iap.includes(p)).length
@@ -439,26 +458,24 @@ function computeAppScore(app, state, featureIds, userMobileOs) {
     if ((app.features ?? []).includes(featureId)) bypassScore++
   }
 
-  return { osFullScore, coverageScore, coveredIds, scopeScore, envScore, scheduleScore, bypassScore }
+  return { osMatchCount, coverageScore, coveredIds, scopeScore, envScore, scheduleScore, bypassScore }
 }
 
 function buildAppPicks(state, featureIds, trace) {
-  // OS 필터: ios / android 를 하나라도 고른 경우에만 교집합이 있는 앱만 후보로 둔다.
-  // 'desktop' 은 app.os 에 없으므로 비교 대상에서 제외한다.
-  // ios / android 가 하나도 없으면(desktop 만 선택 등) 필터를 적용하지 않는다.
-  const userMobileOs = (state.env?.os ?? []).filter((o) => o === 'ios' || o === 'android')
+  // App 정렬해 상위 3개를 선택한다.
+  const userMobileOs = (state.env?.os ?? []).filter((o) => o === 'ios' || o === 'android') // 참가자가 고른 OS 중 하나라도 지원하는 앱만 남김
   const pool = userMobileOs.length > 0
     ? APPS.filter((app) => app.os.some((o) => userMobileOs.includes(o)))
     : APPS
 
-  const scored = pool.map((app) => ({
+  const scored = pool.map((app) => ({ // 각 앱의 점수 계산 
     ...app,
     ...computeAppScore(app, state, featureIds, userMobileOs),
   }))
 
-  scored.sort((a, b) => {
-    if (b.osFullScore    !== a.osFullScore)    return b.osFullScore    - a.osFullScore
+  scored.sort((a, b) => { // 점수별로 앱 내림차순 정렬
     if (b.coverageScore  !== a.coverageScore)  return b.coverageScore  - a.coverageScore
+    if (b.osMatchCount   !== a.osMatchCount)   return b.osMatchCount   - a.osMatchCount
     if (b.scopeScore     !== a.scopeScore)     return b.scopeScore     - a.scopeScore
     if (b.envScore       !== a.envScore)       return b.envScore       - a.envScore
     if (b.scheduleScore  !== a.scheduleScore)  return b.scheduleScore  - a.scheduleScore
@@ -466,11 +483,14 @@ function buildAppPicks(state, featureIds, trace) {
     return a.id.localeCompare(b.id)
   })
 
-  if (scored.length < 3) {
+  if (scored.length < 3) { 
     console.error(
       `[engine] buildAppPicks: 후보 ${scored.length}개 — 3개 미만 (OS 필터 결과).`,
     )
   }
+
+  const picks = scored.slice(0, 3)
+  const pickedIds = new Set(picks.map((a) => a.id))
 
   trace.push({
     rule: 'A · 앱 점수 상위 5',
@@ -478,12 +498,31 @@ function buildAppPicks(state, featureIds, trace) {
       .slice(0, 5)
       .map(
         (a) =>
-          `${a.id}(OS${a.osFullScore}|C${a.coverageScore}|S${a.scopeScore}|E${a.envScore}|Sc${a.scheduleScore}|B${a.bypassScore})`,
+          `${a.id}(OS${a.osMatchCount}|C${a.coverageScore}|S${a.scopeScore}|E${a.envScore}|Sc${a.scheduleScore}|B${a.bypassScore})`,
       )
       .join(' | '),
   })
 
-  return scored.slice(0, 3)
+  // appTable: 필터 통과 앱 전체를 정렬 순서대로 (DebugPanel 전용)
+  const appTable = {
+    userMobileOs,
+    poolSize: pool.length,
+    excludedIds: APPS.filter((a) => !pool.includes(a)).map((a) => a.id),
+    rows: scored.map((a) => ({
+      id:            a.id,
+      shortName:     a.shortName,
+      os:            a.os,
+      osMatchCount:  a.osMatchCount,
+      coverageScore: a.coverageScore,
+      scopeScore:    a.scopeScore,
+      envScore:      a.envScore,
+      scheduleScore: a.scheduleScore,
+      bypassScore:   a.bypassScore,
+      picked:        pickedIds.has(a.id),
+    })),
+  }
+
+  return { picks, appTable }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -511,10 +550,18 @@ function buildWarnings(state, apps, trace) {
     }
   }
 
+  // 플랫폼 갭: 참가자가 app 이외 범위를 고른 경우 inAppPlatforms 에 실제로 포함된 앱만 커버로 본다.
+  // app 범위만 선택하거나 범위를 고르지 않았으면 앱 단위 차단으로 커버된다고 본다 (기존 로직 유지).
+  const nonAppScopes = scopes.filter((s) => s !== 'app')
   for (const p of userPlatforms) {
-    const covered = apps.some(
-      (a) => inAppPlatforms(a).length === 0 || inAppPlatforms(a).includes(p),
-    )
+    const covered = apps.some((a) => {
+      if (nonAppScopes.length === 0) {
+        // app 범위만 or 범위 미선택: inAppPlatforms 비어도 커버 (앱 단위 차단)
+        return inAppPlatforms(a).length === 0 || inAppPlatforms(a).includes(p)
+      }
+      // app 이외 범위 있음: 인앱 필터가 실제로 그 플랫폼을 지원해야 커버
+      return inAppPlatforms(a).includes(p)
+    })
     if (!covered) envGaps.push({ code: p, reason: `추천 앱 중 ${p} 지원 앱이 없습니다` })
   }
 
@@ -577,8 +624,8 @@ export function recommend(state) {
   // ── 등급표 (DebugPanel 전용) ─────────────────────────────────
   const gradeTable = buildGradeTable(state, featureIds)
 
-  // ── A: 앱 3개 ───────────────────────────────────────────────
-  const apps = buildAppPicks(state, featureIds, trace)
+  // ── A: 앱 3개 + appTable ──────────────────────────────────────
+  const { picks: apps, appTable } = buildAppPicks(state, featureIds, trace)
 
   // ── W: 경고·갭 ──────────────────────────────────────────────
   const { warnings, envGaps } = buildWarnings(state, apps, trace)
@@ -599,6 +646,7 @@ export function recommend(state) {
     trace,
 
     gradeTable,
+    appTable,
 
     resistanceLabel: RESISTANCE_LABEL,
     params: {},

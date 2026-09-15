@@ -40,17 +40,3 @@ export const BYPASS_TARGETS = raw.bypassTargets
 export const RESISTANCE_LABEL = Object.fromEntries(
   raw.bypassTargets.map((b) => [b.featureId, b.nameKo])
 )
-
-// ── 범위 → level-10 개입 기능 id 배열 (scopeScore 계산용) ────
-// 하드코딩 금지. features.json 의 level=10, role=intervention 항목에서 도출.
-export const SCOPE_TO_L10_FEATS = (() => {
-  const map = {}
-  for (const f of raw.features) {
-    if (f.role !== 'intervention' || f.level !== 10) continue
-    for (const s of (f.scope ?? [])) {
-      if (!map[s]) map[s] = []
-      map[s].push(f.id)
-    }
-  }
-  return map
-})()

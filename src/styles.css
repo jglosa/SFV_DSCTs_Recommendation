@@ -83,8 +83,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
     0 30px 80px -10px rgba(0,0,0,.14);
 }
 .phone-notch {
-  position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
-  width: 108px; height: 26px; border-radius: 14px; background: #1a1c22; z-index: 200; pointer-events: none;
+  display: none;
 }
 .viewport { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
 
@@ -868,9 +867,20 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 
 /* ═══ 결과 ═══ */
 .res-scroll { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+/* 아키타입 — 흰 이미지 영역 (이미지가 있을 때만 렌더됨) */
+.res-hero-img-zone { position: relative; }
+.res-hero-img { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; }
+/* 이미지 하단 → 초록 전환: transparent → #34D399(밝은 초록)으로 통일 */
+.res-hero-img-zone::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 32px;
+  background: linear-gradient(to bottom, transparent, #34D399);
+  pointer-events: none;
+}
+/* 아키타입 — 초록 텍스트 영역: 위(밝은)→아래(짙은) 방향으로 ::after와 자연스럽게 연결 */
 .res-hero {
-  background: linear-gradient(135deg, var(--mint-deep) 0%, #34D399 100%);
-  color: #fff; padding: 70px 22px 28px;
+  background: linear-gradient(to bottom, #34D399 0%, var(--mint-deep) 100%);
+  color: #fff; padding: 20px 22px 28px;
 }
 .res-eyebrow {
   font-family: var(--mono); font-size: 9.5px; letter-spacing: .18em;
@@ -1045,6 +1055,18 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .grade-item-meta { font-family: var(--mono); font-size: 8.5px; color: var(--ink-2); }
 .grade-drop { color: #f97316; }
 
+/* ── 앱 점수표 (DebugPanel 결과 화면 전용) ──────────────────── */
+.at-row { display: flex; align-items: baseline; gap: 5px; padding: 3px 0; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 9px; line-height: 1.5; flex-wrap: wrap; }
+.at-row:first-child { border-top: none; }
+.at-row.at-picked { background: color-mix(in srgb, var(--mint-deep) 8%, transparent); }
+.at-pick { font-size: 9px; min-width: 10px; color: var(--mint-deep); }
+.at-id { font-weight: 700; font-size: 9px; min-width: 44px; }
+.at-name { font-size: 8.5px; color: var(--ink-2); flex: 1; min-width: 60px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.at-os { font-size: 8px; color: var(--ink-3); }
+.at-scores { display: flex; gap: 4px; flex-wrap: wrap; }
+.at-s { font-size: 8.5px; padding: 0 3px; border-radius: 3px; background: var(--paper-2); }
+.at-s.at-diff { background: color-mix(in srgb, var(--mint-deep) 20%, transparent); font-weight: 700; color: var(--mint-deep); }
+
 /* ── ResultCard v2 업데이트 ────────────────────────────────── */
 /* 추천 기능 — 버튼형 카드 */
 .frec-btn {
@@ -1058,7 +1080,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .frec-btn:active { background: var(--mint-soft); }
 .frec-chevron { font-size: 20px; color: var(--slate-2); flex-shrink: 0; margin-left: 8px; }
 .frec-text { display: flex; flex-direction: column; gap: 3px; }
-.frec-reason { font-size: 12px; color: var(--slate); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.frec-reason { font-size: 12px; color: var(--slate); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* 추천 앱 — 버튼형 */
 .arec {
@@ -1307,7 +1329,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 /* ── 환경 변경 계열 공통 ── */
 /* 화면 하단 고정 배너 (grayscale 문구 / 버튼) */
 .isim-env-banner {
-  position: absolute; bottom: 0; left: 0; right: 0;
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
   background: rgba(0,0,0,.72); backdrop-filter: blur(6px);
   padding: 18px 20px 28px;
   display: flex; flex-direction: column; gap: 12px;
@@ -1443,12 +1465,21 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .s1-scope-body { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
 .s1-scope-mock { flex: 1; min-height: 0; overflow: hidden; }
 
-/* 선택 완료 버튼 — 헤더 우측, 진한 배경 + 흰 글씨 */
+/* 선택 완료 푸터 — 하단 고정, 숏폼 탭 위 */
+.s1-scope-footer {
+  padding: 10px 20px 12px;
+  background: var(--paper);
+  display: flex;
+  justify-content: center;
+}
+
+/* 선택 완료 버튼 — 초록 배경, 가로 가득 */
 .s1-scope-done {
-  margin-left: auto;
-  background: var(--ink); color: #fff;
-  padding: 6px 16px; border-radius: 20px;
-  font-size: 13px; font-weight: 600; cursor: pointer;
+  width: 100%;
+  background: var(--mint-deep); color: #fff;
+  padding: 13px 0; border-radius: 12px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  letter-spacing: -0.2px;
 }
 
 /* ── S4 탐색 오버레이 / 카드 ───────────────────────────── */

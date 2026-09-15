@@ -172,7 +172,7 @@ export function itemsForLevel(level, scopes, timingRank) {
   // ── scope + timing 복합: 범위별 독립 처리 (L10 전용) ─────────
   // 범위는 '막아달라' 는 요구, 시점은 순위. 범위가 시점보다 우선한다.
   // 각 범위를 독립적으로 처리하고 결과를 합친다.
-  if (useScope && useTiming && (scopes ?? []).length > 0) {
+  if (useScope && useTiming && (scopes ?? []).length > 0) { // decideParams = ['timing','scope']
     const seenIds = new Set()
     const results = []
     for (const scope of (scopes ?? [])) {
@@ -186,7 +186,7 @@ export function itemsForLevel(level, scopes, timingRank) {
         const hit = byScope.filter((f) => f.when === when)
         if (hit.length > 0) { picked = hit; break }
       }
-      if (!picked) picked = byScope   // 세 시점 모두 없으면 폴백
+      if (!picked) picked = byScope   // 세 시점 모두 없으면 폴백 -> 시점 조건 포기 
       for (const item of picked) {
         if (!seenIds.has(item.id)) { seenIds.add(item.id); results.push(item) }
       }
@@ -196,7 +196,7 @@ export function itemsForLevel(level, scopes, timingRank) {
 
   // ── scope 필터 ──────────────────────────────────────────────
   let pool = candidates
-  if (useScope && (scopes ?? []).length > 0) {
+  if (useScope && (scopes ?? []).length > 0) { // decideParams = ['scope']
     const filtered = candidates.filter((f) => {
       const fs = f.scope ?? []
       if (fs.length === 0) return true   // scope null/[] 항목은 무조건 통과
@@ -207,7 +207,7 @@ export function itemsForLevel(level, scopes, timingRank) {
   }
 
   // ── timing 필터 (폴백 포함) ──────────────────────────────────
-  if (useTiming) {
+  if (useTiming) { // decideParams = 'timing'
     const ranks = timingRank ?? []
     for (const when of ranks) {
       const byTiming = pool.filter((f) => f.when === when)

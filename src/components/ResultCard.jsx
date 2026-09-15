@@ -102,6 +102,7 @@ function hoursDisplay(state) {
 
 export default function ResultCard({ state, api, onOpenDetail }) {
   const [showAnswers, setShowAnswers] = useState(false)
+  const [imgFailed, setImgFailed] = useState(false)
   const r = recommend(state)
 
   // 기능 카드 부제: {작동 시점} · {개입 방식}
@@ -126,7 +127,17 @@ export default function ResultCard({ state, api, onOpenDetail }) {
     <div className="c c-result">
       <div className="res-scroll">
 
-        {/* 0) 아키타입 */}
+        {/* 0) 아키타입 — 흰 이미지 영역 + 초록 텍스트 영역 */}
+        {r.archetype.image && !imgFailed && (
+          <div className="res-hero-img-zone">
+            <img
+              className="res-hero-img"
+              src={r.archetype.image}
+              alt={r.archetype.code}
+              onError={() => setImgFailed(true)}
+            />
+          </div>
+        )}
         <div className="res-hero">
           <div className="res-eyebrow">나의 유형</div>
           <p className="res-code">{r.archetype.code}</p>
