@@ -1219,24 +1219,22 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   padding: 8px 16px; border-radius: 20px; font-size: 13px;
   white-space: nowrap; pointer-events: none;
 }
-/* 2단계: 개입 오버레이 */
+/* 2단계: 개입 오버레이 — 어두운 배경 + 가운데 모달 */
 .isim-ov {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 32px 24px 140px; gap: 20px;
-  background: var(--bg-card);
-  position: relative;
+  position: absolute; inset: 0; z-index: 50;
+  background: rgba(0,0,0,.62); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 28px;
 }
-/* 버튼 영역: 항상 하단 고정, 전체 너비 */
-.isim-ov .iv-actions {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  padding: 16px 24px calc(24px + env(safe-area-inset-bottom));
-  display: flex; flex-direction: column; gap: 10px;
-  background: var(--bg-card);
+.isim-ov-card {
+  background: var(--bg-card); border-radius: 20px;
+  padding: 28px 24px 20px; width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
 }
-/* isim-ov 안의 보조 버튼(닫기/그만 보기)은 텍스트만 */
-.isim-ov .iv-btn.sub {
+.isim-ov-card .iv-actions {
+  width: 100%; display: flex; flex-direction: column; gap: 10px;
+}
+/* 보조 버튼(계속 보기)은 텍스트만 */
+.isim-ov-card .iv-btn.sub {
   background: none; border: none;
   color: var(--ink-2); font-size: 14px; font-weight: 500;
 }
@@ -1263,14 +1261,18 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   resize: none; font-family: inherit; line-height: 1.5;
 }
 .isim-textarea:focus { outline: none; border-color: var(--ink-2); }
-/* 3단계: 완료 배너 — MockShorts의 sp-rail(z:12)보다 앞에 나오도록 z-index 확보 */
+/* 3단계: 완료 팝업 — 전체 덮는 어두운 배경 + 가운데 모달 카드 */
 .isim-done-banner {
-  position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
-  background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
-  padding: 24px 24px 32px;
-  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  position: absolute; inset: 0; z-index: 20;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 32px;
 }
-.isim-done-msg { font-size: 17px; font-weight: 700; color: #fff; margin: 0; }
+.isim-done-modal {
+  background: var(--bg-card); border-radius: 20px;
+  padding: 28px 24px 20px; width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.isim-done-msg { font-size: 18px; font-weight: 700; color: var(--ink); margin: 0; }
 
 /* ── 미션 계열 공통 ── */
 .isim-sim-note {

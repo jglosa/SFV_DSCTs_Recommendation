@@ -689,7 +689,7 @@ function TimedWaitSim({ onPass, onClose }) {
       <p className="isim-countdown">{left > 0 ? `${left}초` : ''}</p>
       <div className="iv-actions">
         <button className="iv-btn" onClick={onClose}>닫기</button>
-        <button className="iv-btn sub" onClick={onPass} disabled={!done}>계속 보기</button>
+        {done && <button className="iv-btn sub" onClick={onPass}>계속 보기</button>}
       </div>
     </>
   )
@@ -712,7 +712,7 @@ function IntentionInputSim({ onPass, onClose }) {
       />
       <div className="iv-actions">
         <button className="iv-btn" onClick={onClose}>닫기</button>
-        <button className="iv-btn sub" onClick={onPass} disabled={!text.trim()}>계속 보기</button>
+        {text.trim() && <button className="iv-btn sub" onClick={onPass}>계속 보기</button>}
       </div>
     </>
   )
@@ -961,7 +961,6 @@ function GrayscaleSim({ onClose }) {
 
   return (
     <div className="isim">
-      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
       <div className="isim-screen">
         <MockHome shelfStyle={shelfStyle} />
         <div className="isim-env-banner">
@@ -999,7 +998,6 @@ function PushNotificationSim({ onClose }) {
 
   return (
     <div className="isim">
-      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
       {phase === 'home' && (
         <div className="isim-screen">
           <MockHome onShortsAccess={() => setPhase('shorts')} />
@@ -1036,8 +1034,10 @@ function PushNotificationSim({ onClose }) {
             </div>
           )}
           <div className="isim-done-banner">
-            <p className="isim-done-msg">경험해보기를 마쳤어요</p>
-            <button className="iv-btn" onClick={onClose}>닫기</button>
+            <div className="isim-done-modal">
+              <p className="isim-done-msg">경험해보기를 마쳤어요</p>
+              <button className="iv-btn" onClick={onClose}>닫기</button>
+            </div>
           </div>
         </div>
       )}
@@ -1058,7 +1058,6 @@ function RedirectProductivitySim({ onClose }) {
 
   return (
     <div className="isim">
-      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
       {phase === 'home' && (
         <div className="isim-screen">
           <MockHome onShortsAccess={() => setPhase('redirected')} />
@@ -1066,22 +1065,25 @@ function RedirectProductivitySim({ onClose }) {
         </div>
       )}
       {phase === 'redirected' && (
-        <div className="isim-redir">
-          <div className="isim-redir-body">
-            <div className="isim-feat-badge">생산성 앱으로 이동</div>
-            <h2 className="isim-redir-q">지금 정말 숏폼을<br/>봐야 하나요?</h2>
-            <div className="isim-redir-apps">
-              {REDIR_ALTS.map(({ emoji, label, bg }) => (
-                <div key={label} className="isim-redir-app">
-                  <div className="isim-redir-app-icon" style={{ background: bg }}>{emoji}</div>
-                  <span className="isim-redir-app-label">{label}</span>
-                </div>
-              ))}
+        <div className="isim-screen">
+          <MockHome />
+          <div className="isim-ov">
+            <div className="isim-ov-card">
+              <div className="isim-feat-badge">생산성 앱으로 이동</div>
+              <h2 className="isim-redir-q">지금 정말 숏폼을<br/>봐야 하나요?</h2>
+              <div className="isim-redir-apps">
+                {REDIR_ALTS.map(({ emoji, label, bg }) => (
+                  <div key={label} className="isim-redir-app">
+                    <div className="isim-redir-app-icon" style={{ background: bg }}>{emoji}</div>
+                    <span className="isim-redir-app-label">{label}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="iv-actions">
+                <button className="iv-btn" onClick={onClose}>닫기</button>
+                <button className="iv-btn sub" onClick={onClose}>계속 보기</button>
+              </div>
             </div>
-          </div>
-          <div className="isim-redir-btns">
-            <button className="isim-redir-stop" onClick={onClose}>닫기</button>
-            <button className="isim-redir-cont" onClick={onClose}>계속 보기</button>
           </div>
         </div>
       )}
@@ -1107,7 +1109,6 @@ function HardBlockSim({ onClose }) {
 function EntryRemovedSim({ onClose }) {
   return (
     <div className="isim">
-      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
       <div className="isim-screen">
         <MockHome preBlocked />
         <div className="isim-env-banner">
@@ -1174,7 +1175,6 @@ function ScrollBlockedSim({ onClose }) {
 
   return (
     <div className="isim">
-      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
       <div className={`isim-screen${bouncing ? ' isim-bounce' : ''}`} ref={screenRef}>
         <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
         <div className={'isim-env-banner' + (bouncing ? ' isim-env-banner--active' : '')}>
@@ -1220,9 +1220,8 @@ export function InterventionSim({ simId, featureName, onClose }) {
 
   return (
     <div className="isim">
-      <button className="isim-x" onClick={onClose} aria-label="닫기">✕</button>
 
-      {/* 1단계: MockHome — 숏폼 탭 하이라이트 (S1 selectable 없음) */}
+      {/* 1단계: MockHome */}
       {phase === 'home' && (
         <div className="isim-screen">
           <MockHome onShortsAccess={() => setPhase('overlay')} />
@@ -1230,24 +1229,31 @@ export function InterventionSim({ simId, featureName, onClose }) {
         </div>
       )}
 
-      {/* 2단계: 개입 오버레이 */}
+      {/* 2단계: MockHome 배경 + 개입 모달 팝업 */}
       {phase === 'overlay' && (
-        <div className="isim-ov">
-          <div className="isim-feat-badge">{featureName}</div>
-          {SimContent
-            ? <SimContent onPass={() => setPhase('shorts')} onClose={onClose} />
-            : <SimNotReady onClose={onClose} />
-          }
+        <div className="isim-screen">
+          <MockHome />
+          <div className="isim-ov">
+            <div className="isim-ov-card">
+              <div className="isim-feat-badge">{featureName}</div>
+              {SimContent
+                ? <SimContent onPass={() => setPhase('shorts')} onClose={onClose} />
+                : <SimNotReady onClose={onClose} />
+              }
+            </div>
+          </div>
         </div>
       )}
 
-      {/* 3단계: 숏폼 화면 + 완료 배너 */}
+      {/* 3단계: 숏폼 화면 + 완료 팝업 */}
       {phase === 'shorts' && (
         <div className="isim-screen">
           <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
           <div className="isim-done-banner">
-            <p className="isim-done-msg">경험해보기를 마쳤어요</p>
-            <button className="iv-btn" onClick={onClose}>닫기</button>
+            <div className="isim-done-modal">
+              <p className="isim-done-msg">경험해보기를 마쳤어요</p>
+              <button className="iv-btn" onClick={onClose}>닫기</button>
+            </div>
           </div>
         </div>
       )}
