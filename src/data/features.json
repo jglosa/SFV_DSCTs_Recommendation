@@ -10,8 +10,8 @@
   {
    "id": "flexible",
    "order": 2,
-   "nameKo": "잠깐 멈추게 하지만, 조건을 채우면 계속 볼 수 있습니다",
-   "example": "확인을 누르거나, 기다리거나, 미션을 마칩니다"
+   "nameKo": "잠깐 멈추게 하지만,\n조건을 채우면 계속 볼 수 있습니다",
+   "example": "확인을 누르거나, 기다리거나, 미션을 수행합니다"
   },
   {
    "id": "limited",
@@ -69,7 +69,7 @@
    "level": 3,
    "agency": "supported",
    "nameKo": "사용 경로 유도",
-   "descKo": "숏폼 대신 다른 앱을 사용하도록 유도, 혹은 강제 이동시킵니다. 숏폼이 아닌 다른 일에 집중해보세요.",
+   "descKo": "숏폼 대신 다른 앱을 사용하도록 유도, 혹은 강제 이동시킵니다.",
    "decideParams": null,
    "sim": "redirect_productivity"
   },
@@ -85,7 +85,7 @@
    "level": 5,
    "agency": "flexible",
    "nameKo": "사용 전 숨고르기",
-   "descKo": "잠시 기다려야 숏폼에 들어갈 수 있습니다. 기다리는 동안 숨을 고르며 다시 생각해보세요.",
+   "descKo": "잠시 기다려야 숏폼에 들어갈 수 있습니다.",
    "decideParams": null,
    "sim": "timed_wait"
   },
@@ -93,7 +93,7 @@
    "level": 6,
    "agency": "flexible",
    "nameKo": "사용 목적 입력",
-   "descKo": "왜 숏폼을 보려고 하는지 의도를 입력해야 들어갈 수 있습니다. 정답은 없으니 자신만의 이유를 적어보세요.",
+   "descKo": "왜 숏폼을 보려고 하는지 의도를 입력해야 들어갈 수 있습니다.",
    "decideParams": null,
    "sim": "intention_input"
   },
@@ -101,7 +101,7 @@
    "level": 7,
    "agency": "flexible",
    "nameKo": "버튼 홀드",
-   "descKo": "버튼을 일정 시간 누르고 있어야 들어갈 수 있습니다. 누르고 있는 동안 다시 생각해보세요.",
+   "descKo": "버튼을 일정 시간 누르고 있어야 들어갈 수 있습니다.",
    "decideParams": null,
    "sim": "mission_hold"
   },
@@ -109,7 +109,7 @@
    "level": 8,
    "agency": "flexible",
    "nameKo": "간단한 미션 수행",
-   "descKo": "수학 문제를 풀거나, 다른 앱을 경유하거나, 사진을 찍는 등 미션을 수행해야 들어갈 수 있어요. 간단한 미션이지만, 무심코 들어가려던 행동을 한 번 멈추게 해요.",
+   "descKo": "수학 문제를 풀거나, 다른 앱을 경유하거나, 사진을 찍는 등 미션을 수행해야 들어갈 수 있어요.",
    "decideParams": null,
    "sim": "mission_simple"
   },
@@ -117,7 +117,7 @@
    "level": 9,
    "agency": "flexible",
    "nameKo": "운동 미션 수행",
-   "descKo": "정해둔 걸음 수를 채우거나, 푸시업 횟수를 채우는 등 운동 미션을 완수해야 들어갈 수 있습니다. 숏폼 대신 몸을 움직이는 시간을 가져보는건 어떨까요?",
+   "descKo": "정해둔 걸음 수를 채우거나, 푸시업 횟수를 채우는 등 운동 미션을 완수해야 들어갈 수 있습니다.",
    "decideParams": null,
    "sim": "mission_exercise"
   },
@@ -207,7 +207,7 @@
   {
    "id": "path-guide",
    "nameKo": "사용 경로 유도",
-   "descKo": "숏폼 대신 다른 앱을 사용하도록 유도, 혹은 강제 이동시킵니다. 숏폼이 아닌 다른 일에 집중해보세요.",
+   "descKo": "숏폼 대신 다른 앱을 사용하도록 유도, 혹은 강제 이동시킵니다.",
    "codebook": "3.2.3 Intentional Pathing",
    "role": "intervention",
    "agency": "supported",
@@ -224,6 +224,34 @@
     "n": 3,
     "ios": 3,
     "android": 2
+   }
+  },
+    {
+   "id": "pause",
+   "nameKo": "잠시 멈춤 허용",
+   "descKo": "걸어둔 제한을 잠시 끌 수 있습니다. 정해진 시간이 지나면 다시 켜져요.",
+   "codebook": "2.2 Pause",
+   "role": "intervention",
+   "agency": "flexible",
+   "level": 4,
+   "when": "Pre",
+   "scope": null,
+   "sim": null,
+   "apps": [
+    "2_SF",
+    "6_BS",
+    "8_SS",
+    "10_SG",
+    "11_SB",
+    "12_SZ",
+    "14_R",
+    "20_J",
+    "21_C"
+   ],
+   "coverage": {
+    "n": 9,
+    "ios": 5,
+    "android": 7
    }
   },
   {
@@ -276,7 +304,7 @@
   {
    "id": "timed-wait",
    "nameKo": "사용 전 숨고르기",
-   "descKo": "잠시 기다려야 숏폼에 들어갈 수 있습니다. 기다리는 동안 숨을 고르며 다시 생각해보세요.",
+   "descKo": "잠시 기다려야 숏폼에 들어갈 수 있습니다.",
    "codebook": "2.1.2 Timed Wait",
    "role": "intervention",
    "agency": "flexible",
@@ -304,7 +332,7 @@
   {
    "id": "intention-input",
    "nameKo": "사용 목적 입력",
-   "descKo": "왜 숏폼을 보려고 하는지 의도를 입력해야 들어갈 수 있습니다. 정답은 없으니 자신만의 이유를 적어보세요.",
+   "descKo": "왜 숏폼을 보려고 하는지 의도를 입력해야 들어갈 수 있습니다.",
    "codebook": "2.1.4 Intention Input",
    "role": "intervention",
    "agency": "flexible",
@@ -328,7 +356,7 @@
   {
    "id": "mission-hold",
    "nameKo": "버튼 홀드",
-   "descKo": "버튼을 일정 시간 누르고 있어야 들어갈 수 있습니다. 누르고 있는 동안 다시 생각해보세요.",
+   "descKo": "버튼을 일정 시간 누르고 있어야 들어갈 수 있습니다.",
    "codebook": "2.1.3 Physical Action",
    "role": "intervention",
    "agency": "flexible",
@@ -349,7 +377,7 @@
   {
    "id": "mission-altapp",
    "nameKo": "대체 활동 미션 수행",
-   "descKo": "미리 정해둔 앱을 일정 시간 사용해야 들어갈 수 있습니다. 다른 일로 이목을 돌려보세요.",
+   "descKo": "미리 정해둔 앱을 일정 시간 사용해야 들어갈 수 있습니다.",
    "codebook": "2.1.3 Physical Action",
    "role": "intervention",
    "agency": "flexible",
@@ -369,7 +397,7 @@
   {
    "id": "mission-capture",
    "nameKo": "촬영 미션 수행",
-   "descKo": "밖으로 나가 하늘을 찍거나 지정된 장소의 QR을 찍어야 들어갈 수 있습니다. 잠깐이라도 자리를 벗어나 몸을 움직이게 돼요.",
+   "descKo": "밖으로 나가 하늘을 찍거나 지정된 장소의 QR을 찍어야 들어갈 수 있습니다.",
    "codebook": "2.1.3 Physical Action",
    "role": "intervention",
    "agency": "flexible",
@@ -391,7 +419,7 @@
   {
    "id": "mission-simple",
    "nameKo": "간단한 미션 수행",
-   "descKo": "간단한 수학 문제를 풀거나, 지정된 문장을 따라 치거나, 폰을 흔드는 등 미션을 완수해야 들어갈 수 있습니다. 간단한 미션이지만, 무심코 들어가려던 행동을 한 번 멈추게 해요.",
+   "descKo": "간단한 수학 문제를 풀거나, 지정된 문장을 따라 치거나, 폰을 흔드는 등 미션을 완수해야 들어갈 수 있습니다.",
    "codebook": "2.1.3 Physical Action",
    "role": "intervention",
    "agency": "flexible",
@@ -412,7 +440,7 @@
   {
    "id": "mission-exercise",
    "nameKo": "운동 미션 수행",
-   "descKo": "정해둔 걸음 수를 채우거나, 푸시업 횟수를 채우는 등 운동 미션을 완수해야 들어갈 수 있습니다. 숏폼 대신 몸을 움직이는 시간을 가져보는건 어떨까요?",
+   "descKo": "정해둔 걸음 수를 채우거나, 푸시업 횟수를 채우는 등 운동 미션을 완수해야 들어갈 수 있습니다.",
    "codebook": "2.1.3 Physical Action",
    "role": "intervention",
    "agency": "flexible",
@@ -524,7 +552,7 @@
   {
    "id": "block-entry",
    "nameKo": "진입 경로 없애기",
-   "descKo": "숏폼 탭과 숏폼 추천 피드가 화면에서 사라집니다. 눈에 보이지 않으니 자연스럽게 진입할 생각이 줄어들어요.",
+   "descKo": "숏폼 탭과 숏폼 추천 피드가 화면에서 사라집니다.",
    "codebook": "3.2.1 Entry Point Removal",
    "role": "intervention",
    "agency": "limited",
@@ -548,7 +576,7 @@
   {
    "id": "block-scroll",
    "nameKo": "무한 스크롤 방지",
-   "descKo": "첫 숏폼 영상은 볼 수 있지만 다음 영상으로 넘어가는 스크롤이 차단됩니다. 무의식적으로 이어지던 스크롤링을 끊어보세요.",
+   "descKo": "첫 숏폼 영상은 볼 수 있지만 다음 영상으로 넘어가는 스크롤이 차단됩니다.",
    "codebook": "1.1.3 Specific Interaction Block",
    "role": "intervention",
    "agency": "limited",
@@ -788,34 +816,6 @@
     "n": 4,
     "ios": 3,
     "android": 3
-   }
-  },
-  {
-   "id": "pause",
-   "nameKo": "잠시 멈춤 허용",
-   "descKo": "걸어둔 제한을 잠시 끌 수 있습니다. 정해진 시간이 지나면 다시 켜져요.",
-   "codebook": "2.2 Pause",
-   "role": "exclude",
-   "agency": "flexible",
-   "level": null,
-   "when": "Pre",
-   "scope": null,
-   "sim": null,
-   "apps": [
-    "2_SF",
-    "6_BS",
-    "8_SS",
-    "10_SG",
-    "11_SB",
-    "12_SZ",
-    "14_R",
-    "20_J",
-    "21_C"
-   ],
-   "coverage": {
-    "n": 9,
-    "ios": 5,
-    "android": 7
    }
   }
  ],

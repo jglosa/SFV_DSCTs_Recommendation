@@ -19,7 +19,7 @@ export const VARIANTS = {
     body: '어제 이 시간대에 47분을 썼습니다. 지금은 집중 시간으로 등록된 구간입니다.',
     explain: '숏폼으로 이어지는 경로 자체를 비활성화합니다. 탭과 피드 추천이 사라집니다.',
     stat: ['등록된 집중 시간대', '22:00 – 02:00'],
-    rankDesc: '숏폼 진입 경로 자체가 비활성화됩니다.',
+    rankDesc: '숏폼으로 들어가는 길이 막혀 있습니다.',
   },
   At: {
     badge: '진입 시점 개입',
@@ -28,7 +28,7 @@ export const VARIANTS = {
     body: '',
     explain: '숏폼에 진입하는 순간 당신을 멈춰 세웁니다.',
     stat: ['오늘 숏폼 사용', '1시간 12분'],
-    rankDesc: '숏폼을 열려고 누른 그 순간에 확인이 걸립니다.',
+    rankDesc: '숏폼을 열려는 순간, 확인을 요청합니다.',
   },
   InUse: {
     badge: '사용 중 개입',
@@ -51,28 +51,22 @@ export default function Intervention({ variant, n, onPrimary, onSecondary, hideC
 
   return (
     <div className="iv">
-      <div className="iv-inner">
-        <div className="iv-badge">
-          {n ? `${NUM[n - 1]} ${v.badge}` : v.badge}
+      <div className="iv-modal">
+        <div className="iv-inner">
+          <div className="iv-badge">
+            {n ? `${NUM[n - 1]} ${v.badge}` : v.badge}
+          </div>
+          <h2 className="iv-h">{v.title}</h2>
+          {v.body && <p className="iv-p">{v.body}</p>}
         </div>
-        <h2 className="iv-h">{v.title}</h2>
-        {v.body && <p className="iv-p">{v.body}</p>}
-        <div className="iv-explain">
-          <span>이 개입은</span>
-          {v.explain}
+        <div className="iv-actions">
+          {onSecondary && (
+            <button className="iv-btn" onClick={onSecondary}>다음</button>
+          )}
+          {!hideContinue && (
+            <button className="iv-btn iv-btn-ghost" onClick={onPrimary}>계속 보기</button>
+          )}
         </div>
-        <div className="iv-stat">
-          <span>{v.stat[0]}</span>
-          <span>{v.stat[1]}</span>
-        </div>
-      </div>
-      <div className="iv-actions">
-        {onSecondary && (
-          <button className="iv-btn" onClick={onSecondary}>닫기</button>
-        )}
-        {!hideContinue && (
-          <button className="iv-btn iv-btn-ghost" onClick={onPrimary}>계속 보기</button>
-        )}
       </div>
     </div>
   )

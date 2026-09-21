@@ -89,7 +89,6 @@ export function NoteCard({ spec, state, onAnswer, answered }) {
         {/* scene: 제시 시나리오 박스 (.scene 재사용) */}
         {spec.scene && (
           <div className="scene">
-            <div className="scene-tag">{spec.sceneLabel ?? '제시 상황'}</div>
             <p className="scene-text">{spec.scene}</p>
           </div>
         )}
@@ -157,19 +156,20 @@ export function ScopeHomeCard({ state, api, onAnswer, onOpenScopeOverlay }) {
       <div className="c-pad">
         <Tag step="S1" />
         <h2 className="c-q">어느 부분을 막고 싶으신가요?</h2>
-        <p className="c-p">앱 전체를 지울 필요는 없어요. 숏폼으로 이어지는 길목만 골라서 막을 수 있습니다.</p>
-        <ul className="s1-scope-list">
-          {SCOPE_LEVELS_ARRAY.map((s) => (
-            <li key={s.id} className={'s1-scope-item' + (selected.includes(s.id) ? ' on' : '')}>
-              <span className="s1-scope-name">{s.nameKo}</span>
-              <span className="s1-scope-desc">{s.descKo}</span>
-              {selected.includes(s.id) && <span className="s1-scope-check">✓</span>}
-            </li>
-          ))}
-        </ul>
+        <p className="c-p">앱 전체부터 특정 채널까지, 원하는 범위만 골라 막을 수 있어요. 의도한 것보다 오래 머물게 되는 지점만 골라보세요.</p>
         <button className="c-start" onClick={onOpenScopeOverlay}>
           화면에서 고르기
         </button>
+        <p className="s1-scope-label">고를 수 있는 항목</p>
+        <ul className="s1-scope-list">
+          {SCOPE_LEVELS_ARRAY.map((s) => (
+            <li key={s.id} className={'s1-scope-item' + (selected.includes(s.id) ? ' on' : '')}>
+              <span className="s1-scope-bullet">{selected.includes(s.id) ? '✓' : '·'}</span>
+              <span className="s1-scope-name">{s.nameKo}</span>
+              <span className="s1-scope-desc">{s.descKo}</span>
+            </li>
+          ))}
+        </ul>
         {selected.length > 0 && (
           <SwipeUp />
         )}
@@ -191,7 +191,7 @@ export function S1ScopePanel({ state, api, onClose, onDone }) {
     <div className="dtl">
       <div className="dtl-body s1-scope-body">
         <div className="sim-pre-banner">
-          막고 싶은 곳을 화면에서 눌러주세요. 여러 곳을 선택할 수 있습니다.
+          막고 싶은 곳을 화면에서 전부 선택해주세요.
         </div>
         <div className="s1-scope-mock">
           <MockHome
@@ -239,7 +239,7 @@ export function ScopeShortsCard({ state, api, onAnswer, answered, video }) {
 const SCHEDULE_TYPE_OPTS = [
   { k: 'daily', label: '매일 같은 시간대' },
   { k: 'split', label: '평일과 주말을 따로' },
-  { k: 'none',  label: '시간과 무관하게 개입하고 싶음' },
+  { k: 'none',  label: '시간 무관' },
 ]
 
 export function ScheduleTypeCard({ state, api, onAnswer }) {
@@ -311,13 +311,13 @@ export function ScheduleCard({ state, api, onAnswer, hoursKey }) {
 const SIM_META = {
   Pre: {
     badge: '진입 전 개입',
-    desc: '숏폼에 진입할 수 있는 경로 자체가 비활성화되어 있습니다. 숏폼에 접근하기 전부터 이미 개입 상태임을 알 수 있습니다.',
-    todo: '홈 화면에서 어떻게 달라졌는지 확인하고 위로 밀어서 넘어가세요.',
+    desc: '숏폼으로 들어가는 길이 아예 막혀 있습니다. 숏폼을 보려고 시도하기도 전에, 이미 개입이 시작된 상태입니다.',
+    todo: '홈 화면이 어떻게 바뀌었는지 살펴보고, 위로 밀어서 넘어가세요.',
   },
   At: {
     badge: '진입 시점 개입',
-    desc: '숏폼에 진입하려는 순간 개입이 발동됩니다.',
-    todo: '숏폼 탭이나 피드의 숏폼 선반을 눌러보세요.',
+    desc: '숏폼에 진입하려는 순간, 개입이 바로 시작됩니다.',
+    todo: '숏폼 탭이나 피드의 숏폼 줄을 눌러보세요.',
   },
   InUse: {
     badge: '사용 중 개입',
@@ -338,8 +338,10 @@ export function SimIntroCard({ spec, onAnswer, answered }) {
     <div className="c c-dark">
       <div className="c-pad">
         <Tag step="S3" tone="dark" n={`${spec.n} / 3`} />
-        <div className="sim-num">{SIM_NUM[spec.n - 1]}</div>
-        <div className="sim-badge-name">{meta.badge}</div>
+        <div className="sim-header">
+          <div className="sim-num">{SIM_NUM[spec.n - 1]}</div>
+          <div className="sim-badge-name">{meta.badge}</div>
+        </div>
         <p className="c-p" style={{ fontSize: 15 }}>
           {meta.desc}
         </p>
@@ -454,9 +456,9 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
     }, 120)
   }
 
-  // 'done' 단계에서 보여줄 앱 화면 (개입 전 마지막 화면 유지)
-  const showHome = phase === 'home' || (phase === 'done' && spec.when !== 'InUse')
-  const showWatching = phase === 'watching' || (phase === 'done' && spec.when === 'InUse')
+  // 'done'·'fired' 단계에서도 배경 앱 화면 유지
+  const showHome = phase === 'home' || ((phase === 'done' || phase === 'fired') && spec.when !== 'InUse')
+  const showWatching = phase === 'watching' || ((phase === 'done' || phase === 'fired') && spec.when === 'InUse')
 
   return (
     <div className="c c-video" ref={cardRef}>
@@ -560,6 +562,13 @@ export function SimHomeCard({ spec, onAnswer, answered }) {
 // ══ S3 순위 ═════════════════════════════════════════════
 export function RankCard({ state, api, onAnswer, order }) {
   const picks = state.timingRank
+  const firedRef = useRef(false)
+  useEffect(() => {
+    if (picks.length === 3 && !firedRef.current) {
+      firedRef.current = true
+      onAnswer(true)
+    }
+  }, [picks.length]) // eslint-disable-line react-hooks/exhaustive-deps
   const toggle = (w) => {
     const next = picks.includes(w)
       ? picks.filter((x) => x !== w)
@@ -567,7 +576,6 @@ export function RankCard({ state, api, onAnswer, order }) {
       ? [...picks, w]
       : picks
     api.set({ timingRank: next })
-    if (next.length === 3) onAnswer(true)
   }
   const NUM = ['①', '②', '③']
 
@@ -576,7 +584,7 @@ export function RankCard({ state, api, onAnswer, order }) {
       <div className="c-pad">
         <Tag step="S3" />
         <h2 className="c-q">세 시점을 마음에 드는 순서로 눌러주세요</h2>
-        <p className="c-qhint">먼저 누른 것이 1순위 · 번호는 방금 겪은 순서</p>
+        <p className="c-qhint">선택한 순서대로 선호도가 기록됩니다.</p>
         <div className="c-opts">
           {order.map((w) => {
             const r = picks.indexOf(w)
@@ -624,7 +632,7 @@ function IntensityGauge({ filled, total }) {
   )
 }
 
-// ── 겪어보기 준비 중 오버레이 — S4 카드·기능 상세에서 공통 사용 ──
+// ── 경험해보기 준비 중 오버레이 — S4 카드·기능 상세에서 공통 사용 ──
 // 부모 요소가 position:absolute 인 컨텍스트(카드 .c, 상세 .dtl)에서 동작한다
 export function SimNotReady({ onClose }) {
   return (
@@ -637,12 +645,12 @@ export function SimNotReady({ onClose }) {
   )
 }
 
-// ══ 겪어보기 시뮬레이션 — 공통 껍데기 + 통과 절차 3종 ══════════
+// ══ 경험해보기 시뮬레이션 — 공통 껍데기 + 통과 절차 3종 ══════════
 // ─────────────────────────────────────────────────────────────
 // InterventionSim: 여덟 개 시뮬레이션이 공유하는 3단계 컨테이너
 //   1단계 home    : MockHome — 숏폼 탭 하이라이트
 //   2단계 overlay : 개입 오버레이 (children = sim 고유 내용)
-//   3단계 shorts  : MockShorts + "겪어보기를 마쳤어요" 배너
+//   3단계 shorts  : MockShorts + "경험해보기를 마쳤어요" 배너
 //
 // 닫고 다시 열면 1단계부터 (unmount/mount 로 state 리셋)
 // ─────────────────────────────────────────────────────────────
@@ -1028,7 +1036,7 @@ function PushNotificationSim({ onClose }) {
             </div>
           )}
           <div className="isim-done-banner">
-            <p className="isim-done-msg">겪어보기를 마쳤어요</p>
+            <p className="isim-done-msg">경험해보기를 마쳤어요</p>
             <button className="iv-btn" onClick={onClose}>닫기</button>
           </div>
         </div>
@@ -1238,7 +1246,7 @@ export function InterventionSim({ simId, featureName, onClose }) {
         <div className="isim-screen">
           <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
           <div className="isim-done-banner">
-            <p className="isim-done-msg">겪어보기를 마쳤어요</p>
+            <p className="isim-done-msg">경험해보기를 마쳤어요</p>
             <button className="iv-btn" onClick={onClose}>닫기</button>
           </div>
         </div>
@@ -1255,7 +1263,7 @@ const S4_ACCEPT = '괜찮아요'
 // v3.0: ENFORCEMENT 삭제 → ENF_BY_ID 불필요. IntensityCard 는 dead code (LADDER_INDIVIDUAL=[]).
 const ENF_BY_ID = {}
 
-// 겪어보기 시뮬레이션이 준비된 unit — E2·E3 상호작용 과제만
+// 경험해보기 시뮬레이션이 준비된 unit — E2·E3 상호작용 과제만
 // u05: One-Tap / Soft Timer  u06: Math Task  u07: Breathing  u08: Physical Action
 const HAS_SIM = new Set(['u05', 'u06', 'u07', 'u08'])
 
@@ -1303,9 +1311,9 @@ export function IntensityCard({ spec, onAccept, onReject, onConfirm }) {
         <h2 className="c-q">{question}</h2>
         {enf.ko && <p className="c-p">{enf.ko}</p>}
 
-        {/* 겪어보기 버튼 — spec.sim 이 지정된 카드에만 표시 */}
+        {/* 경험해보기 버튼 — spec.sim 이 지정된 카드에만 표시 */}
         {spec.sim && (hasSim
-          ? <button className="c-sim-btn" onClick={() => setShowSim(true)}>겪어보기</button>
+          ? <button className="c-sim-btn" onClick={() => setShowSim(true)}>경험해보기</button>
           : <button className="c-sim-btn" disabled>준비 중</button>
         )}
 
@@ -1325,7 +1333,7 @@ export function IntensityCard({ spec, onAccept, onReject, onConfirm }) {
         {localPick && <SwipeUp onClick={handleConfirm} />}
       </div>
 
-      {/* 겪어보기 오버레이 */}
+      {/* 경험해보기 오버레이 */}
       {showSim && (
         hasSim
           ? <InterventionSim simId={spec.sim} featureName={enf.nameKo ?? spec.level} onClose={() => setShowSim(false)} />
@@ -1366,8 +1374,8 @@ export function IntensityIndivCard({ spec, state, api, onAnswer }) {
         <h2 className="c-q">{item.nameKo}</h2>
         {desc && <p className="c-p">{desc}</p>}
 
-        {/* 겪어보기 — 항상 표시. sim 없으면 누를 때 준비 중 오버레이 */}
-        <button className="c-sim-btn" onClick={() => setShowSim(true)}>겪어보기</button>
+        {/* 경험해보기 — 항상 표시. sim 없으면 누를 때 준비 중 오버레이 */}
+        <button className="c-sim-btn" onClick={() => setShowSim(true)}>경험해보기</button>
 
         <div className="yesno">
           <button
@@ -1430,8 +1438,8 @@ export function IntensitySearchCard({ spec, state, api, onAnswer }) {
         <h2 className="c-q">{rung.nameKo}</h2>
         {desc && <p className="c-p">{desc}</p>}
 
-        {/* 겪어보기 — 항상 표시. sim 없으면 누를 때 준비 중 오버레이 */}
-        <button className="c-sim-btn" onClick={() => setShowSim(true)}>겪어보기</button>
+        {/* 경험해보기 — 항상 표시. sim 없으면 누를 때 준비 중 오버레이 */}
+        <button className="c-sim-btn" onClick={() => setShowSim(true)}>경험해보기</button>
 
         <div className="yesno">
           <button
@@ -1474,23 +1482,34 @@ function ScenarioImage({ sc }) {
 export function BypassScenarioCard({ state, api, onAnswer }) {
   const [popup, setPopup] = useState(null) // 팝업에 열린 시나리오 id
   const selected = state.bypassScenario
+  const onAnswerRef = useRef(onAnswer)
+  useEffect(() => { onAnswerRef.current = onAnswer })
+
+  // 시나리오 선택 완료 시 자동 onAnswer → 다음 카드 미리 생성
+  const scenarioFiredRef = useRef(false)
+  useEffect(() => {
+    if (selected && !scenarioFiredRef.current) {
+      scenarioFiredRef.current = true
+      onAnswerRef.current()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected])
 
   const handleConfirm = (sc) => {
     api.set({ bypassScenario: sc.id })
     setPopup(null)
-    onAnswer()
   }
 
   return (
     <div className="c c-paper">
       <div className="c-pad">
         <Tag step="S5" />
-        <p className="s5-guide">
-          당신은 다음의 상황에서 개입을 우회하여 숏폼 비디오를 시청하고 싶은 충동에
-          휩싸였습니다. 숏폼 비디오 시청이 아예 차단된 기기 상태에서 다음의 상황에
-          직면한 당신이 숏폼 비디오를 시청하기 위해 어떤 행동을 할지 상상해보세요
-        </p>
-        <h2 className="c-q">다음 중 숏폼 우회 시청을 정당화할 상황으로 가장 공감되는 시나리오를 하나 선택해주세요</h2>
+        <h2 className="c-q">언제 숏폼 차단을 풀고 싶어질까요?</h2>
+        <p className="c-p">잠시 이런 상황에 있다고 생각해보세요.</p>
+        <div className="s5-scene">
+          숏폼 사용을 줄이려고, 숏폼을 완전히 차단하는 기능을 켜두었습니다. 그런데 갑자기 숏폼이 보고 싶은 충동이 올라옵니다.
+        </div>
+        <p className="c-p">다음 중, 숏폼 사용 충동이 특히 강해지거나 사용해도 괜찮을 것 같다고 느껴지는 상황으로 하나 골라주세요.</p>
         <div className="sc-list">
           {SCENARIOS.map((sc) => (
             <button
@@ -1504,6 +1523,7 @@ export function BypassScenarioCard({ state, api, onAnswer }) {
             </button>
           ))}
         </div>
+        {selected && <SwipeUp />}
       </div>
 
       {/* 시나리오 상세 팝업 — 배경 클릭 or 닫기 버튼으로 닫힘 (선택 안 됨) */}
@@ -1535,26 +1555,44 @@ export function BypassScenarioCard({ state, api, onAnswer }) {
 
 
 // ══ S5-2 우회 방법 복수 선택 ══════════════════════════════
+// bypassWanted 를 직접 설정: 선택된 것만 true, 나머지 false
+// '아무것도 하지 않을 것 같다' 선택 시 전부 false
+const BYPASS_NONE_KEY = '__none__'
+
 export function BypassSelectCard({ state, api, onAnswer, answered }) {
-  const sc = SCENARIO_BY_ID[state.bypassScenario] ?? null
   const methods = state.bypassMethods ?? {}
+  // 아무것도 선택지 여부
+  const noneSelected = methods[BYPASS_NONE_KEY] === true
+  const anySelected = noneSelected || BYPASS_TARGETS.some((b) => methods[b.featureId])
+
   const cardRef = useRef(null)
   const handleSwipeRef = useRef(null)
+  const anySelectedRef = useRef(anySelected)
+  anySelectedRef.current = anySelected
 
-  const toggle = (id) => {
-    api.set({ bypassMethods: { ...methods, [id]: !methods[id] } })
+  const toggle = (key) => {
+    if (key === BYPASS_NONE_KEY) {
+      // 아무것도 선택 → 다른 항목 전부 해제
+      api.set({ bypassMethods: { [BYPASS_NONE_KEY]: !methods[BYPASS_NONE_KEY] } })
+    } else {
+      // 개별 항목 선택 → 아무것도 해제
+      const next = { ...methods, [BYPASS_NONE_KEY]: false, [key]: !methods[key] }
+      api.set({ bypassMethods: next })
+    }
   }
 
   const handleSwipe = () => {
-    // 선택되지 않은 항목은 false 로 확정 (미응답과 거부 구분 없음)
-    const full = Object.fromEntries(BYPASS_TARGETS.map((b) => [b.featureId, methods[b.featureId] === true]))
-    api.set({ bypassMethods: full })
+    if (!anySelectedRef.current) return
+    // 선택한 항목만 true 로 bypassWanted 확정, 나머지는 false
+    const wanted = Object.fromEntries(
+      BYPASS_TARGETS.map((b) => [b.featureId, !noneSelected && methods[b.featureId] === true])
+    )
+    api.set({ bypassWanted: wanted })
     onAnswer()
   }
   handleSwipeRef.current = handleSwipe
 
   // wheel(트랙패드) + touch(모바일) 위로 스와이프 감지 → handleSwipe 호출
-  // 다음 카드가 없으면 deck scroll-snap이 동작 불가 → JS로 직접 감지 필요
   useEffect(() => {
     if (answered) return
     const el = cardRef.current
@@ -1562,7 +1600,7 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
     let triggered = false
 
     const onWheel = (e) => {
-      if (e.deltaY > 0 && !triggered) {
+      if (e.deltaY > 0 && !triggered && anySelectedRef.current) {
         e.preventDefault()
         triggered = true
         handleSwipeRef.current()
@@ -1572,7 +1610,7 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
     let startY = 0
     const onTouchStart = (e) => { startY = e.touches[0].clientY }
     const onTouchEnd = (e) => {
-      if (startY - e.changedTouches[0].clientY > 30 && !triggered) {
+      if (startY - e.changedTouches[0].clientY > 30 && !triggered && anySelectedRef.current) {
         triggered = true
         handleSwipeRef.current()
       }
@@ -1592,27 +1630,28 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
     <div className="c c-paper" ref={cardRef}>
       <div className="c-pad" style={answered ? { overflowY: 'hidden' } : undefined}>
         <Tag step="S5" />
-        {sc && (
-          <div className="scene">
-            <div className="scene-tag">{sc.icon} {sc.name}</div>
-            <p className="scene-text">{sc.desc}</p>
-          </div>
-        )}
-        <h2 className="c-q">이 상황에서 차단 기능을 피하기 위해 어떤 방법을 선택하실 것 같으세요?</h2>
-        <p className="c-p">복수 선택 가능</p>
+        <h2 className="c-q">차단을 풀기 위해 어떤 방법을 쓸 것 같으세요?</h2>
+        <p className="c-p">해당하는 것 모두 선택해주세요</p>
         <div className="c-opts">
           {BYPASS_TARGETS.map((b) => (
             <button
               key={b.featureId}
-              className={'c-opt' + (methods[b.featureId] ? ' on' : '')}
+              className={'c-opt' + (methods[b.featureId] && !noneSelected ? ' on' : '')}
               onClick={() => toggle(b.featureId)}
             >
-              <span className="c-box">{methods[b.featureId] ? '✓' : ''}</span>
+              <span className="c-box">{methods[b.featureId] && !noneSelected ? '✓' : ''}</span>
               {b.optionKo}
             </button>
           ))}
+          <button
+            className={'c-opt' + (noneSelected ? ' on' : '')}
+            onClick={() => toggle(BYPASS_NONE_KEY)}
+          >
+            <span className="c-box">{noneSelected ? '✓' : ''}</span>
+            이 중 아무것도 하지 않을 것 같다
+          </button>
         </div>
-        {!answered && <SwipeUp onClick={handleSwipe} />}
+        {!answered && anySelected && <SwipeUp onClick={handleSwipe} />}
         {answered && <SwipeUp />}
       </div>
     </div>
@@ -1622,7 +1661,7 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
 // ══ S4 (자율 탐색 구조) ══════════════════════════════════
 
 // ── 탐색 패널 내부: rung 한 행 ─────────────────────────
-// onSim: 겪어보기 클릭 시 부모(S4AgencyDetail)에 rung 전달 — iOS 스태킹 문제 방지
+// onSim: 경험해보기 클릭 시 부모(S4AgencyDetail)에 rung 전달 — iOS 스태킹 문제 방지
 function RungRow({ rung, state, api, gaugeFilled, gaugeTotal, onSim }) {
   const hasSim = rung.sim != null
   const desc = rung.descKo ?? ''
@@ -1638,7 +1677,7 @@ function RungRow({ rung, state, api, gaugeFilled, gaugeTotal, onSim }) {
       {gaugeTotal && <IntensityGauge filled={gaugeFilled} total={gaugeTotal} />}
       <div className="s4-rung-name">{rung.nameKo}</div>
       {desc && <div className="s4-rung-desc">{desc}</div>}
-      <button className="c-sim-btn" onClick={handleSim}>겪어보기</button>
+      <button className="c-sim-btn" onClick={handleSim}>경험해보기</button>
     </div>
   )
 }
@@ -1680,8 +1719,6 @@ function S4AgencyDetail({ level, state, api, onBack }) {
       </div>
       <div className="dtl-body">
         <div className="s4-panel-body">
-          <p className="s4-panel-example">{level.example}</p>
-          <div className="dtl-sec-h">이 레벨의 개입 방식</div>
           <div className="s4-rung-list">
             {rungs.map((rung, idx) => (
               <RungRow
@@ -1736,12 +1773,9 @@ export function S4ExplorePanel({ state, api, onClose, onDone }) {
 
   return (
     <div className="dtl">
-      <div className="dtl-nav">
-        <button className="dtl-back" onClick={onClose}>‹ 돌아가기</button>
-        <span className="dtl-nav-title">개입 레벨 탐색</span>
-      </div>
       <div className="dtl-body">
         <div className="s4-panel-body">
+          <h2 className="s4-panel-heading">개입 레벨을 탐색하고 순위를 매겨주세요</h2>
           <p className="s4-panel-intro">
             두 가지 이상 탐색하면 다음 단계로 넘어갈 수 있습니다.
           </p>
@@ -1809,8 +1843,27 @@ export function S4ExploreCard({ state, api, answered, onAnswer, onOpenExplore })
 }
 
 // ── Card B: 레벨 순위 매기기 ───────────────────────────
-export function S4RankCard({ state, api, answered, onAnswer }) {
+export function S4RankCard({ state, api, answered, onAnswer, onOpenExplore }) {
   const picks = state.agencyRank ?? []
+  const visitedCount = (state.agencyVisited ?? []).length
+  const onAnswerRef = useRef(onAnswer)
+  useEffect(() => { onAnswerRef.current = onAnswer })
+
+  // 아직 탐색 전이면 패널 자동 열기 (한 번만)
+  useEffect(() => {
+    if (onOpenExplore && visitedCount === 0) onOpenExplore()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 3개 선택 완료 시 자동 onAnswer → 다음 카드 미리 생성
+  const rankFiredRef = useRef(false)
+  useEffect(() => {
+    if (picks.length === 3 && !answered && !rankFiredRef.current) {
+      rankFiredRef.current = true
+      onAnswerRef.current()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [picks.length, answered])
 
   const toggle = (id) => {
     const next = picks.includes(id)
@@ -1819,7 +1872,19 @@ export function S4RankCard({ state, api, answered, onAnswer }) {
       ? [...picks, id]
       : picks
     api.set({ agencyRank: next })
-    if (next.length === 3) onAnswer()
+  }
+
+  // 탐색 전: 패널이 열려 있으므로 카드는 배경만 표시
+  if (visitedCount === 0) {
+    return (
+      <div className="c c-paper">
+        <div className="c-pad">
+          <Tag step="S4" />
+          <h2 className="c-q">개입 레벨을 탐색하고 순위를 매겨주세요</h2>
+          <button className="c-start" onClick={onOpenExplore}>레벨 탐색하기</button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -1827,7 +1892,12 @@ export function S4RankCard({ state, api, answered, onAnswer }) {
       <div className="c-pad">
         <Tag step="S4" />
         <h2 className="c-q">마음에 드는 순서로 눌러주세요</h2>
-        <p className="c-qhint">먼저 누른 것이 1순위</p>
+        <p className="c-qhint">선택한 순서대로 선호도가 기록됩니다.</p>
+        {onOpenExplore && (
+          <button className="c-ghost s4-reopen" onClick={onOpenExplore}>
+            다시 탐색하기
+          </button>
+        )}
         <div className="c-opts">
           {AGENCY_LEVELS.map((level) => {
             const r = picks.indexOf(level.id)
@@ -1859,15 +1929,18 @@ export function S4RankCard({ state, api, answered, onAnswer }) {
 
 // ── O/X 행 (3단 척도: 약해요 / 괜찮아요 / 과해요) ─────────────────────────
 // val: 'weak' | 'ok' | 'strong' | undefined
-function OXRow({ rung, val, onWeak, onOk, onStrong }) {
+function OXRow({ rung, idx, total, val, onWeak, onOk, onStrong }) {
   const [showSim, setShowSim] = useState(false)
   const hasSim = rung.sim != null
+  const desc = rung.descKo ?? ''
   return (
     <div className="s4-ox-row">
-      <div className="s4-ox-name-row">
-        <div className="s4-rung-name">{rung.nameKo}</div>
-        <button className="s4-ox-replay-btn" onClick={() => setShowSim(true)}>↺ 다시 겪어보기</button>
+      <div className="s4-ox-gauge-row">
+        {total != null && <IntensityGauge filled={idx + 1} total={total} />}
+        <button className="s4-ox-replay-btn" onClick={() => setShowSim(true)}>↺ 다시 경험해보기</button>
       </div>
+      <div className="s4-rung-name">{rung.nameKo}</div>
+      {desc && <div className="s4-rung-desc">{desc}</div>}
       <div className="yesno yesno--3">
         <button
           className={'yesno-btn yesno-btn--weak' + (val === 'weak' ? ' picked' : '')}
@@ -1949,10 +2022,12 @@ export function S4OXCard({ spec, state, api, answered, onAnswer }) {
         <h2 className="c-q">각 방식이 나에게 어떤가요?</h2>
         <p className="c-qhint">방식마다 하나씩 골라주세요</p>
         <div className="s4-ox-list">
-          {rungs.map((rung) => (
+          {rungs.map((rung, idx) => (
             <OXRow
               key={rung.id}
               rung={rung}
+              idx={idx}
+              total={rungs.length}
               val={accepted[rung.id]}
               onWeak={()   => setAccepted(rung.id, 'weak')}
               onOk={()     => setAccepted(rung.id, 'ok')}

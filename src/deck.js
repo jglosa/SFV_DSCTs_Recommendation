@@ -30,25 +30,25 @@ export const S0_QUESTIONS = [
     step: 'S0',
     n: '01',
     q: '어떤 기기에서 숏폼을 보나요?',
-    hint: '해당하는 것 모두',
+    hint: '해당하는 것 모두 선택해주세요',
     // 선택지 → os 파생: ios / android / desktop (Deck.jsx multi 핸들러에서 env.os 에 기록)
-    opts: ['아이폰·아이패드', '안드로이드 폰·태블릿', 'PC·노트북', '기타'],
+    opts: ['아이폰·아이패드 (iOS)', '갤럭시 등 안드로이드 폰·태블릿 (Android)', 'PC·노트북'],
   },
   {
     key: 'route',
     step: 'S0',
     n: '02',
     q: '어떤 경로를 통해 보나요?',
-    hint: '해당하는 것 모두',
-    opts: ['앱', '웹브라우저', '기타'],
+    hint: '해당하는 것 모두 선택해주세요',
+    opts: ['앱', '웹브라우저'],
   },
   {
     key: 'platforms',
     step: 'S0',
     n: '03',
     q: '어떤 플랫폼을 통해 보나요?',
-    hint: '해당하는 것 모두',
-    opts: ['YouTube', 'Instagram', 'TikTok', 'Facebook', 'Naver', 'KakaoTalk', 'Snapchat', 'LinkedIn', '기타'],
+    hint: '해당하는 것 모두 선택해주세요',
+    opts: ['YouTube', 'Instagram', 'TikTok', 'Facebook', 'Snapchat'],
   },
 ]
 
@@ -84,22 +84,21 @@ export function buildScript() {
       step: 'S3',
       title: 'S3 안내',
       heading: '앱이 언제 개입해주면 좋을까요?',
-      body: '지금부터 숏폼을 보려는 상황에서 앱이 언제 개입해주면 좋을지 직접 경험해봅니다. 세 가지 시점을 겪어본 뒤, 선호하는 순서대로 순위를 매기게 됩니다.',
-      scene: '시험공부를 하다 잠시 쉬기로 했습니다. 습관적으로 숏폼을 보려고 스마트폰을 켭니다. 그런데 앱이 개입합니다.',
-      body2: '이 상황을 가정하고, 세 가지 개입을 차례로 경험해보세요. 그리고 어떤 시점이 자신에게 맞는지 생각해보세요.',
+      body: '앱이 어떤 순간에 개입하면 좋을지, 세 가지 시점을 직접 경험하며 비교해봅니다. 겪어본 뒤에는 마음에 드는 순서대로 순위를 매겨주세요.\n\n잠시 이런 상황에 있다고 생각해보세요.',
+      scene: '시험공부를 하다 잠시 쉬기로 했습니다. 습관처럼 스마트폰을 켜서 숏폼을 보려는 순간, 앱이 개입합니다.',
+      body2: '이제 이 상황에서 세 가지 개입을 하나씩 경험해보고, 어떤 시점이 가장 적절한지 살펴보세요.',
     },
 
     ...FIXED_ORDER.flatMap((w, i) => simSegment(w, i)),
 
     { type: 'rank', step: 'S3', title: '세 시점 순위 매기기' },
 
-    // S4 카드 3장: A 탐색 진입 / B 레벨 순위 / C 기능 O/X
-    // C 카드(s4-ox)는 Deck.jsx가 agencyRank[0] !== 'limited' 일 때 동적 주입
-    { type: 's4-explore', step: 'S4', title: 'S4 레벨 탐색' },
-    { type: 's4-rank',   step: 'S4', title: 'S4 레벨 순위 매기기' },
+    // S4 카드 2장: A 탐색+순위 통합 / B 기능 O/X
+    // B 카드(s4-ox)는 Deck.jsx가 agencyRank[0] !== 'limited' 일 때 동적 주입
+    { type: 's4-rank',   step: 'S4', title: 'S4 레벨 탐색 & 순위' },
 
     { type: 'bypass-scenario', step: 'S5', title: '우회 상황 선택' },
-    { type: 'bypass-select', step: 'S5', title: '우회 방지 선택' },
+    { type: 'bypass-select', step: 'S5', title: '우회 방법 선택' },
     { type: 'result', title: '결과' },
   ]
 }

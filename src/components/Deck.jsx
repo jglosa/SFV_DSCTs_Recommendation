@@ -7,7 +7,6 @@ import ResultCard from './ResultCard.jsx'
 import {
   BypassScenarioCard,
   BypassSelectCard,
-  BypassWantedCard,
   IntroCard,
   MultiCard,
   NoteCard,
@@ -59,9 +58,6 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
   // S2 시계 카드 대기열 (dayType에 따라 0·1·2장)
   const clockQueue = useRef([])
 
-  // S5 bypass-wanted 대기열 (bypassMethods에 true 항목이 있을 때만 1장)
-  const bypassQueue = useRef([])
-
   // 최신 state를 항상 참조 (append 시점의 stale closure 방지)
   const stateRef = useRef(state)
   stateRef.current = state
@@ -83,12 +79,6 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
       return
     }
 
-    // S5 bypass-wanted 카드가 대기 중이면 먼저 소진
-    if (bypassQueue.current.length > 0) {
-      const next = bypassQueue.current.shift()
-      setCards((c) => [...c, mk(next)])
-      return
-    }
 
     const spec = script[cursor.current]
     if (!spec) return
@@ -118,7 +108,6 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
     if (!last) return
     if (last.type === 'result') return
     if (last.type === 'schedule-type') return // 시계 주입은 아래 effect에서 처리
-    if (last.type === 'bypass-select') return  // bypass-wanted 주입은 아래 effect에서 처리
     if (last.type === 's4-rank') return        // s4-ox 주입은 아래 effect에서 처리
     if (answered[last.cid]) pushNextFromScript()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,36 +118,12 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
     const last = cards[cards.length - 1]
     if (!last || last.type !== 'schedule-type') return
     if (!answered[last.cid]) return
-    const dayType = stateRef.current.dayType
-    if (dayType === 'daily') {
-      clockQueue.current = [{ type: 'schedule', step: 'S2', hoursKey: 'daily', title: '시간대 지정 (매일)' }]
-    } else if (dayType === 'split') {
-      clockQueue.current = [
-        { type: 'schedule', step: 'S2', hoursKey: 'weekday', title: '시간대 지정 (평일)' },
-        { type: 'schedule', step: 'S2', hoursKey: 'weekend', title: '시간대 지정 (주말)' },
-      ]
-    } else {
-      clockQueue.current = []
-    }
+    // 시계 카드 주입 없이 바로 다음 단계로
+    clockQueue.current = []
     pushNextFromScript()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answered, cards.length])
 
-  // bypass-select 답변 후 bypassMethods 에 따라 bypass-wanted 카드 주입
-  useEffect(() => {
-    const last = cards[cards.length - 1]
-    if (!last || last.type !== 'bypass-select') return
-    if (!answered[last.cid]) return
-    const methods = stateRef.current.bypassMethods ?? {}
-    const hasAny = Object.values(methods).some(Boolean)
-    if (hasAny) {
-      bypassQueue.current = [{ type: 'bypass-wanted', step: 'S5', title: '우회 차단 선호' }]
-    } else {
-      bypassQueue.current = []
-    }
-    pushNextFromScript()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answered, cards.length])
 
   // s4-rank 답변 후 oxTargets 기반으로 s4-ox 카드를 순서대로 대기열에 등록
   useEffect(() => {
@@ -308,92 +273,52 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
         return <ScheduleCard state={state} api={api} onAnswer={onAnswer} hoursKey={spec.hoursKey} />
       case 'rank':
         return <RankCard state={state} api={api} onAnswer={onAnswer} order={FIXED_ORDER} />
-      case 's4-explore':
+      case 's4-rank': {
+        const handleRankAnswer = () => {
+          setCards((prev) => {
+            const idx = prev.findIndex((c) => c.cid === spec.cid)
+            if (idx < 0) return prev
+            const toRemove = prev.slice(idx + 1)
+            if (!toRemove.length) return prev
+            const removedCids = new Set(toRemove.map((c) => c.cid))
+            setAnswered((a) => {
+              const next = { ...a }
+              removedCids.forEach((id) => delete next[id])
+              return next
+            })
+            s4RankQueue.current = []
+            return prev.slice(0, idx + 1)
+          })
+          const scriptIdx = script.findIndex((s) => s.type === 's4-rank')
+          if (scriptIdx >= 0) cursor.current = scriptIdx + 1
+          answer(spec.cid)
+        }
         return (
-          <S4ExploreCard
-            state={state}
-            api={api}
-            answered={ans}
-            onAnswer={onAnswer}
-            onOpenExplore={() => setS4ExploreOpen(true)}
-          />
+          <>
+            <S4RankCard
+              state={state}
+              api={api}
+              answered={ans}
+              onOpenExplore={() => setS4ExploreOpen(true)}
+              onAnswer={handleRankAnswer}
+            />
+            {s4ExploreOpen && (
+              <S4ExplorePanel
+                state={state}
+                api={api}
+                onClose={() => setS4ExploreOpen(false)}
+                onDone={() => setS4ExploreOpen(false)}
+              />
+            )}
+          </>
         )
-      case 's4-rank':
-        return (
-          <S4RankCard
-            state={state}
-            api={api}
-            answered={ans}
-            onAnswer={() => {
-              // 기존 s4-ox 이후 카드 모두 제거 (순위 번복 지원)
-              setCards((prev) => {
-                const idx = prev.findIndex((c) => c.cid === spec.cid)
-                if (idx < 0) return prev
-                const toRemove = prev.slice(idx + 1)
-                if (!toRemove.length) return prev
-                const removedCids = new Set(toRemove.map((c) => c.cid))
-                setAnswered((a) => {
-                  const next = { ...a }
-                  removedCids.forEach((id) => delete next[id])
-                  return next
-                })
-                s4RankQueue.current = []
-                return prev.slice(0, idx + 1)
-              })
-              // cursor를 s4-rank 다음으로 재설정
-              const scriptIdx = script.findIndex((s) => s.type === 's4-rank')
-              if (scriptIdx >= 0) cursor.current = scriptIdx + 1
-              answer(spec.cid)
-            }}
-          />
-        )
+      }
       case 's4-ox':
         return <S4OXCard spec={spec} state={state} api={api} answered={ans} onAnswer={onAnswer} />
       case 'bypass-scenario':
         return <BypassScenarioCard state={state} api={api} onAnswer={onAnswer} />
       case 'bypass-select':
-        return (
-          <BypassSelectCard
-            state={state}
-            api={api}
-            answered={ans}
-            onAnswer={() => {
-              // bypass-wanted 와 result 재생성을 위해 기존 카드 제거
-              setCards((prev) => {
-                const idx = prev.findIndex((c) => c.cid === spec.cid)
-                if (idx < 0) return prev
-                const toRemove = prev.slice(idx + 1).filter(
-                  (c) => c.type === 'bypass-wanted' || c.type === 'result'
-                )
-                if (!toRemove.length) return prev
-                const removedCids = new Set(toRemove.map((c) => c.cid))
-                setAnswered((a) => {
-                  const next = { ...a }
-                  removedCids.forEach((id) => delete next[id])
-                  return next
-                })
-                bypassQueue.current = []
-                // result 가 제거됐으면 cursor 를 result 위치로 되돌림
-                if (toRemove.some((c) => c.type === 'result')) {
-                  cursor.current = script.findIndex((s) => s.type === 'result')
-                }
-                return prev.filter(
-                  (c, i) => i <= idx || (c.type !== 'bypass-wanted' && c.type !== 'result')
-                )
-              })
-              // bypassWanted 초기화 (번복 시 이전 답 제거)
-              api.set({ bypassWanted: {} })
-              answer(spec.cid)
-              // 다음 카드 append 후 자동 스크롤 — 별도 swipe 불필요
-              setTimeout(() => {
-                const slot = scroller.current?.querySelector(`[data-cid="${spec.cid}"]`)
-                slot?.nextElementSibling?.scrollIntoView({ behavior: 'smooth' })
-              }, 300)
-            }}
-          />
-        )
-      case 'bypass-wanted':
-        return <BypassWantedCard state={state} api={api} onAnswer={onAnswer} answered={ans} />
+        return <BypassSelectCard state={state} api={api} answered={ans} onAnswer={onAnswer} />
       case 'result':
         return <ResultCard state={state} api={api} onOpenDetail={onOpenDetail} />
       default:
@@ -440,27 +365,6 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
         />
       )}
 
-      {/* S4 탐색 오버레이 — .viewport 위에 겹쳐서 scroll-snap 과 분리 */}
-      {s4ExploreOpen && (
-        <S4ExplorePanel
-          state={state}
-          api={api}
-          onClose={() => setS4ExploreOpen(false)}
-          onDone={() => {
-            setS4ExploreOpen(false)
-            const ec = cards.find((c) => c.type === 's4-explore')
-            if (!ec) return
-            answer(ec.cid)
-            // 3개 모두 탐색한 경우 중간 화면을 건너뛰고 바로 다음 카드로 스크롤
-            if ((stateRef.current.agencyVisited ?? []).length >= 3) {
-              setTimeout(() => {
-                const slot = scroller.current?.querySelector(`[data-cid="${ec.cid}"]`)
-                slot?.nextElementSibling?.scrollIntoView({ behavior: 'smooth' })
-              }, 300)
-            }
-          }}
-        />
-      )}
     </>
   )
 }

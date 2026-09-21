@@ -9,7 +9,7 @@
 
 import { SCOPE_DISPLAY } from '../data/features.js'
 
-const CHIPS = ['전체', '게임', '음악', '실시간', '요리', '뉴스', '학습']
+const CHIPS = ['전체', '팟캐스트', '음악', '뉴스', '믹스', '라이브', '요리']
 
 const LONGFORM = [
   { t: '[Playlist] 3시간 집중용 Lo-fi', ch: '작업용음악', v: '조회수 41만회', d: '2일 전', len: '3:02:11', g: ['#2a3550', '#151a2b'] },

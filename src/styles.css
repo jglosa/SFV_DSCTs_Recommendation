@@ -163,11 +163,13 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .c-h1 {
   font-size: 28px; font-weight: 600; line-height: 1.28;
   letter-spacing: -.02em; margin: 0 0 18px; color: var(--ink);
+  word-break: keep-all;
 }
 .c-h1 em { font-style: normal; color: var(--mint-deep); }
 .c-h2 {
   font-size: 23px; font-weight: 600; line-height: 1.34;
   letter-spacing: -.018em; margin: 0 0 14px; color: var(--ink);
+  word-break: keep-all;
 }
 
 .c-p { font-size: 14px; line-height: 1.76; color: var(--ink-2); margin: 0 0 14px; }
@@ -179,6 +181,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .c-q {
   font-size: 21px; font-weight: 600; line-height: 1.42;
   letter-spacing: -.018em; margin: 0 0 6px; color: var(--ink);
+  word-break: keep-all;
 }
 .c-q.on-dark { color: var(--ink); }
 .c-qhint { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--ink-2); margin: 0 0 18px; }
@@ -231,6 +234,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 }
 .c-ghost:hover { border-color: var(--mint); }
 .c-reset { align-self: flex-start; margin-top: 10px; font-size: 12px; color: var(--ink-2); text-decoration: underline; }
+.s4-reopen { margin-bottom: 12px; }
 
 /* ── 스와이프 유도 — bob 애니메이션 + 은은한 화살표 ── */
 .swipe-up {
@@ -576,20 +580,26 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 /* ═══ 개입 오버레이 ═══ */
 .iv {
   position: absolute; inset: 0; z-index: 160;
-  background: var(--bg-card);
-  display: flex; flex-direction: column; color: var(--ink);
-  padding: 0 26px calc(26px + env(safe-area-inset-bottom));
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
   animation: ivIn .22s ease-out;
 }
 @keyframes ivIn { from { opacity: 0; } to { opacity: 1; } }
-.iv-inner { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 40px 0 20px; }
+.iv-modal {
+  background: var(--bg-card); border-radius: 20px;
+  width: 100%; padding: 28px 24px 20px;
+  display: flex; flex-direction: column; color: var(--ink);
+}
+.iv-inner { display: flex; flex-direction: column; margin-bottom: 20px; }
 .iv-badge {
   display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
-  font-family: var(--mono); font-size: 9.5px; font-weight: 600;
-  letter-spacing: .16em; text-transform: uppercase; color: var(--mint-deep);
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--mint-deep);
 }
 .iv-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--mint-deep); }
-.iv-h { font-size: 23px; font-weight: 600; line-height: 1.34; letter-spacing: -.02em; margin: 0 0 12px; color: var(--ink); }
+.iv-h { font-size: 20px; font-weight: 600; line-height: 1.34; letter-spacing: -.02em; margin: 0 0 12px; color: var(--ink); word-break: keep-all; }
 .iv-p { font-size: 14px; line-height: 1.68; color: var(--ink-2); margin: 0 0 20px; }
 .iv-stat {
   display: flex; justify-content: space-between; margin-bottom: 20px; padding: 10px 0;
@@ -598,7 +608,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 }
 .iv-actions {
   display: flex; flex-direction: column; gap: 10px;
-  padding: 20px 0 calc(20px + env(safe-area-inset-bottom));
+  padding: 8px 0 4px;
 }
 .iv-btn {
   width: 100%; padding: 15px; border-radius: 50px;
@@ -665,7 +675,8 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 
 
 /* ── S3 시뮬레이션 안내 카드 ── */
-.sim-num { font-size: 44px; line-height: 1; color: var(--mint-deep); margin-bottom: 10px; }
+.sim-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.sim-num { font-size: 44px; line-height: 1; color: var(--mint-deep); flex-shrink: 0; }
 /* S4 enforcement 단 배지 */
 .enf-badge {
   display: inline-block; padding: 5px 14px; border-radius: 999px; margin-bottom: 16px;
@@ -683,10 +694,9 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .c-sim-btn:disabled { color: var(--slate-2); border-color: var(--border); cursor: default; }
 
 .sim-badge-name {
-  display: inline-block; padding: 5px 14px; border-radius: 999px; margin-bottom: 16px;
-  background: var(--mint-soft); border: 1px solid rgba(5,150,105,.3);
-  font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; color: var(--mint-deep);
-  text-transform: uppercase;
+  font-size: 26px; font-weight: 800;
+  color: var(--mint-deep); line-height: 1.2;
+  letter-spacing: -.02em;
 }
 
 /* ── 개입 설명 줄 ── */
@@ -753,6 +763,14 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 }
 .rankcard.on .rank-badge { background: var(--mint-deep); color: #fff; }
 
+
+/* S5 공통 시나리오 박스 */
+.s5-scene {
+  font-size: 14px; line-height: 1.72; color: var(--ink);
+  margin: 0 0 16px; padding: 14px 16px; border-radius: 12px;
+  background: var(--bg);
+  word-break: keep-all;
+}
 
 /* S5 첫 카드 안내 문구 — 선택 대상 아님, 클릭 불가 */
 .s5-guide {
@@ -1107,7 +1125,6 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   background: var(--bg-card);
   display: flex; flex-direction: column;
   overflow: hidden;
-  overscroll-behavior: contain;
 }
 .dtl-nav {
   display: flex; align-items: center; gap: 8px;
@@ -1126,8 +1143,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 }
 .dtl-body {
   flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding: 28px 20px;
+  padding: 50px 22px calc(24px + env(safe-area-inset-bottom));
 }
 .dtl-placeholder {
   padding: 40px 0; text-align: center;
@@ -1449,17 +1465,22 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 }
 
 /* ── S1 범위 목록 ───────────────────────────────────────── */
-.s1-scope-list { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
-.s1-scope-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 12px; border-radius: 10px;
-  background: var(--bg-card); border: 1px solid var(--border);
-  transition: border-color .15s, background .15s;
+.s1-scope-label {
+  font-size: 12px; font-weight: 600; color: var(--ink-2);
+  text-transform: uppercase; letter-spacing: .08em;
+  margin: 32px 0 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
-.s1-scope-item.on { border-color: var(--mint-deep); background: var(--mint-soft); }
-.s1-scope-name { font-size: 14px; font-weight: 600; color: var(--ink); flex-shrink: 0; }
-.s1-scope-desc { font-size: 12px; color: var(--ink-2); flex: 1; }
-.s1-scope-check { font-size: 13px; color: var(--mint-deep); font-weight: 700; flex-shrink: 0; }
+.s1-scope-list { list-style: none; padding: 0; margin: 0 0 8px; display: flex; flex-direction: column; gap: 6px; }
+.s1-scope-item {
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 2px 0;
+}
+.s1-scope-item.on .s1-scope-name { color: var(--mint-deep); }
+.s1-scope-bullet { font-size: 14px; color: var(--mint-deep); font-weight: 700; flex-shrink: 0; width: 14px; text-align: center; }
+.s1-scope-name { font-size: 15px; font-weight: 600; color: var(--ink); flex-shrink: 0; }
+.s1-scope-desc { font-size: 13px; color: var(--ink-2); flex: 1; }
 
 /* S1 오버레이 내부 레이아웃 — 배너 고정 + MockHome 나머지 채움 */
 .s1-scope-body { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
@@ -1484,6 +1505,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 
 /* ── S4 탐색 오버레이 / 카드 ───────────────────────────── */
 .s4-panel-body { padding: 0 2px; }
+.s4-panel-heading { font-size: 21px; font-weight: 600; color: var(--ink); line-height: 1.42; margin: 0 0 12px; letter-spacing: -.018em; word-break: keep-all; }
 .s4-panel-intro {
   font-size: 13px; line-height: 1.65; color: var(--ink-2);
   margin: 0 0 20px;
@@ -1502,7 +1524,7 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 
 /* agency 레벨 선택 목록 */
 .s4-level-list { display: flex; flex-direction: column; gap: 10px; }
-.s4-level-row-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.s4-level-row-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; width: 100%; }
 .s4-intensity-label {
   font-size: 10px; font-family: var(--mono); letter-spacing: .04em;
   color: var(--ink-2); margin-top: 2px;
@@ -1532,11 +1554,12 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 }
 .s4-level-btn:hover { border-color: var(--mint); }
 .s4-level-btn.visited { border-color: var(--mint-deep); background: var(--mint-soft); }
-.s4-level-name { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.4; }
+.s4-level-name { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.4; flex: 1; min-width: 0; word-break: keep-all; }
 .s4-level-example { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
 .s4-level-badge {
   font-size: 10.5px; font-weight: 700; color: var(--mint-deep);
   font-family: var(--mono); letter-spacing: .04em; margin-top: 2px;
+  white-space: nowrap; flex-shrink: 0;
 }
 
 /* rung 행 */
@@ -1554,13 +1577,11 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   padding: 14px 16px; border-radius: 14px;
   background: var(--bg-card); border: 1.5px solid var(--border);
 }
-/* 이름 + 다시겪어보기 버튼 한 줄 배치 */
-.s4-ox-name-row {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+/* 게이지 + 다시경험해보기 버튼 한 줄 배치 */
+.s4-ox-gauge-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;
 }
-.s4-ox-name-row .s4-rung-name {
-  flex: 1; min-width: 0; margin-bottom: 0;
-}
+.s4-ox-gauge-row .s4-gauge { margin-bottom: 0; }
 .s4-ox-replay-btn {
   flex-shrink: 0;
   display: inline-block; margin: 0;
