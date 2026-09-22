@@ -39,7 +39,7 @@ export default function App() {
           )}
         </div>
       </div>
-      {showMonitor && <DebugPanel state={state} api={api} meta={meta} onJump={setJumpTo} />}
+      {showMonitor && <DebugPanel state={state} meta={meta} onJump={setJumpTo} />}
     </div>
   )
 }

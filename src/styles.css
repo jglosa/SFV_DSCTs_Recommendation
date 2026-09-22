@@ -1459,12 +1459,23 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 }
 .dtl-env-row:last-child { border-bottom: none; }
 .dtl-env-label { font-size: 12px; font-weight: 600; color: var(--ink-2); min-width: 72px; flex-shrink: 0; }
-.dtl-env-value { font-size: 13px; color: var(--ink); flex: 1; line-height: 1.5; }
-.dtl-env-match {
-  font-size: 10px; font-weight: 700; color: var(--mint-deep);
+.dtl-env-tokens { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; align-items: center; }
+.dtl-env-token { font-size: 13px; color: var(--slate); }
+.dtl-env-token.match {
+  color: var(--mint-deep); font-weight: 600;
   background: var(--mint-soft); border-radius: 4px;
-  padding: 1px 5px; letter-spacing: .04em; white-space: nowrap;
+  padding: 1px 6px;
 }
+
+/* ── 앱 스토어 링크 ─────────────────────────────────────── */
+.dtl-store-links { display: flex; gap: 8px; margin-top: 20px; margin-bottom: 8px; }
+.dtl-store-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 10px 4px; border-radius: 10px; font-size: 12px; font-weight: 600; white-space: nowrap;
+  text-decoration: none; color: var(--ink);
+  background: var(--bg-card); border: 1.5px solid var(--border);
+}
+.dtl-store-btn:active { opacity: .6; }
 
 /* ── S1 범위 목록 ───────────────────────────────────────── */
 .s1-scope-label {

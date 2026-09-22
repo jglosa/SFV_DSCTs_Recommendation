@@ -18,8 +18,8 @@ export const AGENCY_LABEL = {
 // 앱 환경 참가자용 한 줄 레이블
 function appEnvLabel(app) {
   const parts = []
-  if (app.os.includes('ios')) parts.push('아이폰')
-  if (app.os.includes('android')) parts.push('안드로이드')
+  if (app.os.includes('android')) parts.push('Android')
+  if (app.os.includes('ios')) parts.push('iOS')
   // worksOn: 웹 전용('web'만, 'app' 없음)일 때만 표기
   if ((app.worksOn ?? []).includes('web') && !(app.worksOn ?? []).includes('app')) parts.push('웹브라우저')
   return parts.join('·')
@@ -47,12 +47,16 @@ function AppRow({ appId, highlighted, onOpenApp }) {
 }
 
 // ── 지원 환경 행 ─────────────────────────────────────────────
-function EnvRow({ label, value, match }) {
+// items: [{ label: string, match: boolean }]
+function EnvRow({ label, items }) {
   return (
     <div className="dtl-env-row">
       <span className="dtl-env-label">{label}</span>
-      <span className="dtl-env-value">{value}</span>
-      {match && <span className="dtl-env-match">내 환경</span>}
+      <span className="dtl-env-tokens">
+        {items.map((item, i) => (
+          <span key={i} className={'dtl-env-token' + (item.match ? ' match' : '')}>{item.label}</span>
+        ))}
+      </span>
     </div>
   )
 }
@@ -127,7 +131,7 @@ function FeatureDetail({ detail, onBack, onOpenApp, onOpenDetail }) {
 
         {/* 4) 겪어보기 */}
         {feature?.role === 'intervention' && (
-          <button className="c-sim-btn" onClick={() => setShowSim(true)}>겪어보기</button>
+          <button className="c-sim-btn" onClick={() => setShowSim(true)}>경험해보기</button>
         )}
 
         {/* 5) 이 기능이 있는 앱 */}
@@ -180,12 +184,18 @@ function AppDetail({ detail, state, onBack, onOpenDetail }) {
   const userRoute = state?.env?.route ?? []
 
   const iap = getInAppPlatforms(app)
-  const osMatch = app.os.some((o) => userOs.includes(o))
-  const platformMatch = iap.some((p) => userPlatforms.includes(p))
-  const routeMatch = userRoute.some((r) => {
-    const mapped = ROUTE_MAP[r]
-    return mapped && (app.worksOn ?? []).includes(mapped)
-  })
+
+  const osItems = ['ios', 'android'].filter((o) => app.os.includes(o)).map((o) => ({
+    label: o === 'ios' ? 'iOS' : 'Android',
+    match: userOs.includes(o),
+  }))
+  const routeItems = (app.worksOn ?? []).map((r) => ({
+    label: r === 'app' ? '앱' : '웹브라우저',
+    match: userRoute.some((ur) => ROUTE_MAP[ur] === r),
+  }))
+  const platformItems = iap.length
+    ? iap.map((p) => ({ label: p, match: userPlatforms.includes(p) }))
+    : [{ label: '미지원', match: false }]
 
   return (
     <div className="dtl" onClick={(e) => e.stopPropagation()}>
@@ -230,6 +240,22 @@ function AppDetail({ detail, state, onBack, onOpenDetail }) {
           </>
         )}
 
+        {/* 스토어 링크 */}
+        {(app.storeLinks?.android || app.storeLinks?.ios) && (
+          <div className="dtl-store-links">
+            {app.storeLinks.android && (
+              <a className="dtl-store-btn" href={app.storeLinks.android} target="_blank" rel="noreferrer">
+                Google Play Store
+              </a>
+            )}
+            {app.storeLinks.ios && (
+              <a className="dtl-store-btn" href={app.storeLinks.ios} target="_blank" rel="noreferrer">
+                Apple App Store
+              </a>
+            )}
+          </div>
+        )}
+
         {/* 3a) 이 앱이 가진 다른 개입 기능 */}
         {interventionFeatures.length > 0 && (
           <>
@@ -263,24 +289,13 @@ function AppDetail({ detail, state, onBack, onOpenDetail }) {
         {/* 4) 지원 환경 */}
         <div className="dtl-sec-h">지원 환경</div>
         <div className="dtl-env-table">
-          <EnvRow
-            label="운영체제"
-            value={['ios', 'android'].filter((o) => app.os.includes(o)).map((o) => o === 'ios' ? 'iOS' : 'Android').join(', ')}
-            match={osMatch}
-          />
-          <EnvRow
-            label="이용 경로"
-            value={(app.worksOn ?? []).map(r => r === 'app' ? '앱' : '웹브라우저').join(', ')}
-            match={routeMatch}
-          />
+          <EnvRow label="운영체제" items={osItems} />
+          <EnvRow label="이용 경로" items={routeItems} />
           {app.inAppPlatforms !== null && (
-            <EnvRow
-              label="앱 내 차단"
-              value={iap.length ? iap.join(', ') : '미지원'}
-              match={platformMatch}
-            />
+            <EnvRow label="앱 내 차단" items={platformItems} />
           )}
         </div>
+
 
       </div>
     </div>

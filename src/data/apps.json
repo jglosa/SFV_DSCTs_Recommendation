@@ -1,665 +1,734 @@
 {
- "version": "2.0",
- "apps": [
-  {
-   "id": "1_S",
-   "shortName": "StayFree",
-   "fullName": "StayFree - Screen Time",
-   "os": [
-    "android",
-    "ios"
-   ],
-   "worksOn": [
-    "app",
-    "web"
-   ],
-   "devices": [
-    "mobile",
-    "pc"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram",
-    "Facebook",
-    "Snapchat",
-    "X",
-    "TikTok",
-    "Line"
-   ],
-   "features": [
-    "block-app",
-    "block-content",
-    "block-shortform",
-    "schedule-window",
-    "usage-goal",
-    "notify-entry",
-    "notify-usage",
-    "social",
-    "lock-app-settings",
-    "prevent-multiwindow"
-   ],
-   "note": null
-  },
-  {
-   "id": "2_SF",
-   "shortName": "Stay Focused",
-   "fullName": "Stay Focused: Site/App Blocker",
-   "os": [
-    "android",
-    "ios"
-   ],
-   "worksOn": [
-    "app",
-    "web"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram",
-    "Snapchat"
-   ],
-   "features": [
-    "block-app",
-    "block-content",
-    "block-shortform",
-    "schedule-window",
-    "session-block",
-    "usage-goal",
-    "timed-wait",
-    "mission-capture",
-    "mission-simple",
-    "pause",
-    "notify-usage",
-    "social",
-    "lock-app-settings",
-    "lock-device-settings",
-    "prevent-multiwindow",
-    "prevent-uninstall"
-   ],
-   "note": null
-  },
-  {
-   "id": "3_D",
-   "shortName": "Digitox",
-   "fullName": "Screen Time & Limits: Digitox",
-   "os": [
-    "android"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram",
-    "TikTok"
-   ],
-   "features": [
-    "block-content",
-    "block-shortform",
-    "schedule-window",
-    "usage-goal",
-    "interrupt",
-    "lock-app-settings"
-   ],
-   "note": null
-  },
-  {
-   "id": "4_A",
-   "shortName": "Ascent",
-   "fullName": "Ascent: screen time & offtime",
-   "os": [
-    "android",
-    "ios"
-   ],
-   "worksOn": [
-    "app",
-    "web"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "Instagram",
-    "YouTube",
-    "Snapchat",
-    "Facebook"
-   ],
-   "features": [
-    "block-shortform",
-    "schedule-window",
-    "session-block",
-    "usage-goal",
-    "confirm",
-    "timed-wait",
-    "mission-exercise",
-    "intention-input",
-    "interrupt",
-    "path-guide"
-   ],
-   "note": "PushUp_mission"
-  },
-  {
-   "id": "5_N",
-   "shortName": "NoScroll",
-   "fullName": "NoScroll: Block Reels & Shorts",
-   "os": [
-    "android"
-   ],
-   "worksOn": [
-    "app",
-    "web"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram",
-    "Facebook",
-    "TikTok"
-   ],
-   "features": [
-    "block-content",
-    "block-shortform",
-    "block-scroll",
-    "usage-goal",
-    "lock-app-settings"
-   ],
-   "note": null
-  },
-  {
-   "id": "6_BS",
-   "shortName": "Block Scroll",
-   "fullName": "Block Scroll: No Shorts/Reels",
-   "os": [
-    "android"
-   ],
-   "worksOn": [
-    "app",
-    "web"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram",
-    "Snapchat",
-    "Facebook",
-    "LinkedIn",
-    "Twitter",
-    "TikTok"
-   ],
-   "features": [
-    "block-app",
-    "block-content",
-    "block-shortform",
-    "schedule-window",
-    "session-block",
-    "usage-goal",
-    "pause"
-   ],
-   "note": null
-  },
-  {
-   "id": "7_NS",
-   "shortName": "NoShorts",
-   "fullName": "No Shorts Disable Shorts/ Reels",
-   "os": [
-    "android"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram"
-   ],
-   "features": [
-    "block-shortform"
-   ],
-   "note": null
-  },
-  {
-   "id": "8_SS",
-   "shortName": "StopScroll",
-   "fullName": "StopScroll: Block Reels/ Shorts",
-   "os": [
-    "android"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram",
-    "TikTok",
-    "Snapchat",
-    "Facebook"
-   ],
-   "features": [
-    "interrupt",
-    "block-shortform",
-    "usage-goal",
-    "pause"
-   ],
-   "note": null
-  },
-  {
-   "id": "9_WH",
-   "shortName": "WallHabit",
-   "fullName": "WallHabit Block Shorts & Reels",
-   "os": [
-    "android",
-    "ios"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram",
-    "Snapchat",
-    "TikTok",
-    "X",
-    "Reddit",
-    "Facebook"
-   ],
-   "features": [
-    "block-app",
-    "block-entry",
-    "block-shortform",
-    "schedule-window",
-    "usage-goal",
-    "timed-wait",
-    "mission-hold",
-    "lock-app-settings",
-    "prevent-uninstall"
-   ],
-   "note": null
-  },
-  {
-   "id": "10_SG",
-   "shortName": "ScrollGuard",
-   "fullName": "ScrollGuard: Hide Reels Shorts",
-   "os": [
-    "android",
-    "ios"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "Instagram",
-    "YouTube",
-    "Facebook",
-    "TikTok"
-   ],
-   "features": [
-    "interrupt",
-    "timed-wait",
-    "block-shortform",
-    "usage-goal",
-    "lock-app-settings",
-    "prevent-uninstall",
-    "pause"
-   ],
-   "note": "dm reels approval function with payment version"
-  },
-  {
-   "id": "11_SB",
-   "shortName": "Scroll Block",
-   "fullName": "Scroll Block: Stop Scroll Pro",
-   "os": [
-    "android"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "Instagram",
-    "YouTube",
-    "Facebook",
-    "TikTok",
-    "Snapchat"
-   ],
-   "features": [
-    "interrupt",
-    "timed-wait",
-    "block-shortform",
-    "usage-goal",
-    "pause"
-   ],
-   "note": "dm reels approval function"
-  },
-  {
-   "id": "12_SZ",
-   "shortName": "ScreenZen",
-   "fullName": "Screen Zen * Screen Time Control",
-   "os": [
-    "android",
-    "ios"
-   ],
-   "worksOn": [
-    "app",
-    "web"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram",
-    "Facebook"
-   ],
-   "features": [
-    "block-app",
-    "block-shortform",
-    "schedule-window",
-    "session-block",
-    "timed-wait",
-    "usage-goal",
-    "mission-simple",
-    "intention-input",
-    "pause",
-    "notify-entry",
-    "interrupt",
-    "path-guide",
-    "confirm",
-    "lock-app-settings",
-    "prevent-uninstall"
-   ],
-   "note": "math problem solve"
-  },
-  {
-   "id": "13_M",
-   "shortName": "Mindful",
-   "fullName": "Mindful: Focus & Screen Time",
-   "os": [
-    "android"
-   ],
-   "worksOn": [
-    "app",
-    "web"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "Instagram",
-    "YouTube",
-    "Snapchat",
-    "Facebook",
-    "Reddit"
-   ],
-   "features": [
-    "notify-entry",
-    "notify-usage",
-    "intention-input",
-    "block-app",
-    "block-shortform",
-    "schedule-window",
-    "session-block",
-    "usage-goal",
-    "lock-app-settings"
-   ],
-   "note": null
-  },
-  {
-   "id": "14_R",
-   "shortName": "Regain",
-   "fullName": "Regain: Study Timer for Focus",
-   "os": [
-    "android"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": [
-    "Instagram",
-    "YouTube",
-    "Facebook"
-   ],
-   "features": [
-    "notify-usage",
-    "block-app",
-    "block-content",
-    "block-shortform",
-    "schedule-window",
-    "session-block",
-    "usage-goal",
-    "prevent-multiwindow",
-    "prevent-uninstall",
-    "social",
-    "pause"
-   ],
-   "note": null
-  },
-  {
-   "id": "15_SY",
-   "shortName": "Shorts Blocker",
-   "fullName": "Shorts Blocker for YouTube",
-   "os": [
-    "ios"
-   ],
-   "worksOn": [
-    "web"
-   ],
-   "devices": [
-    "mobile",
-    "pc"
-   ],
-   "inAppPlatforms": [
-    "YouTube"
-   ],
-   "features": [
-    "block-entry",
-    "block-scroll",
-    "block-shortform"
-   ],
-   "note": null
-  },
-  {
-   "id": "16_UT",
-   "shortName": "UnTrap",
-   "fullName": "UnTrap for YouTube",
-   "os": [
-    "ios"
-   ],
-   "worksOn": [
-    "web"
-   ],
-   "devices": [
-    "mobile",
-    "pc"
-   ],
-   "inAppPlatforms": [
-    "YouTube"
-   ],
-   "features": [
-    "visual-demotion",
-    "timed-wait",
-    "block-content",
-    "block-entry",
-    "block-scroll",
-    "block-shortform",
-    "schedule-window",
-    "session-block",
-    "usage-goal",
-    "lock-app-settings",
-    "path-guide"
-   ],
-   "note": "grayscale, blur, or hide thumbnail"
-  },
-  {
-   "id": "17_NL",
-   "shortName": "No Scroll",
-   "fullName": "No Scroll - Limit Screen Time",
-   "os": [
-    "ios"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": null,
-   "features": [
-    "notify-entry",
-    "visual-demotion",
-    "block-app",
-    "schedule-window",
-    "session-block",
-    "usage-goal",
-    "lock-app-settings"
-   ],
-   "note": "block app darker"
-  },
-  {
-   "id": "18_CR",
-   "shortName": "CloseReels",
-   "fullName": "CloseReels: Reduce Scrolling",
-   "os": [
-    "ios"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": null,
-   "features": [
-    "notify-usage",
-    "confirm",
-    "mission-hold",
-    "mission-capture",
-    "session-block",
-    "usage-goal"
-   ],
-   "note": "sky capture mission"
-  },
-  {
-   "id": "19_SH",
-   "shortName": "SocialFocus",
-   "fullName": "SocialFocus: Hide Distraction",
-   "os": [
-    "ios"
-   ],
-   "worksOn": [
-    "web"
-   ],
-   "devices": [
-    "mobile",
-    "pc"
-   ],
-   "inAppPlatforms": [
-    "YouTube",
-    "Instagram",
-    "TikTok",
-    "Facebook",
-    "Reddit",
-    "Twitter",
-    "LinkedIn",
-    "Netflix",
-    "Pinterest",
-    "Twitch"
-   ],
-   "features": [
-    "visual-demotion",
-    "block-entry",
-    "block-shortform",
-    "usage-goal",
-    "lock-app-settings"
-   ],
-   "note": "thumbnail, shorts tab, comment etc hide, grayscale"
-  },
-  {
-   "id": "20_J",
-   "shortName": "Jomo",
-   "fullName": "Jomo - Screen Time Blocker",
-   "os": [
-    "ios"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile",
-    "pc"
-   ],
-   "inAppPlatforms": null,
-   "features": [
-    "block-app",
-    "schedule-window",
-    "session-block",
-    "usage-goal",
-    "timed-wait",  
-    "mission-capture",
-    "mission-altapp",
-    "mission-exercise",
-    "intention-input",
-    "pause",
-    "social",
-    "lock-app-settings",
-    "lock-device-settings",
-    "prevent-uninstall",
-    "notify-usage"
-   ],
-   "note": "good app first, qr scan, 3k walks"
-  },
-  {
-   "id": "21_C",
-   "shortName": "Cape",
-   "fullName": "Cape: App to Pause Excess",
-   "os": [
-    "ios"
-   ],
-   "worksOn": [
-    "app"
-   ],
-   "devices": [
-    "mobile"
-   ],
-   "inAppPlatforms": null,
-   "features": [
-    "notify-usage",
-    "visual-demotion",
-    "timed-wait",
-    "intention-input",
-    "block-app",
-    "block-entry",
-    "schedule-window",
-    "usage-goal",
-    "lock-app-settings",
-    "prevent-uninstall",
-    "pause"
-   ],
-   "note": "location based block"
-  }
- ]
+  "version": "2.0",
+  "apps": [
+    {
+      "id": "1_S",
+      "shortName": "StayFree",
+      "fullName": "StayFree - Screen Time",
+      "os": [
+        "android",
+        "ios"
+      ],
+      "worksOn": [
+        "app",
+        "web"
+      ],
+      "devices": [
+        "mobile",
+        "pc"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram",
+        "Facebook",
+        "Snapchat",
+        "X",
+        "TikTok",
+        "Line"
+      ],
+      "features": [
+        "block-app",
+        "block-content",
+        "block-shortform",
+        "schedule-window",
+        "usage-goal",
+        "notify-entry",
+        "notify-usage",
+        "social",
+        "lock-app-settings",
+        "prevent-multiwindow"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.burockgames.timeclocker&hl=en&gl=US",
+        "ios": "https://apps.apple.com/us/app/stayfree-block-apps-sites/id1631132311"
+      }
+    },
+    {
+      "id": "2_SF",
+      "shortName": "Stay Focused",
+      "fullName": "Stay Focused: Site/App Blocker",
+      "os": [
+        "android",
+        "ios"
+      ],
+      "worksOn": [
+        "app",
+        "web"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram",
+        "Snapchat"
+      ],
+      "features": [
+        "block-app",
+        "block-content",
+        "block-shortform",
+        "schedule-window",
+        "session-block",
+        "usage-goal",
+        "timed-wait",
+        "mission-capture",
+        "mission-simple",
+        "pause",
+        "notify-usage",
+        "social",
+        "lock-app-settings",
+        "lock-device-settings",
+        "prevent-multiwindow",
+        "prevent-uninstall"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.stayfocused&hl=en&gl=US",
+        "ios": "https://apps.apple.com/us/app/stay-focused-app-site-blocker/id1658592224"
+      }
+    },
+    {
+      "id": "3_D",
+      "shortName": "Digitox",
+      "fullName": "Screen Time & Limits: Digitox",
+      "os": [
+        "android"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram",
+        "TikTok"
+      ],
+      "features": [
+        "block-content",
+        "block-shortform",
+        "schedule-window",
+        "usage-goal",
+        "interrupt",
+        "lock-app-settings"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=phosphorus.app.usage.screen.time&hl=en&gl=US"
+      }
+    },
+    {
+      "id": "4_A",
+      "shortName": "Ascent",
+      "fullName": "Ascent: screen time & offtime",
+      "os": [
+        "android",
+        "ios"
+      ],
+      "worksOn": [
+        "app",
+        "web"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "Instagram",
+        "YouTube",
+        "Snapchat",
+        "Facebook"
+      ],
+      "features": [
+        "block-shortform",
+        "schedule-window",
+        "session-block",
+        "usage-goal",
+        "confirm",
+        "timed-wait",
+        "mission-exercise",
+        "intention-input",
+        "interrupt",
+        "path-guide"
+      ],
+      "note": "PushUp_mission",
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.ascent&hl=en&gl=US",
+        "ios": "https://apps.apple.com/us/app/ascent-screen-time-control/id6670786673"
+      }
+    },
+    {
+      "id": "5_N",
+      "shortName": "NoScroll",
+      "fullName": "NoScroll: Block Reels & Shorts",
+      "os": [
+        "android"
+      ],
+      "worksOn": [
+        "app",
+        "web"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram",
+        "Facebook",
+        "TikTok"
+      ],
+      "features": [
+        "block-content",
+        "block-shortform",
+        "block-scroll",
+        "usage-goal",
+        "lock-app-settings"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.newswarajya.noswipe.reelshortblocker&hl=en&gl=US"
+      }
+    },
+    {
+      "id": "6_BS",
+      "shortName": "Block Scroll",
+      "fullName": "Block Scroll: No Shorts/Reels",
+      "os": [
+        "android"
+      ],
+      "worksOn": [
+        "app",
+        "web"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram",
+        "Snapchat",
+        "Facebook",
+        "LinkedIn",
+        "Twitter",
+        "TikTok"
+      ],
+      "features": [
+        "block-app",
+        "block-content",
+        "block-shortform",
+        "schedule-window",
+        "session-block",
+        "usage-goal",
+        "pause"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.arktechplugins.blockscroll&hl=en&gl=US"
+      }
+    },
+    {
+      "id": "7_NS",
+      "shortName": "NoShorts",
+      "fullName": "No Shorts Disable Shorts/ Reels",
+      "os": [
+        "android"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram"
+      ],
+      "features": [
+        "block-shortform"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.app.noshorts&hl=en&gl=US"
+      }
+    },
+    {
+      "id": "8_SS",
+      "shortName": "StopScroll",
+      "fullName": "StopScroll: Block Reels/ Shorts",
+      "os": [
+        "android"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram",
+        "TikTok",
+        "Snapchat",
+        "Facebook"
+      ],
+      "features": [
+        "interrupt",
+        "block-shortform",
+        "usage-goal",
+        "pause"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.noscroll.antiscroll&hl=en&gl=US"
+      }
+    },
+    {
+      "id": "9_WH",
+      "shortName": "WallHabit",
+      "fullName": "WallHabit Block Shorts & Reels",
+      "os": [
+        "android",
+        "ios"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram",
+        "Snapchat",
+        "TikTok",
+        "X",
+        "Reddit",
+        "Facebook"
+      ],
+      "features": [
+        "block-app",
+        "block-entry",
+        "block-shortform",
+        "schedule-window",
+        "usage-goal",
+        "timed-wait",
+        "mission-hold",
+        "lock-app-settings",
+        "prevent-uninstall"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.wallhabit.app&hl=en&gl=US",
+        "ios": "https://apps.apple.com/us/app/wallhabit-block-shorts-reels/id6751423279"
+      }
+    },
+    {
+      "id": "10_SG",
+      "shortName": "ScrollGuard",
+      "fullName": "ScrollGuard: Hide Reels Shorts",
+      "os": [
+        "android",
+        "ios"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "Instagram",
+        "YouTube",
+        "Facebook",
+        "TikTok"
+      ],
+      "features": [
+        "interrupt",
+        "timed-wait",
+        "block-shortform",
+        "usage-goal",
+        "lock-app-settings",
+        "prevent-uninstall",
+        "pause"
+      ],
+      "note": "dm reels approval function with payment version",
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.luderapp.scrollguard&hl=en&gl=US",
+        "ios": "https://apps.apple.com/us/app/scrollguard-block-reels/id6754183872"
+      }
+    },
+    {
+      "id": "11_SB",
+      "shortName": "Scroll Block",
+      "fullName": "Scroll Block: Stop Scroll Pro",
+      "os": [
+        "android"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "Instagram",
+        "YouTube",
+        "Facebook",
+        "TikTok",
+        "Snapchat"
+      ],
+      "features": [
+        "interrupt",
+        "timed-wait",
+        "block-shortform",
+        "usage-goal",
+        "pause"
+      ],
+      "note": "dm reels approval function",
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.itdeveapps.noscroll&hl=en&gl=US"
+      }
+    },
+    {
+      "id": "12_SZ",
+      "shortName": "ScreenZen",
+      "fullName": "Screen Zen * Screen Time Control",
+      "os": [
+        "android",
+        "ios"
+      ],
+      "worksOn": [
+        "app",
+        "web"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram",
+        "Facebook"
+      ],
+      "features": [
+        "block-app",
+        "block-shortform",
+        "schedule-window",
+        "session-block",
+        "timed-wait",
+        "usage-goal",
+        "mission-simple",
+        "intention-input",
+        "pause",
+        "notify-entry",
+        "interrupt",
+        "path-guide",
+        "confirm",
+        "lock-app-settings",
+        "prevent-uninstall"
+      ],
+      "note": "math problem solve",
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.screenzen&hl=en&gl=US",
+        "ios": "https://apps.apple.com/us/app/screenzen-screen-time-control/id1541027222"
+      }
+    },
+    {
+      "id": "13_M",
+      "shortName": "Mindful",
+      "fullName": "Mindful: Focus & Screen Time",
+      "os": [
+        "android"
+      ],
+      "worksOn": [
+        "app",
+        "web"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "Instagram",
+        "YouTube",
+        "Snapchat",
+        "Facebook",
+        "Reddit"
+      ],
+      "features": [
+        "notify-entry",
+        "notify-usage",
+        "intention-input",
+        "block-app",
+        "block-shortform",
+        "schedule-window",
+        "session-block",
+        "usage-goal",
+        "lock-app-settings"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=com.mindful.android&hl=en&gl=US"
+      }
+    },
+    {
+      "id": "14_R",
+      "shortName": "Regain",
+      "fullName": "Regain: Study Timer for Focus",
+      "os": [
+        "android"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": [
+        "Instagram",
+        "YouTube",
+        "Facebook"
+      ],
+      "features": [
+        "notify-usage",
+        "block-app",
+        "block-content",
+        "block-shortform",
+        "schedule-window",
+        "session-block",
+        "usage-goal",
+        "prevent-multiwindow",
+        "prevent-uninstall",
+        "social",
+        "pause"
+      ],
+      "note": null,
+      "storeLinks": {
+        "android": "https://play.google.com/store/apps/details?id=ai.regainapp&hl=en&gl=US"
+      }
+    },
+    {
+      "id": "15_SY",
+      "shortName": "Shorts Blocker",
+      "fullName": "Shorts Blocker for YouTube",
+      "os": [
+        "ios"
+      ],
+      "worksOn": [
+        "web"
+      ],
+      "devices": [
+        "mobile",
+        "pc"
+      ],
+      "inAppPlatforms": [
+        "YouTube"
+      ],
+      "features": [
+        "block-entry",
+        "block-scroll",
+        "block-shortform"
+      ],
+      "note": null,
+      "storeLinks": {
+        "ios": "https://apps.apple.com/us/app/shorts-blocker-for-youtube/id6451330524"
+      }
+    },
+    {
+      "id": "16_UT",
+      "shortName": "UnTrap",
+      "fullName": "UnTrap for YouTube",
+      "os": [
+        "ios"
+      ],
+      "worksOn": [
+        "web"
+      ],
+      "devices": [
+        "mobile",
+        "pc"
+      ],
+      "inAppPlatforms": [
+        "YouTube"
+      ],
+      "features": [
+        "visual-demotion",
+        "timed-wait",
+        "block-content",
+        "block-entry",
+        "block-scroll",
+        "block-shortform",
+        "schedule-window",
+        "session-block",
+        "usage-goal",
+        "lock-app-settings",
+        "path-guide"
+      ],
+      "note": "grayscale, blur, or hide thumbnail",
+      "storeLinks": {
+        "ios": "https://apps.apple.com/us/app/untrap-for-youtube/id1637438059"
+      }
+    },
+    {
+      "id": "17_NL",
+      "shortName": "No Scroll",
+      "fullName": "No Scroll - Limit Screen Time",
+      "os": [
+        "ios"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": null,
+      "features": [
+        "notify-entry",
+        "visual-demotion",
+        "block-app",
+        "schedule-window",
+        "session-block",
+        "usage-goal",
+        "lock-app-settings"
+      ],
+      "note": "block app darker",
+      "storeLinks": {
+        "ios": "https://apps.apple.com/us/app/no-scroll-limit-screen-time/id6474079216"
+      }
+    },
+    {
+      "id": "18_CR",
+      "shortName": "CloseReels",
+      "fullName": "CloseReels: Reduce Scrolling",
+      "os": [
+        "ios"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": null,
+      "features": [
+        "notify-usage",
+        "confirm",
+        "mission-hold",
+        "mission-capture",
+        "session-block",
+        "usage-goal"
+      ],
+      "note": "sky capture mission",
+      "storeLinks": {
+        "ios": "https://apps.apple.com/us/app/closereels-reduce-scrolling/id6739947824"
+      }
+    },
+    {
+      "id": "19_SH",
+      "shortName": "SocialFocus",
+      "fullName": "SocialFocus: Hide Distraction",
+      "os": [
+        "ios"
+      ],
+      "worksOn": [
+        "web"
+      ],
+      "devices": [
+        "mobile",
+        "pc"
+      ],
+      "inAppPlatforms": [
+        "YouTube",
+        "Instagram",
+        "TikTok",
+        "Facebook",
+        "Reddit",
+        "Twitter",
+        "LinkedIn",
+        "Netflix",
+        "Pinterest",
+        "Twitch"
+      ],
+      "features": [
+        "visual-demotion",
+        "block-entry",
+        "block-shortform",
+        "usage-goal",
+        "lock-app-settings"
+      ],
+      "note": "thumbnail, shorts tab, comment etc hide, grayscale",
+      "storeLinks": {
+        "ios": "https://apps.apple.com/us/app/socialfocus-hide-distractions/id1661093205"
+      }
+    },
+    {
+      "id": "20_J",
+      "shortName": "Jomo",
+      "fullName": "Jomo - Screen Time Blocker",
+      "os": [
+        "ios"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile",
+        "pc"
+      ],
+      "inAppPlatforms": null,
+      "features": [
+        "block-app",
+        "schedule-window",
+        "session-block",
+        "usage-goal",
+        "timed-wait",
+        "mission-capture",
+        "mission-altapp",
+        "mission-exercise",
+        "intention-input",
+        "pause",
+        "social",
+        "lock-app-settings",
+        "lock-device-settings",
+        "prevent-uninstall",
+        "notify-usage"
+      ],
+      "note": "good app first, qr scan, 3k walks",
+      "storeLinks": {
+        "ios": "https://apps.apple.com/us/app/jomo-screen-time-blocker/id1609960918"
+      }
+    },
+    {
+      "id": "21_C",
+      "shortName": "Cape",
+      "fullName": "Cape: App to Pause Excess",
+      "os": [
+        "ios"
+      ],
+      "worksOn": [
+        "app"
+      ],
+      "devices": [
+        "mobile"
+      ],
+      "inAppPlatforms": null,
+      "features": [
+        "notify-usage",
+        "visual-demotion",
+        "timed-wait",
+        "intention-input",
+        "block-app",
+        "block-entry",
+        "schedule-window",
+        "usage-goal",
+        "lock-app-settings",
+        "prevent-uninstall",
+        "pause"
+      ],
+      "note": "location based block",
+      "storeLinks": {
+        "ios": "https://apps.apple.com/us/app/cape-app-to-pause-excess/id6444819615"
+      }
+    }
+  ]
 }

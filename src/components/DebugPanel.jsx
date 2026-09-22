@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { STEP_LABEL, cardTitle } from '../deck.js'
 import { SCOPE_LEVELS, BYPASS_TARGETS, RESISTANCE_LABEL } from '../data/features.js'
 import { VARIANTS } from './Intervention.jsx'
@@ -18,91 +17,6 @@ import { recommend } from '../engine.js'
 // 여기에 반영되지 않는다. 기기 간 동기화는 서버(웹소켓)가 필요하다.
 // ─────────────────────────────────────────────────────────────
 
-// ── 공통 기본값 ───────────────────────────────────────────────
-const DEFAULT_ENV = {
-  devices:   ['mobile'],
-  os:        ['ios', 'android'],
-  route:     ['앱'],
-  platforms: ['YouTube', 'Instagram'],
-}
-const DEFAULT_PATCH = {
-  hours:        { daily: [22, 23, 24, 1, 2], weekday: [], weekend: [] },
-  dayType:      'daily',
-  bypassMethods: {},
-  bypassWanted: { 'lock-app-settings': true, 'prevent-uninstall': true },
-  simsPlayed:   [],
-  oxSkipped:    [],
-}
-
-function makePreset({ env: envOverride, ...rest }) {
-  return {
-    ...DEFAULT_PATCH,
-    env:          { ...DEFAULT_ENV, ...envOverride },
-    agencyVisited: rest.agencyRank,
-    ...rest,
-  }
-}
-
-const PRESETS = [
-  {
-    name: 'P1 · 최소 응답',
-    patch: makePreset({
-      agencyRank:      ['supported', 'flexible', 'limited'],
-      featureAccepted: { 1: 'ok' },
-      scopes:          ['shorts-tab'],
-      timingRank:      ['At', 'InUse', 'Pre'],
-      oxSkipped:       ['flexible'],
-    }),
-  },
-  {
-    name: 'P2 · 전부 수용',
-    patch: makePreset({
-      agencyRank:      ['flexible', 'limited', 'supported'],
-      featureAccepted: { 4: 'ok', 5: 'ok', 6: 'ok', 7: 'ok', 8: 'ok', 9: 'ok' },
-      scopes:          ['app', 'shorts-row', 'shorts-tab', 'content'],
-      timingRank:      ['At', 'InUse', 'Pre'],
-    }),
-  },
-  {
-    name: 'P3 · 전부 과함',
-    patch: makePreset({
-      agencyRank:      ['flexible', 'supported', 'limited'],
-      featureAccepted: { 1: 'strong', 2: 'strong', 3: 'strong', 4: 'strong', 5: 'strong',
-                         6: 'strong', 7: 'strong', 8: 'strong', 9: 'strong' },
-      scopes:          ['shorts-tab'],
-      timingRank:      ['InUse', 'At', 'Pre'],
-    }),
-  },
-  {
-    name: 'P4 · 완전 차단',
-    patch: makePreset({
-      agencyRank:      ['limited', 'flexible', 'supported'],
-      featureAccepted: { 10: 'ok' },
-      scopes:          ['app', 'shorts-row', 'shorts-tab', 'content'],
-      timingRank:      ['InUse', 'At', 'Pre'],
-    }),
-  },
-  {
-    name: 'P5 · 평가 최소',
-    patch: makePreset({
-      agencyRank:      ['flexible', 'supported', 'limited'],
-      featureAccepted: { 4: 'ok' },
-      scopes:          ['shorts-tab'],
-      timingRank:      ['At', 'InUse', 'Pre'],
-      oxSkipped:       ['supported'],
-    }),
-  },
-  {
-    name: 'P6 · 지원 없는 환경',
-    patch: makePreset({
-      env:             { os: ['android'], platforms: ['YouTube'] },
-      agencyRank:      ['supported', 'flexible', 'limited'],
-      featureAccepted: { 1: 'ok', 2: 'ok', 3: 'ok' },
-      scopes:          ['shorts-tab'],
-      timingRank:      ['Pre', 'At', 'InUse'],
-    }),
-  },
-]
 
 const NUM = ['①', '②', '③']
 
@@ -115,18 +29,10 @@ function Row({ k, v, dim }) {
   )
 }
 
-export default function DebugPanel({ state, api, meta, onJump }) {
+export default function DebugPanel({ state, meta, onJump }) {
   const cards = meta?.cards || []
   const active = meta?.active ?? 0
   const order = meta?.order || []
-  const [activePreset, setActivePreset] = useState(null)
-
-  const injectPreset = (p) => {
-    setActivePreset(p.name)
-    api.set(p.patch)
-    const resultIdx = cards.findIndex((c) => c.type === 'result')
-    if (resultIdx !== -1) onJump({ i: resultIdx, k: Math.random() })
-  }
 
   const isResult = cards[active]?.type === 'result'
   const { gradeTable = null, appTable = null } = isResult ? recommend(state) : {}
@@ -398,34 +304,6 @@ export default function DebugPanel({ state, api, meta, onJump }) {
         </div>
       )}
 
-      {/* ── 프리셋 ── */}
-      <div className="sc-group">
-        <div className="sc-label">응답 프리셋 주입</div>
-        <p className="sc-tiny">
-          주입하면 결과 화면으로 이동하고 등급표가 갱신됩니다.
-        </p>
-        {activePreset && (
-          <p className="sc-tiny" style={{ color: 'var(--mint-deep)', marginBottom: 4 }}>
-            현재: {activePreset}
-          </p>
-        )}
-        <div className="sc-fill">
-          {PRESETS.map((p) => (
-            <button
-              key={p.name}
-              className={'sc-mini' + (activePreset === p.name ? ' hot' : '')}
-              onClick={() => injectPreset(p)}
-            >
-              {p.name}
-            </button>
-          ))}
-        </div>
-        <div style={{ marginTop: 6 }}>
-          <button className="sc-btn wide" onClick={() => { setActivePreset(null); api.reset() }}>
-            처음부터 다시 (덱 초기화)
-          </button>
-        </div>
-      </div>
     </aside>
   )
 }

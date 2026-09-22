@@ -200,9 +200,10 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
             onOther={(t) => api.set({ envOther: { ...state.envOther, [spec.key]: t } })}
             onAnswer={(v) => {
               // devices 문항: os 파생 (ios / android / desktop)
-              const OS_MAP = { '아이폰·아이패드': 'ios', '안드로이드 폰·태블릿': 'android', 'PC·노트북': 'desktop' }
               const envPatch = { ...state.env, [spec.key]: v }
-              if (spec.key === 'devices') envPatch.os = v.map((d) => OS_MAP[d]).filter(Boolean)
+              if (spec.key === 'devices') envPatch.os = v.flatMap((d) =>
+                d.includes('iOS') ? ['ios'] : d.includes('Android') ? ['android'] : d.includes('PC') ? ['desktop'] : []
+              )
               api.set({ env: envPatch })
               if (v.length) answer(spec.cid)
             }}
