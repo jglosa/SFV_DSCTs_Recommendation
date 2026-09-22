@@ -12,18 +12,15 @@ import { SCOPE_DISPLAY } from '../data/features.js'
 const CHIPS = ['전체', '팟캐스트', '음악', '뉴스', '믹스', '라이브', '요리']
 
 const LONGFORM = [
-  { t: '[Playlist] 3시간 집중용 Lo-fi', ch: '작업용음악', v: '조회수 41만회', d: '2일 전', len: '3:02:11', g: ['#2a3550', '#151a2b'] },
-  { t: '전공 시험 2주 전에 하는 벼락치기 루틴', ch: '공부기록', v: '조회수 8.2만회', d: '5일 전', len: '18:44', g: ['#3a2a2a', '#1f1414'] },
-  { t: '포모도로 공부법 실전편 — 25분 집중 × 6세트', ch: '스터디위드미', v: '조회수 15만회', d: '3일 전', len: '2:41:00', g: ['#1a3a2a', '#0d1f15'] },
-  { t: '논문 처음 읽는 법 — 초록부터 결론까지', ch: '연구실생존기', v: '조회수 3.4만회', d: '1주 전', len: '32:07', g: ['#1f3040', '#0d1820'] },
-  { t: '밤 11시 같이 공부해요 📚 조용한 스터디 with me', ch: '밤공부ASMR', v: '조회수 6.1만회', d: '1일 전', len: '1:58:22', g: ['#2a1f3a', '#15102a'] },
+  { t: '지금 계절에 딱 맞는 파리 분위기🍂 기분 좋아지는 그루브 팝 모음🎧 | Perfect Day Pop', ch: 'joypop', v: '▷ 12만', d: '2주 전', len: '2:14:57', thumb: 'thumbs/lf1.png', chThumb: 'chs/ch_lf1.png', g: ['#2a3550', '#151a2b'] },
+  { t: '🇯🇵 기분 좋은 후쿠오카 2박 3일 여행 브이로그 (푸드파이팅을 곁들임)', ch: '여행가는두더지', v: '▷ 2.4만', d: '9일 전', len: '43:25', thumb: 'thumbs/lf2.png', chThumb: 'chs/ch_lf2.png', g: ['#3a2a2a', '#1f1414'] },
+  { t: 'playlist | 가을, 밤 그리고 재즈', ch: 'food market 식품전문점', v: '▷ 1.7만', d: '5일 전', len: '3:28:11', thumb: 'thumbs/lf3.png', chThumb: 'chs/ch_lf3.png', g: ['#1a3a2a', '#0d1f15'] },
 ]
 
 const SHELF = [
   { t: '이 구간 3초만 보세요', v: '조회수 122만회', g: ['#4B2E83', '#1b1f3b'] },
   { t: '편의점 조합 아세요?', v: '조회수 84만회', g: ['#8A4B2A', '#3b1f1b'] },
   { t: '조별과제 빌런 유형', v: '조회수 219만회', g: ['#2A8A6B', '#1f3b33'] },
-  { t: '새벽 2시 과제하는 사람', v: '조회수 57만회', g: ['#2A5B8A', '#1f2a3b'] },
 ]
 
 function VidCard({ v }) {
@@ -31,12 +28,16 @@ function VidCard({ v }) {
     <article className="yt-vid">
       <div
         className="yt-thumb"
-        style={{ background: `linear-gradient(140deg,${v.g[0]},${v.g[1]})` }}
+        style={v.thumb ? {} : { background: `linear-gradient(140deg,${v.g[0]},${v.g[1]})` }}
       >
+        {v.thumb && <img src={v.thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
         <span className="yt-len">{v.len}</span>
       </div>
       <div className="yt-meta">
-        <span className="yt-avatar" />
+        {v.chThumb
+          ? <img src={v.chThumb} alt="" className="yt-avatar" style={{ objectFit: 'cover' }} />
+          : <span className="yt-avatar" />
+        }
         <span className="yt-meta-txt">
           <b>{v.t}</b>
           <i>{v.ch} · {v.v} · {v.d}</i>
@@ -44,6 +45,16 @@ function VidCard({ v }) {
         <span className="yt-dots">⋮</span>
       </div>
     </article>
+  )
+}
+
+function DefaultProfileIcon({ size = 32 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" style={{ borderRadius: '50%', display: 'block' }}>
+      <circle cx="16" cy="16" r="16" fill="#7B4EA6" />
+      <circle cx="16" cy="13" r="5.5" fill="#D4A8E8" />
+      <ellipse cx="16" cy="28" rx="10" ry="7" fill="#D4A8E8" />
+    </svg>
   )
 }
 
@@ -153,7 +164,7 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
         style={preBlocked ? { opacity: 0, maxHeight: '1px', overflow: 'hidden' } : undefined}
       >
         <div className="yt-shelf-head">
-          <ShortsGlyph />
+          <ShortsGlyph size={20} />
           숏폼
         </div>
         <div className="yt-shelf-row">
@@ -208,7 +219,7 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
           <span className="yt-top-icons">
             <span>⌗</span>
             <span>⌕</span>
-            <span className="yt-avatar-sm" />
+            <DefaultProfileIcon size={28} />
           </span>
         </header>
       </T>

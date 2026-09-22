@@ -317,8 +317,8 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 
 .yt-shelf { position: relative; padding: 6px 0 6px; border-top: 8px solid #f2f2f2; border-bottom: 8px solid #f2f2f2; }
 .yt-shelf-head {
-  display: flex; align-items: center; gap: 6px; padding: 10px 12px 9px;
-  font-size: 15px; font-weight: 700; letter-spacing: -.02em; color: #0f0f0f;
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px 9px;
+  font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: #0f0f0f;
 }
 .yt-shelf-head svg { color: #cc0000; }
 .yt-shelf-row { display: flex; gap: 7px; padding: 0 12px; }
