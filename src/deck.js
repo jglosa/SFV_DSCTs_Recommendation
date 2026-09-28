@@ -41,6 +41,7 @@ export const S0_QUESTIONS = [
     q: '어떤 경로를 통해 보나요?',
     hint: '해당하는 것 모두 선택해주세요',
     opts: ['앱', '웹브라우저'],
+    optHints: ['YouTube, Instagram, TikTok 등', 'Chrome, Safari 등'],
   },
   {
     key: 'platforms',

@@ -7,6 +7,7 @@
 // scope_levels 값과 1:1 대응한다.
 // ─────────────────────────────────────────────────────────────
 
+import { useRef, useEffect } from 'react'
 import { SCOPE_DISPLAY } from '../data/features.js'
 
 const CHIPS = ['전체', '팟캐스트', '음악', '뉴스', '믹스', '라이브', '요리']
@@ -18,9 +19,9 @@ const LONGFORM = [
 ]
 
 const SHELF = [
-  { t: '이 구간 3초만 보세요', v: '조회수 122만회', g: ['#4B2E83', '#1b1f3b'] },
-  { t: '편의점 조합 아세요?', v: '조회수 84만회', g: ['#8A4B2A', '#3b1f1b'] },
-  { t: '조별과제 빌런 유형', v: '조회수 219만회', g: ['#2A8A6B', '#1f3b33'] },
+  { t: '이 구간 3초만 보세요', v: '조회수 122만회', g: ['#4B2E83', '#1b1f3b'], thumb: 'thumbs/sf1.jpg' },
+  { t: '편의점 조합 아세요?', v: '조회수 84만회', g: ['#8A4B2A', '#3b1f1b'], thumb: 'thumbs/sf2.jpg' },
+  { t: '조별과제 빌런 유형', v: '조회수 219만회', g: ['#2A8A6B', '#1f3b33'], thumb: 'thumbs/sf3.jpg' },
 ]
 
 function VidCard({ v }) {
@@ -147,15 +148,15 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
     )
 
   // At/InUse 시뮬: Shorts 접근 클릭 핸들러 (Hit 없이 직접 바인딩)
+  // idx: 선반에서 클릭한 썸네일 인덱스 (기본 0)
   const handleShortsAccess = onShortsAccess
-    ? (e) => { e.stopPropagation(); onShortsAccess() }
-    : undefined
+    ? (idx = 0) => (e) => { e?.stopPropagation(); onShortsAccess(idx) }
+    : () => undefined
 
   // Shorts 선반 노드
   const shelfSection = (
     <section
       className={'yt-shelf' + (onShortsAccess ? ' sim-cue' : '')}
-      onClick={handleShortsAccess}
       style={shelfStyle}
     >
       {/* 원래 콘텐츠: preBlocked 시 즉시 숨김 */}
@@ -168,12 +169,21 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
           숏폼
         </div>
         <div className="yt-shelf-row">
-          {SHELF.map((s) => (
-            <div className="yt-short" key={s.t}>
+          {SHELF.map((s, i) => (
+            <div
+              className="yt-short"
+              key={s.t}
+              onClick={handleShortsAccess(i)}
+              style={onShortsAccess ? { cursor: 'pointer' } : undefined}
+            >
               <div
                 className="yt-short-thumb"
-                style={{ background: `linear-gradient(150deg,${s.g[0]},${s.g[1]})` }}
-              />
+                style={s.thumb ? {} : { background: `linear-gradient(150deg,${s.g[0]},${s.g[1]})` }}
+              >
+                {s.thumb && (
+                  <img src={s.thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: 'inherit' }} />
+                )}
+              </div>
               <b>{s.t}</b>
               <i>{s.v}</i>
             </div>
@@ -197,8 +207,8 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
       className={'yt-nav-item' + (onShortsAccess ? ' sim-cue' : '') + (preBlocked ? ' preblocked' : '')}
       role={onShortsAccess ? 'button' : undefined}
       tabIndex={onShortsAccess ? 0 : undefined}
-      onClick={handleShortsAccess}
-      onKeyDown={onShortsAccess ? (e) => (e.key === 'Enter' || e.key === ' ') && onShortsAccess() : undefined}
+      onClick={handleShortsAccess(0)}
+      onKeyDown={onShortsAccess ? (e) => (e.key === 'Enter' || e.key === ' ') && onShortsAccess(0) : undefined}
     >
       <span className="yt-nav-glyph">
         <ShortsGlyph size={17} />
@@ -282,6 +292,18 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
 
 // ══ Shorts 플레이어 ══════════════════════════════════════
 export function MockShorts({ video, picked, onPick, interactive = true, playing }) {
+  const videoRef = useRef(null)
+
+  // playing prop이 바뀔 때 재생/일시정지
+  useEffect(() => {
+    if (!videoRef.current) return
+    if (playing) {
+      videoRef.current.play().catch(() => {})
+    } else {
+      videoRef.current.pause()
+    }
+  }, [playing])
+
   const is = (id) => picked?.includes(id)
   const wrap = (id, label, node, block) =>
     interactive ? (
@@ -294,10 +316,23 @@ export function MockShorts({ video, picked, onPick, interactive = true, playing 
 
   return (
     <div className="sp">
-      <div
-        className={'sp-visual' + (playing ? ' playing' : '')}
-        style={{ background: `linear-gradient(150deg,${video.grad[0]},${video.grad[1]})` }}
-      />
+      <div className={'sp-visual' + (playing ? ' playing' : '')}>
+        {/* 썸네일 이미지 (폴백: 검정) */}
+        {video.thumb
+          ? <img src={video.thumb} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+          : <div style={{ position: 'absolute', inset: 0, background: '#111' }} />
+        }
+        {/* 실제 영상 — playing 상태일 때만 표시 */}
+        {video.src && (
+          <video
+            ref={videoRef}
+            src={video.src}
+            loop
+            playsInline
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', display: playing ? 'block' : 'none' }}
+          />
+        )}
+      </div>
       <div className="sp-scrim" />
 
       <div className="sp-top">
@@ -316,12 +351,8 @@ export function MockShorts({ video, picked, onPick, interactive = true, playing 
           {video.likes}
         </span>
         <span className="sp-rail-item">
-          <b>♡̶</b>
-          싫어요
-        </span>
-        <span className="sp-rail-item">
           <b>💬</b>
-          {video.seconds * 7}
+          댓글
         </span>
         <span className="sp-rail-item">
           <b>↗</b>
@@ -331,20 +362,22 @@ export function MockShorts({ video, picked, onPick, interactive = true, playing 
           <b>⟳</b>
           리믹스
         </span>
-        <span className="sp-disc" />
+        {video.chThumb
+          ? <img className="sp-disc" src={video.chThumb} alt="" />
+          : <span className="sp-disc" />
+        }
       </div>
 
       <div className="sp-bottom">
         <div className="sp-channel">
-          <span className="sp-ch-avatar" />
+          {video.chThumb
+            ? <img className="sp-ch-avatar" src={video.chThumb} alt="" />
+            : <span className="sp-ch-avatar" />
+          }
           <b>@{video.creator}</b>
           <span className="sp-sub">구독</span>
         </div>
         <div className="sp-title">{video.title}</div>
-        <div className="sp-tags">
-          <span className="sp-tag">#{video.categoryLabel}</span>
-          <span className="sp-tag">#숏폼</span>
-        </div>
         <div className="sp-audio">
           <span>♪</span> 원본 오디오 · @{video.creator}
         </div>

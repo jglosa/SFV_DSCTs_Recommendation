@@ -447,7 +447,7 @@ function computeAppScore(app, state, featureIds, userMobileOs) {
   if (userOs.includes('desktop') && (app.devices ?? []).includes('pc')) envScore += 1
 
   // (4) 스케줄
-  const hasSchedule = state.dayType === 'daily' || state.dayType === 'split'
+  const hasSchedule = state.dayType === 'daily'
   const scheduleScore =
     hasSchedule && (app.features ?? []).includes('schedule-window') ? 1 : 0
 

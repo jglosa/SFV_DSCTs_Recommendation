@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildScript, FIXED_ORDER } from '../deck.js'
 import { oxTargets } from '../store.js'
-import { VIDEO_POOL, shuffled } from '../data/videos.js'
+import { VIDEO_POOL, SIM_VIDEOS, shuffled } from '../data/videos.js'
 import { platformIconPath } from '../data/apps.js'
 import ResultCard from './ResultCard.jsx'
 import {
@@ -219,7 +219,7 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
             answered={ans}
             active={isActive}
             onAnswer={onAnswer}
-            videos={videos}
+            videos={SIM_VIDEOS}
           />
         )
       case 'scope-home':

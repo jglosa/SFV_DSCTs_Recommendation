@@ -119,7 +119,7 @@ export default function DebugPanel({ state, meta, onJump }) {
           <div className="mon-sec">S2 통제 규칙</div>
           <Row
             k="유형"
-            v={{ daily: '매일 같은 시간대', split: '평일·주말 구분', none: '시간 무관' }[state.dayType] || '—'}
+            v={{ daily: '특정 시간에만 (scheduling=true)', none: '항상 (scheduling=false)' }[state.dayType] || '—'}
             dim={!state.dayType}
           />
           {state.dayType === 'daily' && (
@@ -128,20 +128,6 @@ export default function DebugPanel({ state, meta, onJump }) {
               v={(state.hours.daily || []).length ? `${rangesOf(state.hours.daily).join(', ')} (${state.hours.daily.length}h)` : '—'}
               dim={!(state.hours.daily || []).length}
             />
-          )}
-          {state.dayType === 'split' && (
-            <>
-              <Row
-                k="평일"
-                v={(state.hours.weekday || []).length ? `${rangesOf(state.hours.weekday).join(', ')} (${state.hours.weekday.length}h)` : '—'}
-                dim={!(state.hours.weekday || []).length}
-              />
-              <Row
-                k="주말"
-                v={(state.hours.weekend || []).length ? `${rangesOf(state.hours.weekend).join(', ')} (${state.hours.weekend.length}h)` : '—'}
-                dim={!(state.hours.weekend || []).length}
-              />
-            </>
           )}
 
           <div className="mon-sec">S3 개입 시점</div>

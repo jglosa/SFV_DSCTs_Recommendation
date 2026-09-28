@@ -114,7 +114,7 @@ export function MultiCard({ spec, value = [], other = '', onAnswer, onOther, ico
         <h2 className="c-q">{spec.q}</h2>
         {spec.hint && <p className="c-qhint">{spec.hint}</p>}
         <div className="c-opts">
-          {spec.opts.map((o) => (
+          {spec.opts.map((o, i) => (
             <button
               key={o}
               className={'c-opt' + (value.includes(o) ? ' on' : '')}
@@ -122,7 +122,10 @@ export function MultiCard({ spec, value = [], other = '', onAnswer, onOther, ico
             >
               <span className="c-box">{value.includes(o) ? '✓' : ''}</span>
               {iconFn && <PlatformIcon name={o} src={iconFn(o)} />}
-              {o}
+              <span className="c-opt-label">
+                {o}
+                {spec.optHints?.[i] && <span className="c-opt-hint">{spec.optHints[i]}</span>}
+              </span>
             </button>
           ))}
         </div>
@@ -237,9 +240,8 @@ export function ScopeShortsCard({ state, api, onAnswer, answered, video }) {
 
 // ══ S2 통제 규칙 : 규칙 유형 선택 ══════════════════════
 const SCHEDULE_TYPE_OPTS = [
-  { k: 'daily', label: '매일 같은 시간대' },
-  { k: 'split', label: '평일과 주말을 따로' },
-  { k: 'none',  label: '시간 무관' },
+  { k: 'daily', label: '정해진 시간대에만', hint: '예: 출퇴근길, 자기 전, 수업 시간' },
+  { k: 'none',  label: '하루 종일', hint: '시간대와 상관없이 늘 켜져 있어요' },
 ]
 
 export function ScheduleTypeCard({ state, api, onAnswer }) {
@@ -251,16 +253,19 @@ export function ScheduleTypeCard({ state, api, onAnswer }) {
     <div className="c c-paper">
       <div className="c-pad">
         <Tag step="S2" />
-        <h2 className="c-q">언제 개입이 필요한가요?</h2>
+        <h2 className="c-q">숏폼 관리가 필요한 시간대가 있나요?</h2>
         <div className="c-opts">
-          {SCHEDULE_TYPE_OPTS.map(({ k, label }) => (
+          {SCHEDULE_TYPE_OPTS.map(({ k, label, hint }) => (
             <button
               key={k}
               className={'c-opt' + (state.dayType === k ? ' on' : '')}
               onClick={() => pick(k)}
             >
-              <span className="c-box">{state.dayType === k ? '✓' : ''}</span>
-              {label}
+              <span className="c-radio">{state.dayType === k ? '●' : ''}</span>
+              <span className="c-opt-label">
+                {label}
+                <span className="c-opt-hint">{hint}</span>
+              </span>
             </button>
           ))}
         </div>
@@ -358,7 +363,8 @@ export function SimIntroCard({ spec, onAnswer, answered }) {
 // InUse: 홈 화면 → 탭 → 숏폼 3개 스와이프 → 개입 오버레이
 export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
   const [phase, setPhase] = useState('home') // 'home' | 'watching' | 'fired' | 'done'
-  const [swipeCount, setSwipeCount] = useState(0)
+  const [swipeCount, setSwipeCount] = useState(0)   // 현재 표시 중인 영상 인덱스
+  const [watchedCount, setWatchedCount] = useState(0) // 이번 시뮬에서 앞으로 넘긴 횟수
   // 슬라이드 전환 중 { from, to } — null이면 전환 없음
   const [swipeTransition, setSwipeTransition] = useState(null)
   const cardRef = useRef(null)
@@ -370,41 +376,59 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
     if (spec.when === 'Pre' && !answered) onAnswer(true)
   }, [spec.when, answered, onAnswer])
 
-  const accessShorts = () => {
+  // idx: 선반 썸네일 클릭 시 시작할 영상 인덱스 (기본 0)
+  const accessShorts = (idx = 0) => {
     if (phase !== 'home') return
+    setSwipeCount(idx)
+    setWatchedCount(0) // 시작 영상이 무엇이든 "본 영상 수" 초기화
     if (spec.when === 'At') setPhase('fired')
     else if (spec.when === 'InUse') setPhase('watching')
   }
 
+  // ref 기반 스와이프 잠금 — React 렌더 사이클과 무관하게 즉시 반영됨
+  // (클로저 기반 cooldown은 swipeTransition=null 렌더 직후 공백에서 관성 이벤트가 통과)
+  const canSwipe = useRef(true)
+
   const swipeNext = () => {
-    // SIM_INUSE_COUNT - 1번 넘긴 뒤(즉 SIM_INUSE_COUNT개 시청) 개입 발동
-    if (swipeCount >= SIM_INUSE_COUNT - 1) {
+    if (!canSwipe.current) return
+    // 절대 인덱스가 아닌 "앞으로 넘긴 횟수"로 개입 타이밍 판단
+    if (watchedCount >= SIM_INUSE_COUNT - 1) {
       setPhase('fired')
     } else {
-      // 이전→현재 슬라이드 업 애니메이션을 350ms 동안 실행
+      canSwipe.current = false // 즉시 잠금 (동기적)
+      setTimeout(() => { canSwipe.current = true }, 1000) // 전환(350ms) + 관성 대기
       const from = swipeCount
       const to = swipeCount + 1
-      setSwipeTransition({ from, to })
+      setSwipeTransition({ from, to, dir: 'next' })
       setSwipeCount(to)
+      setWatchedCount(watchedCount + 1)
       setTimeout(() => setSwipeTransition(null), 350)
     }
   }
-  // 이벤트 핸들러에서 항상 최신 swipeNext를 호출하기 위한 ref
+  const swipePrev = () => {
+    if (!canSwipe.current) return
+    if (swipeCount <= 0) return
+    canSwipe.current = false
+    setTimeout(() => { canSwipe.current = true }, 1000)
+    const from = swipeCount
+    const to = swipeCount - 1
+    setSwipeTransition({ from, to, dir: 'prev' })
+    setSwipeCount(to)
+    setTimeout(() => setSwipeTransition(null), 350)
+  }
+  // 이벤트 핸들러에서 항상 최신 함수를 호출하기 위한 ref
   const swipeNextRef = useRef(swipeNext)
   swipeNextRef.current = swipeNext
+  const swipePrevRef = useRef(swipePrev)
+  swipePrevRef.current = swipePrev
 
-  // InUse 시청 단계: 터치 스와이프 / 마우스 드래그 / 휠로 다음 영상
+  // InUse 시청 단계: 터치 스와이프 / 마우스 드래그 / 휠로 이전·다음 영상
   useEffect(() => {
     const el = watchRef.current
     if (!el || phase !== 'watching') return
 
-    const cooldown = { active: false }
-    const trigger = () => {
-      if (cooldown.active) return
-      cooldown.active = true
-      setTimeout(() => { cooldown.active = false }, 700)
-      swipeNextRef.current()
-    }
+    // guard는 swipeNext/swipePrev의 canSwipe ref에서 처리
+    const trigger = (fn) => fn()
 
     let startY = null
     const onTouchStart = (e) => {
@@ -414,20 +438,40 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
       startY = e.touches[0].clientY
     }
     const onTouchEnd = (e) => {
-      if (startY !== null && startY - e.changedTouches[0].clientY > 40) trigger()
+      if (startY === null) return
+      const dy = startY - e.changedTouches[0].clientY
+      if (dy > 40) trigger(swipeNextRef.current)
+      else if (dy < -40) trigger(swipePrevRef.current)
       startY = null
     }
 
     let mouseY = null
     const onMouseDown = (e) => { mouseY = e.clientY }
     const onMouseUp = (e) => {
-      if (mouseY !== null && mouseY - e.clientY > 40) trigger()
+      if (mouseY === null) return
+      const dy = mouseY - e.clientY
+      if (dy > 40) trigger(swipeNextRef.current)
+      else if (dy < -40) trigger(swipePrevRef.current)
       mouseY = null
     }
 
+    // 트랙패드 관성 wheel 이벤트 대응: 제스처가 완전히 끝난 뒤에만 다음 트리거 허용
+    // wheelGestureLive: 이번 제스처가 아직 진행 중 (첫 이벤트에서만 발동)
+    let wheelGestureLive = false
+    let wheelSettleTimer = null
     const onWheel = (e) => {
       e.preventDefault() // 부모 .deck 스크롤-스냅 방지
-      if (e.deltaY > 0) trigger()
+
+      // 300ms 동안 wheel 이벤트가 없으면 제스처가 끝난 것으로 판단 → 초기화
+      clearTimeout(wheelSettleTimer)
+      wheelSettleTimer = setTimeout(() => { wheelGestureLive = false }, 300)
+
+      if (wheelGestureLive) return // 같은 제스처의 관성 이벤트 → 무시
+      if (Math.abs(e.deltaY) < 5) return // 너무 미세한 이벤트 무시
+
+      wheelGestureLive = true
+      if (e.deltaY > 0) trigger(swipeNextRef.current)
+      else trigger(swipePrevRef.current)
     }
 
     // passive: false — preventDefault() 를 쓰려면 passive를 false로 지정해야 함
@@ -437,6 +481,7 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
     el.addEventListener('mouseup', onMouseUp)
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => {
+      clearTimeout(wheelSettleTimer)
       el.removeEventListener('touchstart', onTouchStart)
       el.removeEventListener('touchend', onTouchEnd)
       el.removeEventListener('mousedown', onMouseDown)
@@ -489,22 +534,22 @@ export function SimSceneCard({ spec, onAnswer, answered, active, videos }) {
       {showWatching && (
         <div className="c-screen full" ref={watchRef}>
           {swipeTransition ? (
-            // 슬라이드 전환 중: 이전 영상이 위로 올라가고 새 영상이 아래에서 들어온다
+            // 슬라이드 전환 중: dir에 따라 위(next) / 아래(prev) 방향 애니메이션
             <>
-              <div className="sp-slide sp-slide-out">
+              <div className={`sp-slide ${swipeTransition.dir === 'prev' ? 'sp-slide-out-dn' : 'sp-slide-out'}`}>
                 <MockShorts video={videos[swipeTransition.from % videos.length]} interactive={false} playing={false} />
               </div>
-              <div className="sp-slide sp-slide-in">
+              <div className={`sp-slide ${swipeTransition.dir === 'prev' ? 'sp-slide-in-top' : 'sp-slide-in'}`}>
                 <MockShorts video={videos[swipeTransition.to % videos.length]} interactive={false} playing={false} />
               </div>
             </>
           ) : (
-            <MockShorts video={videos[swipeCount % videos.length]} interactive={false} playing={active} />
+            <MockShorts video={videos[swipeCount % videos.length]} interactive={false} playing={active && phase === 'watching'} />
           )}
           {phase === 'watching' && (
             // 안내 표시만, 클릭 핸들러 없음 (제스처로 넘김)
             <div className="sim-swipe-next">
-              <span className="sim-count">{swipeCount + 1} / {SIM_INUSE_COUNT}</span>
+              <span className="sim-count">{watchedCount + 1} / {SIM_INUSE_COUNT}</span>
               <span>위로 밀어 다음 영상</span>
               <span className="swipe-arrow">︿</span>
             </div>
