@@ -184,9 +184,10 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
   word-break: keep-all;
 }
 .c-q.on-dark { color: var(--ink); }
-.c-qhint { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--ink-2); margin: 0 0 18px; }
+.c-qhint { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--ink-2); margin: 0 0 28px; }
 .c-note-sm { font-family: var(--mono); font-size: 10px; color: var(--ink-2); letter-spacing: .03em; margin: 10px 0 0; }
 .c-opts { display: flex; flex-direction: column; gap: 8px; }
+.c-q + .c-opts { margin-top: 20px; } /* qhint 없이 바로 선택지가 이어질 때만 간격 추가 */
 
 /* ── 선택지 버튼 ── */
 .c-opt {

@@ -9,6 +9,7 @@
 
 import { useRef, useEffect } from 'react'
 import { SCOPE_DISPLAY } from '../data/features.js'
+import { VIDEO_POOL } from '../data/videos.js'
 
 const CHIPS = ['전체', '팟캐스트', '음악', '뉴스', '믹스', '라이브', '요리']
 
@@ -18,11 +19,12 @@ const LONGFORM = [
   { t: 'playlist | 가을, 밤 그리고 재즈', ch: 'food market 식품전문점', v: '▷ 1.7만', d: '5일 전', len: '3:28:11', thumb: 'thumbs/lf3.png', chThumb: 'chs/ch_lf3.png', g: ['#1a3a2a', '#0d1f15'] },
 ]
 
-const SHELF = [
-  { t: '이 구간 3초만 보세요', v: '조회수 122만회', g: ['#4B2E83', '#1b1f3b'], thumb: 'thumbs/sf1.jpg' },
-  { t: '편의점 조합 아세요?', v: '조회수 84만회', g: ['#8A4B2A', '#3b1f1b'], thumb: 'thumbs/sf2.jpg' },
-  { t: '조별과제 빌런 유형', v: '조회수 219만회', g: ['#2A8A6B', '#1f3b33'], thumb: 'thumbs/sf3.jpg' },
-]
+// VIDEO_POOL에서 유도 — 제목·조회수·썸네일을 단일 소스로 관리
+const SHELF = VIDEO_POOL.slice(0, 3).map(vid => ({
+  t: vid.title,
+  v: '조회수 ' + vid.views,
+  thumb: vid.thumb,
+}))
 
 function VidCard({ v }) {
   return (
