@@ -35,7 +35,10 @@ export function SwipeUp({ label = '위로 밀어서 계속', tone, onClick }) {
 }
 
 // ══ 인트로 ══════════════════════════════════════════════
-export function IntroCard({ onAnswer, answered }) {
+export function IntroCard({ onAnswer, answered, onSetId }) {
+  const [pid, setPid] = useState('')
+  const canStart = pid.trim().length > 0
+
   return (
     <div className="c c-dark">
       <div className="c-pad">
@@ -62,9 +65,23 @@ export function IntroCard({ onAnswer, answered }) {
           표시됩니다. 숏폼 비디오를 보듯 위로 밀어서 넘어가세요.
         </div>
         {!answered ? (
-          <button className="c-start" onClick={() => onAnswer(true)}>
-            시작하기
-          </button>
+          <>
+            <input
+              className="c-pid-input"
+              type="text"
+              placeholder="참가자 ID를 입력하세요"
+              value={pid}
+              onChange={(e) => setPid(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && canStart) { onSetId(pid.trim()); onAnswer(true) } }}
+            />
+            <button
+              className="c-start"
+              disabled={!canStart}
+              onClick={() => { onSetId(pid.trim()); onAnswer(true) }}
+            >
+              시작하기
+            </button>
+          </>
         ) : (
           <SwipeUp tone="dark" label="위로 밀어서 시작" />
         )}

@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from './store.js'
+import { supabase } from './lib/supabase.js'
 import Deck from './components/Deck.jsx'
 import DebugPanel from './components/DebugPanel.jsx'
 import DetailPanel from './components/DetailPanel.jsx'
 
 // ?monitor=0 이면 시연 패널을 숨긴다. 기본값은 표시.
 const showMonitor = new URLSearchParams(window.location.search).get('monitor') !== '0'
+// ?sid=<id> 가 있으면 그 세션 ID를 사용 (없으면 새로 생성)
+const urlSid = new URLSearchParams(window.location.search).get('sid')
 
 export default function App() {
   const [state, api] = useStore()
@@ -13,6 +16,35 @@ export default function App() {
   const [meta, setMeta] = useState(null)
   // 상세 화면 상태: { type: 'feature'|'app', item } | null
   const [detail, setDetail] = useState(null)
+
+  const sessionId = useRef(urlSid || crypto.randomUUID())
+  const syncTimer = useRef(null)
+
+  // 세션 생성 (앱 마운트 시 1회)
+  useEffect(() => {
+    supabase.from('sessions').upsert({
+      id: sessionId.current,
+      state,
+      updated_at: new Date().toISOString(),
+    }).then(({ error }) => {
+      if (error) console.error('세션 생성 실패:', error)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 상태 변경 시 1초 debounce로 Supabase 동기화
+  useEffect(() => {
+    clearTimeout(syncTimer.current)
+    syncTimer.current = setTimeout(() => {
+      supabase.from('sessions').update({
+        state,
+        updated_at: new Date().toISOString(),
+      }).eq('id', sessionId.current)
+        .then(({ error }) => {
+          if (error) console.error('세션 동기화 실패:', error)
+        })
+    }, 1000)
+  }, [state])
 
   return (
     <div className="stage">
@@ -27,6 +59,7 @@ export default function App() {
             jumpTo={jumpTo}
             onMeta={setMeta}
             onOpenDetail={setDetail}
+            sessionId={sessionId.current}
           />
           {/* 상세 화면 — 덱 위에 겹쳐서 scroll-snap 과 분리 */}
           {detail && (
@@ -39,7 +72,14 @@ export default function App() {
           )}
         </div>
       </div>
-      {showMonitor && <DebugPanel state={state} meta={meta} onJump={setJumpTo} />}
+      {showMonitor && (
+        <DebugPanel
+          state={state}
+          meta={meta}
+          onJump={setJumpTo}
+          sessionId={sessionId.current}
+        />
+      )}
     </div>
   )
 }

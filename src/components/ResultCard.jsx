@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { recommend } from '../engine.js'
+import { supabase } from '../lib/supabase.js'
 import { SCOPE_LEVELS, RESISTANCE_LABEL } from '../data/features.js'
 import { VARIANTS } from './Intervention.jsx'
 import { rangesOf } from './Clock24.jsx'
@@ -100,10 +101,30 @@ function hoursDisplay(state) {
   return null
 }
 
-export default function ResultCard({ state, api, onOpenDetail }) {
+export default function ResultCard({ state, api, onOpenDetail, sessionId, readOnly }) {
   const [showAnswers, setShowAnswers] = useState(false)
   const [imgFailed, setImgFailed] = useState(false)
+  const [copied, setCopied] = useState(false)
   const r = recommend(state)
+
+  const handleShare = async () => {
+    // 완료 표시 + 결과를 DB에 저장
+    if (sessionId) {
+      await supabase.from('sessions').update({
+        completed: true,
+        result: r,
+        updated_at: new Date().toISOString(),
+      }).eq('id', sessionId)
+    }
+    // 공유 URL 생성 및 클립보드 복사
+    const url = new URL(window.location.href)
+    url.searchParams.set('view', 'result')
+    url.searchParams.set('sid', sessionId)
+    url.searchParams.delete('monitor')
+    await navigator.clipboard.writeText(url.toString())
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
 
   // 기능 카드 부제: {작동 시점} · {개입 방식}
   const featureSubtitle = (f) => {
@@ -240,9 +261,11 @@ export default function ResultCard({ state, api, onOpenDetail }) {
             )}
           </div>
 
-          <button className="c-ghost" onClick={api.reset}>
-            처음부터 다시
-          </button>
+          {!readOnly && (
+            <button className="c-ghost" onClick={handleShare}>
+              {copied ? '링크 복사됨 ✓' : '공유하기'}
+            </button>
+          )}
         </div>
       </div>
     </div>

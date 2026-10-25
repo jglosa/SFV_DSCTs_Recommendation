@@ -8,6 +8,9 @@ import { LEVELS, INTERVENTIONS, FEATURE_BY_ID } from './data/features.js'
 export const initialState = {
   screen: 'S0',
 
+  // 참가자 식별자 (인트로에서 입력)
+  participantId: '',
+
   // S0 — 사용 환경
   env: { devices: [], os: [], route: [], platforms: [] },
   envOther: {},

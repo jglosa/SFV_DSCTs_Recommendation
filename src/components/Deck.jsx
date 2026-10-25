@@ -31,7 +31,7 @@ import {
 // (스크롤을 막는 게 아니라, 넘길 대상이 아직 존재하지 않는 방식)
 // ─────────────────────────────────────────────────────────────
 
-export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
+export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail, sessionId }) {
   const script = useMemo(() => buildScript(), [])
 
   // 고정 제시 순서를 기록
@@ -170,6 +170,14 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
     return () => io.disconnect()
   }, [cards.length])
 
+  // 결과 카드 활성 시 덱 스크롤 잠금 (이전 카드로 돌아가기 방지)
+  useEffect(() => {
+    const root = scroller.current
+    if (!root) return
+    const isResult = cards[active]?.type === 'result'
+    root.style.overflowY = isResult ? 'hidden' : ''
+  }, [active, cards])
+
   // 시연 패널의 점프 요청
   useEffect(() => {
     if (!jumpTo) return
@@ -188,7 +196,7 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
 
     switch (spec.type) {
       case 'intro':
-        return <IntroCard onAnswer={onAnswer} answered={ans} />
+        return <IntroCard onAnswer={onAnswer} answered={ans} onSetId={(id) => api.set({ participantId: id })} />
       case 'note':
         return <NoteCard {...common} onAnswer={onAnswer} />
       case 'multi':
@@ -321,7 +329,7 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail }) {
       case 'bypass-select':
         return <BypassSelectCard state={state} api={api} answered={ans} onAnswer={onAnswer} />
       case 'result':
-        return <ResultCard state={state} api={api} onOpenDetail={onOpenDetail} />
+        return <ResultCard state={state} api={api} onOpenDetail={onOpenDetail} sessionId={sessionId} />
       default:
         return null
     }

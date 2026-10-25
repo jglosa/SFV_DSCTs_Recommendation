@@ -29,7 +29,7 @@ function Row({ k, v, dim }) {
   )
 }
 
-export default function DebugPanel({ state, meta, onJump }) {
+export default function DebugPanel({ state, meta, onJump, sessionId }) {
   const cards = meta?.cards || []
   const active = meta?.active ?? 0
   const order = meta?.order || []
@@ -53,6 +53,10 @@ export default function DebugPanel({ state, meta, onJump }) {
     else groups.push({ step, items: [{ c, i }] })
   })
 
+  const monitorUrl = sessionId
+    ? `${window.location.origin}${window.location.pathname}?view=monitor&sid=${sessionId}`
+    : null
+
   return (
     <aside className="sidecar">
       <p className="sc-h">시연 · 모니터</p>
@@ -60,6 +64,20 @@ export default function DebugPanel({ state, meta, onJump }) {
         참가자에게는 보이지 않습니다. 왼쪽 폰 화면을 조작하면 여기에 실시간으로
         반영됩니다.
       </p>
+      {monitorUrl && (
+        <div className="sc-group">
+          <div className="sc-label">원격 모니터 링크</div>
+          <a
+            className="mon-link"
+            href={monitorUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{ fontSize: 11, wordBreak: 'break-all', color: '#22c55e' }}
+          >
+            {monitorUrl}
+          </a>
+        </div>
+      )}
 
       {/* ── 현재 위치 ── */}
       <div className="mon-now">
@@ -118,17 +136,16 @@ export default function DebugPanel({ state, meta, onJump }) {
 
           <div className="mon-sec">S2 통제 규칙</div>
           <Row
-            k="유형"
-            v={{ daily: '특정 시간에만 (scheduling=true)', none: '항상 (scheduling=false)' }[state.dayType] || '—'}
+            k="Scheduling"
+            v={
+              state.dayType === 'daily'
+                ? `true${(state.hours.daily || []).length ? ' / ' + rangesOf(state.hours.daily).join(', ') + ` (${state.hours.daily.length}h)` : ''}`
+                : state.dayType === 'none'
+                ? 'false'
+                : '—'
+            }
             dim={!state.dayType}
           />
-          {state.dayType === 'daily' && (
-            <Row
-              k="매일"
-              v={(state.hours.daily || []).length ? `${rangesOf(state.hours.daily).join(', ')} (${state.hours.daily.length}h)` : '—'}
-              dim={!(state.hours.daily || []).length}
-            />
-          )}
 
           <div className="mon-sec">S3 개입 시점</div>
           <Row
@@ -183,9 +200,11 @@ export default function DebugPanel({ state, meta, onJump }) {
                 const m = (state.bypassMethods ?? {})[s.featureId]
                 const w = (state.bypassWanted ?? {})[s.featureId]
                 if (m === undefined && w === undefined) return '—'
-                const mStr = m === true ? '사용할 것' : m === false ? '안 쓸 것' : '?'
-                const wStr = w === true ? '차단 원함' : w === false ? '차단 불필요' : '?'
-                return `${mStr} / ${wStr}`
+                const parts = [
+                  m === true ? '사용할 것' : m === false ? '안 쓸 것' : null,
+                  w === true ? '차단 원함' : w === false ? '차단 불필요' : null,
+                ].filter(Boolean)
+                return parts.join(' / ') || '—'
               })()}
               dim={(state.bypassMethods ?? {})[s.featureId] === undefined}
             />

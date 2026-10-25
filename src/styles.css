@@ -228,6 +228,17 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 }
 .c-start:hover { box-shadow: 0 6px 24px rgba(5,150,105,.4); transform: translateY(-1px); }
 .c-start:active { transform: translateY(0); }
+.c-start:disabled { opacity: .38; box-shadow: none; transform: none; cursor: not-allowed; }
+
+/* ── 참가자 ID 입력 ── */
+.c-pid-input {
+  width: 100%; margin-top: 24px; padding: 14px 16px; border-radius: 14px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  color: var(--ink); font-size: 15px; font-family: inherit; outline: none;
+  box-sizing: border-box; display: block;
+}
+.c-pid-input::placeholder { color: var(--ink-2); }
+.c-pid-input:focus { border-color: var(--mint-deep); background: #fff; }
 
 .c-ghost {
   width: 100%; padding: 13px; border-radius: 14px; margin: 14px 0;
