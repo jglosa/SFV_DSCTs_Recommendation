@@ -298,6 +298,7 @@ export function MockShorts({ video, picked, onPick, interactive = true, playing 
   const [paused, setPaused] = useState(false)  // 클릭으로 토글하는 로컬 일시정지
   const [showIcon, setShowIcon] = useState(null) // 'play' | 'pause' | null
   const iconTimer = useRef(null)
+  const tapStartY = useRef(null)  // 모바일 탭 감지용 터치 시작 Y
 
   const isPlaying = playing && !paused
 
@@ -340,6 +341,14 @@ export function MockShorts({ video, picked, onPick, interactive = true, playing 
       <div
         className={'sp-visual' + (isPlaying ? ' playing' : '')}
         onClick={playing != null ? handleVideoClick : undefined}
+        onTouchStart={playing != null ? (e) => { tapStartY.current = e.touches[0].clientY } : undefined}
+        onTouchEnd={playing != null ? (e) => {
+          if (tapStartY.current === null) return
+          const dy = Math.abs(tapStartY.current - e.changedTouches[0].clientY)
+          tapStartY.current = null
+          // 15px 미만 이동 = 탭. 부모가 preventDefault()로 click을 막으므로 여기서 직접 처리.
+          if (dy < 15) handleVideoClick()
+        } : undefined}
         style={playing != null ? { cursor: 'pointer' } : undefined}
       >
         {/* 썸네일 이미지 (폴백: 검정) */}
@@ -354,7 +363,7 @@ export function MockShorts({ video, picked, onPick, interactive = true, playing 
             src={video.src}
             loop
             playsInline
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', display: isPlaying ? 'block' : 'none' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', display: playing ? 'block' : 'none' }}
           />
         )}
         {/* 클릭 시 재생/일시정지 아이콘 피드백 */}

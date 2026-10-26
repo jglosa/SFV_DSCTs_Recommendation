@@ -1230,7 +1230,12 @@ function ScrollBlockedSim({ onClose }) {
     const el = screenRef.current
     if (!el) return
     let startY = null
-    const onTouchStart = (e) => { e.preventDefault(); startY = e.touches[0].clientY }
+    const onTouchStart = (e) => {
+      // 버튼 탭은 preventDefault() 생략 — 브라우저 click 이벤트가 살아야 닫기가 동작
+      if (e.target.closest('button')) return
+      e.preventDefault()
+      startY = e.touches[0].clientY
+    }
     const onTouchEnd = (e) => {
       if (startY !== null && startY - e.changedTouches[0].clientY > 30) triggerRef.current()
       startY = null

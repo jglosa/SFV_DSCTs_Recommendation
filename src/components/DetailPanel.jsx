@@ -129,8 +129,8 @@ function FeatureDetail({ detail, onBack, onOpenApp, onOpenDetail }) {
           </div>
         )}
 
-        {/* 4) 겪어보기 */}
-        {feature?.role === 'intervention' && (
+        {/* 4) 겪어보기 — sim이 지정된 기능에만 표시 */}
+        {feature?.role === 'intervention' && feature?.sim && (
           <button className="c-sim-btn" onClick={() => setShowSim(true)}>경험해보기</button>
         )}
 

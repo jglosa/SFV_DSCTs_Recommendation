@@ -150,6 +150,19 @@ export default function Deck({ state, api, jumpTo, snapTrigger, onMeta, onOpenDe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards, active])
 
+  // 카드 추가 시 자동으로 마지막 카드로 스크롤
+  useEffect(() => {
+    if (cards.length <= 1) return // 초기 카드는 스크롤 안 함
+    const root = scroller.current
+    if (!root) return
+    const t = setTimeout(() => {
+      const els = root.querySelectorAll('[data-cid]')
+      const last = els[els.length - 1]
+      last?.scrollIntoView({ behavior: 'smooth' })
+    }, 80)
+    return () => clearTimeout(t)
+  }, [cards.length]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // 활성 카드 추적
   useEffect(() => {
     const root = scroller.current
