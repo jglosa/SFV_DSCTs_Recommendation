@@ -151,14 +151,24 @@ export default function Deck({ state, api, jumpTo, snapTrigger, onMeta, onOpenDe
   }, [cards, active])
 
   // 카드 추가 시 자동으로 마지막 카드로 스크롤
+  // multi 카드는 복수 선택이 가능하므로 자동 스크롤 제외 — 스와이프로 이동
   useEffect(() => {
     if (cards.length <= 1) return // 초기 카드는 스크롤 안 함
+    if (cards[cards.length - 2]?.type === 'multi') return
     const root = scroller.current
     if (!root) return
+    const newCard = cards[cards.length - 1]
     const t = setTimeout(() => {
       const els = root.querySelectorAll('[data-cid]')
       const last = els[els.length - 1]
-      last?.scrollIntoView({ behavior: 'smooth' })
+      if (!last) return
+      if (newCard?.type === 'result') {
+        // 결과 카드: smooth scroll 중에 overflowY:hidden 이 적용되면 애니메이션이
+        // 중단돼 이전 카드 하단이 화면 위에 남는다. scrollTop 즉시 점프로 회피.
+        root.scrollTop = last.offsetTop
+      } else {
+        last.scrollIntoView({ behavior: 'smooth' })
+      }
     }, 80)
     return () => clearTimeout(t)
   }, [cards.length]) // eslint-disable-line react-hooks/exhaustive-deps
