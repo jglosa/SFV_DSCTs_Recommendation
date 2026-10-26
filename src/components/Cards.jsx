@@ -731,7 +731,7 @@ function ConfirmSim({ onPass, onClose }) {
 }
 
 // ── timed_wait: 사용 전 숨고르기 ───────────────────────────
-const TIMED_WAIT_SEC = 10
+const TIMED_WAIT_SEC = 5
 
 function TimedWaitSim({ onPass, onClose }) {
   const [left, setLeft] = useState(TIMED_WAIT_SEC)
@@ -1017,21 +1017,35 @@ function MissionAltappSim({ onPass, onClose }) {
 // ─────────────────────────────────────────────────────────────
 
 // ── grayscale: 숏폼 선반 흑백화 ─────────────────────────────
-// 처음부터 흑백으로 표시된다.
+// 처음부터 흑백으로 표시된다. 썸네일을 누르면 숏폼으로 진입.
 function GrayscaleSim({ onClose }) {
+  const [phase, setPhase] = useState('home') // 'home' | 'shorts'
   const shelfStyle = { filter: 'grayscale(1)' }
 
   return (
     <div className="isim">
-      <div className="isim-screen">
-        <MockHome shelfStyle={shelfStyle} />
-        <div className="isim-env-banner">
-          <p className="isim-env-msg">숏폼 썸네일이 흑백으로 표시돼요</p>
-          <div className="isim-env-btns">
-            <button className="iv-btn sub" onClick={onClose}>닫기</button>
+      {phase === 'home' && (
+        <div className="isim-screen">
+          <MockHome shelfStyle={shelfStyle} onShortsAccess={() => setPhase('shorts')} />
+          <div className="isim-env-banner">
+            <p className="isim-env-msg">숏폼 썸네일이 흑백으로 표시돼요</p>
+            <div className="isim-env-btns">
+              <button className="iv-btn sub" onClick={onClose}>닫기</button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+      {phase === 'shorts' && (
+        <div className="isim-screen">
+          <MockShorts />
+          <div className="isim-done-banner">
+            <div className="isim-done-modal">
+              <p className="isim-done-msg">경험해보기를 마쳤어요</p>
+              <button className="iv-btn" onClick={onClose}>닫기</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1116,7 +1130,7 @@ const REDIR_ALTS = [
 ]
 
 function RedirectProductivitySim({ onClose }) {
-  const [phase, setPhase] = useState('home') // 'home' | 'redirected'
+  const [phase, setPhase] = useState('home') // 'home' | 'redirected' | 'shorts'
 
   return (
     <div className="isim">
@@ -1143,8 +1157,19 @@ function RedirectProductivitySim({ onClose }) {
               </div>
               <div className="iv-actions">
                 <button className="iv-btn" onClick={onClose}>닫기</button>
-                <button className="iv-btn sub" onClick={onClose}>계속 보기</button>
+                <button className="iv-btn sub" onClick={() => setPhase('shorts')}>계속 보기</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {phase === 'shorts' && (
+        <div className="isim-screen">
+          <MockShorts />
+          <div className="isim-done-banner">
+            <div className="isim-done-modal">
+              <p className="isim-done-msg">경험해보기를 마쳤어요</p>
+              <button className="iv-btn" onClick={onClose}>닫기</button>
             </div>
           </div>
         </div>

@@ -20,6 +20,14 @@ export default function App() {
   const sessionId = useRef(urlSid || crypto.randomUUID())
   const syncTimer = useRef(null)
 
+  // 시스템 뒤로가기 차단 — 실수로 눌러도 앱에서 이탈하지 않음
+  useEffect(() => {
+    history.pushState(null, '', location.href)
+    const block = () => history.pushState(null, '', location.href)
+    window.addEventListener('popstate', block)
+    return () => window.removeEventListener('popstate', block)
+  }, [])
+
   // 세션 생성 (앱 마운트 시 1회)
   useEffect(() => {
     supabase.from('sessions').upsert({
