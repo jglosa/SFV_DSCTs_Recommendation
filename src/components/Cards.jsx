@@ -1037,7 +1037,7 @@ function GrayscaleSim({ onClose }) {
       )}
       {phase === 'shorts' && (
         <div className="isim-screen">
-          <MockShorts />
+          <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
           <div className="isim-done-banner">
             <div className="isim-done-modal">
               <p className="isim-done-msg">경험해보기를 마쳤어요</p>
@@ -1165,7 +1165,7 @@ function RedirectProductivitySim({ onClose }) {
       )}
       {phase === 'shorts' && (
         <div className="isim-screen">
-          <MockShorts />
+          <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
           <div className="isim-done-banner">
             <div className="isim-done-modal">
               <p className="isim-done-msg">경험해보기를 마쳤어요</p>

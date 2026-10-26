@@ -151,20 +151,26 @@ export default function Deck({ state, api, jumpTo, snapTrigger, onMeta, onOpenDe
   }, [cards, active])
 
   // 카드 추가 시 자동으로 마지막 카드로 스크롤
-  // multi 카드는 복수 선택이 가능하므로 자동 스크롤 제외 — 스와이프로 이동
   useEffect(() => {
     if (cards.length <= 1) return // 초기 카드는 스크롤 안 함
-    if (cards[cards.length - 2]?.type === 'multi') return
+    const prevType = cards[cards.length - 2]?.type
+    const newCard  = cards[cards.length - 1]
+    const newType  = newCard?.type
+    // 자동 스크롤 제외 대상:
+    //  - multi: 복수 선택 진행 중 — 스와이프로 이동
+    //  - note / sim-intro / sim-scene: 마운트 즉시 자동 답변하는 카드들이 연쇄적으로
+    //    추가될 때 auto-scroll이 여러 번 발동해 화면이 한꺼번에 넘어가는 버그 방지.
+    //    사용자가 한 장씩 직접 스와이프해서 이동해야 함.
+    if (prevType === 'multi' || prevType === 'note') return
+    if (newType === 'multi' || newType === 'note' || newType === 'sim-intro' || newType === 'sim-scene') return
     const root = scroller.current
     if (!root) return
-    const newCard = cards[cards.length - 1]
     const t = setTimeout(() => {
       const els = root.querySelectorAll('[data-cid]')
       const last = els[els.length - 1]
       if (!last) return
-      if (newCard?.type === 'result') {
-        // 결과 카드: smooth scroll 중에 overflowY:hidden 이 적용되면 애니메이션이
-        // 중단돼 이전 카드 하단이 화면 위에 남는다. scrollTop 즉시 점프로 회피.
+      if (newType === 'result') {
+        // 결과 카드: smooth scroll 중 overflowY:hidden 적용 시 애니메이션 중단 방지
         root.scrollTop = last.offsetTop
       } else {
         last.scrollIntoView({ behavior: 'smooth' })
