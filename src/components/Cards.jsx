@@ -1263,13 +1263,15 @@ function ScrollBlockedSim({ onClose }) {
   return (
     <div className="isim">
       <div className={`isim-screen${bouncing ? ' isim-bounce' : ''}`} ref={screenRef}>
-        <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={false} />
-        <div className={'isim-env-banner' + (bouncing ? ' isim-env-banner--active' : '')}>
-          <p className="isim-env-msg">{msg}</p>
-          <div className="isim-env-btns">
-            <button className="iv-btn" onClick={onClose}>닫기</button>
+        <MockShorts video={VIDEO_POOL[0]} interactive={false} playing={true} />
+        {swipeCount > 0 && (
+          <div className={'isim-env-banner' + (bouncing ? ' isim-env-banner--active' : '')}>
+            <p className="isim-env-msg">{msg}</p>
+            <div className="isim-env-btns">
+              <button className="iv-btn" onClick={onClose}>닫기</button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
@@ -1578,19 +1580,10 @@ export function BypassScenarioCard({ state, api, onAnswer }) {
   const onAnswerRef = useRef(onAnswer)
   useEffect(() => { onAnswerRef.current = onAnswer })
 
-  // 시나리오 선택 완료 시 자동 onAnswer → 다음 카드 미리 생성
-  const scenarioFiredRef = useRef(false)
-  useEffect(() => {
-    if (selected && !scenarioFiredRef.current) {
-      scenarioFiredRef.current = true
-      onAnswerRef.current()
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected])
-
   const handleConfirm = (sc) => {
     api.set({ bypassScenario: sc.id })
     setPopup(null)
+    onAnswerRef.current()
   }
 
   return (

@@ -7,7 +7,7 @@
 // scope_levels 값과 1:1 대응한다.
 // ─────────────────────────────────────────────────────────────
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { SCOPE_DISPLAY } from '../data/features.js'
 import { VIDEO_POOL } from '../data/videos.js'
 
@@ -295,16 +295,35 @@ export function MockHome({ picked = [], onPick, targets, cue, preBlocked = false
 // ══ Shorts 플레이어 ══════════════════════════════════════
 export function MockShorts({ video, picked, onPick, interactive = true, playing }) {
   const videoRef = useRef(null)
+  const [paused, setPaused] = useState(false)  // 클릭으로 토글하는 로컬 일시정지
+  const [showIcon, setShowIcon] = useState(null) // 'play' | 'pause' | null
+  const iconTimer = useRef(null)
 
-  // playing prop이 바뀔 때 재생/일시정지
+  const isPlaying = playing && !paused
+
+  // playing/paused 변경 시 실제 재생 제어
   useEffect(() => {
     if (!videoRef.current) return
-    if (playing) {
+    if (isPlaying) {
       videoRef.current.play().catch(() => {})
     } else {
       videoRef.current.pause()
     }
+  }, [isPlaying])
+
+  // playing이 false로 바뀌면 로컬 paused 초기화
+  useEffect(() => {
+    if (!playing) setPaused(false)
   }, [playing])
+
+  const handleVideoClick = () => {
+    const next = !paused
+    setPaused(next)
+    // 아이콘 잠깐 표시 후 사라짐
+    clearTimeout(iconTimer.current)
+    setShowIcon(next ? 'pause' : 'play')
+    iconTimer.current = setTimeout(() => setShowIcon(null), 600)
+  }
 
   const is = (id) => picked?.includes(id)
   const wrap = (id, label, node, block) =>
@@ -318,7 +337,11 @@ export function MockShorts({ video, picked, onPick, interactive = true, playing 
 
   return (
     <div className="sp">
-      <div className={'sp-visual' + (playing ? ' playing' : '')}>
+      <div
+        className={'sp-visual' + (isPlaying ? ' playing' : '')}
+        onClick={playing != null ? handleVideoClick : undefined}
+        style={playing != null ? { cursor: 'pointer' } : undefined}
+      >
         {/* 썸네일 이미지 (폴백: 검정) */}
         {video.thumb
           ? <img src={video.thumb} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
@@ -331,8 +354,25 @@ export function MockShorts({ video, picked, onPick, interactive = true, playing 
             src={video.src}
             loop
             playsInline
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', display: playing ? 'block' : 'none' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', display: isPlaying ? 'block' : 'none' }}
           />
+        )}
+        {/* 클릭 시 재생/일시정지 아이콘 피드백 */}
+        {showIcon && (
+          <div style={{
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            pointerEvents: 'none',
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: '50%',
+              background: 'rgba(0,0,0,.45)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 28, color: '#fff',
+              animation: 'sp-icon-fade .6s ease forwards',
+            }}>
+              {showIcon === 'pause' ? '⏸' : '▶'}
+            </div>
+          </div>
         )}
       </div>
       <div className="sp-scrim" />

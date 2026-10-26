@@ -31,7 +31,7 @@ import {
 // (스크롤을 막는 게 아니라, 넘길 대상이 아직 존재하지 않는 방식)
 // ─────────────────────────────────────────────────────────────
 
-export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail, sessionId }) {
+export default function Deck({ state, api, jumpTo, snapTrigger, onMeta, onOpenDetail, sessionId }) {
   const script = useMemo(() => buildScript(), [])
 
   // 고정 제시 순서를 기록
@@ -187,6 +187,16 @@ export default function Deck({ state, api, jumpTo, onMeta, onOpenDetail, session
     const target = els[Math.min(jumpTo.i, els.length - 1)]
     target?.scrollIntoView({ behavior: 'smooth' })
   }, [jumpTo])
+
+  // DetailPanel 닫힘 등 외부 트리거 시 현재 활성 카드로 강제 re-snap
+  useEffect(() => {
+    if (!snapTrigger) return
+    const root = scroller.current
+    if (!root) return
+    const els = root.querySelectorAll('[data-cid]')
+    const target = els[active]
+    if (target) target.scrollIntoView({ behavior: 'instant' })
+  }, [snapTrigger]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const render = (spec, i) => {
     const ans = !!answered[spec.cid]

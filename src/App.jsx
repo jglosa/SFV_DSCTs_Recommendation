@@ -13,12 +13,15 @@ const urlSid = new URLSearchParams(window.location.search).get('sid')
 export default function App() {
   const [state, api] = useStore()
   const [jumpTo, setJumpTo] = useState(null)
+  const [snapTrigger, setSnapTrigger] = useState(0)
   const [meta, setMeta] = useState(null)
   // 상세 화면 상태: { type: 'feature'|'app', item } | null
   const [detail, setDetail] = useState(null)
 
   const sessionId = useRef(urlSid || crypto.randomUUID())
   const syncTimer = useRef(null)
+  // participantId 입력 후 최초 1회 upsert(생성) 여부 추적
+  const sessionCreated = useRef(false)
 
   // 시스템 뒤로가기 차단 — 실수로 눌러도 앱에서 이탈하지 않음
   useEffect(() => {
@@ -28,29 +31,22 @@ export default function App() {
     return () => window.removeEventListener('popstate', block)
   }, [])
 
-  // 세션 생성 (앱 마운트 시 1회)
-  useEffect(() => {
-    supabase.from('sessions').upsert({
-      id: sessionId.current,
-      state,
-      updated_at: new Date().toISOString(),
-    }).then(({ error }) => {
-      if (error) console.error('세션 생성 실패:', error)
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   // 상태 변경 시 1초 debounce로 Supabase 동기화
+  // participantId 가 없으면 저장 자체를 건너뜀
   useEffect(() => {
+    if (!state.participantId) return
     clearTimeout(syncTimer.current)
     syncTimer.current = setTimeout(() => {
-      supabase.from('sessions').update({
-        state,
-        updated_at: new Date().toISOString(),
-      }).eq('id', sessionId.current)
-        .then(({ error }) => {
-          if (error) console.error('세션 동기화 실패:', error)
-        })
+      const payload = { state, updated_at: new Date().toISOString() }
+      if (!sessionCreated.current) {
+        // 최초 저장: upsert로 row 생성
+        sessionCreated.current = true
+        supabase.from('sessions').upsert({ id: sessionId.current, ...payload })
+          .then(({ error }) => { if (error) console.error('세션 생성 실패:', error) })
+      } else {
+        supabase.from('sessions').update(payload).eq('id', sessionId.current)
+          .then(({ error }) => { if (error) console.error('세션 동기화 실패:', error) })
+      }
     }, 1000)
   }, [state])
 
@@ -65,6 +61,7 @@ export default function App() {
             state={state}
             api={api}
             jumpTo={jumpTo}
+            snapTrigger={snapTrigger}
             onMeta={setMeta}
             onOpenDetail={setDetail}
             sessionId={sessionId.current}
@@ -74,7 +71,7 @@ export default function App() {
             <DetailPanel
               detail={detail}
               state={state}
-              onBack={() => setDetail(null)}
+              onBack={() => { setDetail(null); setSnapTrigger((n) => n + 1) }}
               onOpenDetail={setDetail}
             />
           )}
