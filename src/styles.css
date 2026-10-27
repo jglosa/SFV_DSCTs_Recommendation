@@ -863,6 +863,13 @@ button:focus-visible { outline: 2px solid var(--mint-deep); outline-offset: 2px;
 .bpw-item { display: flex; flex-direction: column; gap: 8px; }
 .bpw-label { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.45; }
 
+/* ═══ S3 상황 설명 이미지 ═══ */
+.situation-img {
+  width: 100%; border-radius: 12px;
+  margin: 4px 0 16px;
+  display: block;
+}
+
 /* ═══ S5 우회 방지 (구 명칭: S6) ═══ */
 .scene {
   padding: 16px; border-radius: 14px;

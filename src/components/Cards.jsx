@@ -103,6 +103,10 @@ export function NoteCard({ spec, state, onAnswer, answered }) {
         <Tag step={spec.step} tone="dark" />
         <h2 className="c-h2">{spec.heading}</h2>
         {body && <p className="c-p">{body}</p>}
+        {/* 상황 설명 이미지 */}
+        {spec.situationImg && (
+          <img src={`${import.meta.env.BASE_URL}${spec.situationImg.replace(/^\//, '')}`} alt="상황 설명 이미지" className="situation-img" />
+        )}
         {/* scene: 제시 시나리오 박스 (.scene 재사용) */}
         {spec.scene && (
           <div className="scene">

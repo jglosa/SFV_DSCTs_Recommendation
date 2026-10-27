@@ -160,7 +160,7 @@ export default function ResultCard({ state, api, onOpenDetail, sessionId, readOn
           </div>
         )}
         <div className="res-hero">
-          <div className="res-eyebrow">나의 유형</div>
+          <div className="res-eyebrow">나를 도와줄 조력자</div>
           <p className="res-code">{r.archetype.code}</p>
           <p className="res-tag">{r.archetype.tagline}</p>
           <p className="res-body">{r.archetype.body}</p>
