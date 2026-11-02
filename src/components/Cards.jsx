@@ -1726,7 +1726,7 @@ export function BypassSelectCard({ state, api, onAnswer, answered }) {
       <div className="c-pad" style={answered ? { overflowY: 'hidden' } : undefined}>
         <Tag step="S5" />
         <h2 className="c-q">차단을 풀기 위해 어떤 방법을 쓸 것 같으세요?</h2>
-        <p className="c-p">해당하는 것 모두 선택해주세요</p>
+        <p className="c-p" style={{ fontSize: 14, fontWeight: 600 }}>복수선택</p>
         <div className="c-opts">
           {BYPASS_TARGETS.map((b) => (
             <button
