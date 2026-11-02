@@ -341,14 +341,17 @@ function SingleSessionView({ sessionId }) {
             })()}
             <MRow
               label="경험한 시뮬"
-              value={(st.simsPlayed ?? []).length ? [...new Set(st.simsPlayed)].join(', ') : '—'}
+              value={(st.simsPlayed ?? []).length ? st.simsPlayed.join(', ') : '—'}
               dim={!(st.simsPlayed ?? []).length}
             />
-            <MRow
-              label="O/X 건너뜀"
-              value={(st.oxSkipped ?? []).length ? st.oxSkipped.join(', ') : '—'}
-              dim={!(st.oxSkipped ?? []).length}
-            />
+            {['supported', 'flexible', 'limited'].map((agencyId) => (
+              <MCheckRow
+                key={agencyId}
+                label={`2순위 응답 건너뜀 (${agencyId})`}
+                checked={(st.oxSkipped ?? []).includes(agencyId)}
+                dim={!(st.oxSkipped ?? []).includes(agencyId)}
+              />
+            ))}
 
             <MSec label="S5 우회·임시해제" />
             <MRow
