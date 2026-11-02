@@ -32,6 +32,10 @@ export const initialState = {
   agencyRank: [],           // ['flexible','supported','limited'] 세 개 순위
   featureAccepted: {},      // level 번호(1-10) → 'weak' | 'ok' | 'strong'
 
+  // Deck 카드 답변 CID 목록 — 세션 복원 시 Deck 초기 answered 재구성에 사용
+  answeredCids: {},
+  answeredVersion: null, // 스크립트 버전 (CID 캐시 무효화용)
+
   // S5 — 우회 방지
   bypassScenario: null,     // 시나리오 id (분석용, 추천 계산 미사용)
   bypassMethods: {},        // featureId → true | false  우회에 쓸 것 같다고 답한 방법 (분석용)
@@ -56,6 +60,9 @@ function reducer(state, action) {
       return { ...state, log: [...state.log, { t: Date.now(), ...action.entry }] }
     case 'RESET':
       return { ...initialState, nonce: (state.nonce ?? 0) + 1 }
+    // 저장된 세션 상태 전체 복원 (nonce 증가로 Deck 리셋)
+    case 'LOAD':
+      return { ...action.savedState, nonce: (state.nonce ?? 0) + 1 }
     default:
       return state
   }
@@ -69,6 +76,7 @@ export function useStore() {
       set: (patch) => dispatch({ type: 'SET', patch }),
       log: (entry) => dispatch({ type: 'LOG', entry }),
       reset: () => dispatch({ type: 'RESET' }),
+      load: (savedState) => dispatch({ type: 'LOAD', savedState }),
     },
   ]
 }

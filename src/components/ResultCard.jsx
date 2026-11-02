@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { recommend } from '../engine.js'
 import { supabase } from '../lib/supabase.js'
 import { SCOPE_LEVELS, RESISTANCE_LABEL } from '../data/features.js'
@@ -107,15 +107,19 @@ export default function ResultCard({ state, api, onOpenDetail, sessionId, readOn
   const [copied, setCopied] = useState(false)
   const r = recommend(state)
 
-  const handleShare = async () => {
-    // 완료 표시 + 결과를 DB에 저장
-    if (sessionId) {
-      await supabase.from('sessions').update({
+  // 결과 화면 도달 = 완료
+  useEffect(() => {
+    if (sessionId && !readOnly) {
+      supabase.from('sessions').update({
         completed: true,
         result: r,
         updated_at: new Date().toISOString(),
       }).eq('id', sessionId)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId])
+
+  const handleShare = async () => {
     // 공유 URL 생성 및 클립보드 복사
     const url = new URL(window.location.href)
     url.searchParams.set('view', 'result')

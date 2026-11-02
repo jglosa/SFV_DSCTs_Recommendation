@@ -41,8 +41,15 @@ export default function Deck({ state, api, jumpTo, snapTrigger, onMeta, onOpenDe
   }, [])
   const videos = useMemo(() => shuffled(VIDEO_POOL, 42), [])
 
+  // 스크립트 변경 시 이 값을 올려 stale answeredCids 무효화
+  const SCRIPT_VERSION = 'v2'
+
   const [cards, setCards] = useState(() => [{ ...script[0], cid: 'c0' }])
-  const [answered, setAnswered] = useState({})
+  // 세션 복원 시 이전 answered 상태로 초기화 — 버전 불일치 시 초기화
+  const [answered, setAnswered] = useState(() => {
+    if (state.answeredVersion !== SCRIPT_VERSION) return {}
+    return state.answeredCids ?? {}
+  })
   const [active, setActive] = useState(0)
   const cursor = useRef(1) // script 내 다음 위치
   const seq = useRef(1)
@@ -58,9 +65,11 @@ export default function Deck({ state, api, jumpTo, snapTrigger, onMeta, onOpenDe
   // S2 시계 카드 대기열 (dayType에 따라 0·1·2장)
   const clockQueue = useRef([])
 
-  // 최신 state를 항상 참조 (append 시점의 stale closure 방지)
+  // 최신 state / api를 항상 참조 (stale closure 방지)
   const stateRef = useRef(state)
   stateRef.current = state
+  const apiRef = useRef(api)
+  apiRef.current = api
 
   const mk = (spec) => ({ ...spec, cid: 'c' + seq.current++ })
 
@@ -101,6 +110,14 @@ export default function Deck({ state, api, jumpTo, snapTrigger, onMeta, onOpenDe
     },
     []
   )
+
+  // answered 변화 시 전역 state에 동기화 — 세션 복원에 사용
+  // (state 업데이터 함수 안에서 dispatch 금지 → 별도 effect로 분리)
+  useEffect(() => {
+    if (Object.keys(answered).length > 0) {
+      apiRef.current.set({ answeredCids: answered, answeredVersion: SCRIPT_VERSION })
+    }
+  }, [answered]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // answered 변화를 보고, 마지막 카드가 답해졌으면 다음 카드 생성
   useEffect(() => {

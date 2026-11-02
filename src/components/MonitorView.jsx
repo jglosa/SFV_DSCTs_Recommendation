@@ -344,14 +344,11 @@ function SingleSessionView({ sessionId }) {
               value={(st.simsPlayed ?? []).length ? st.simsPlayed.join(', ') : '—'}
               dim={!(st.simsPlayed ?? []).length}
             />
-            {['supported', 'flexible', 'limited'].map((agencyId) => (
-              <MCheckRow
-                key={agencyId}
-                label={`2순위 응답 건너뜀 (${agencyId})`}
-                checked={(st.oxSkipped ?? []).includes(agencyId)}
-                dim={!(st.oxSkipped ?? []).includes(agencyId)}
-              />
-            ))}
+            {(() => {
+              const second = (st.agencyRank ?? [])[1]
+              const skipped = second ? (st.oxSkipped ?? []).includes(second) : false
+              return <MCheckRow label="2순위 응답 건너뜀" checked={skipped} dim={!second} />
+            })()}
 
             <MSec label="S5 우회·임시해제" />
             <MRow
