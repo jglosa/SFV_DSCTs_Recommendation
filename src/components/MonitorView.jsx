@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
-import { SCOPE_LEVELS, RESISTANCE_LABEL, BYPASS_TARGETS } from '../data/features.js'
+import { SCOPE_LEVELS, RESISTANCE_LABEL, BYPASS_TARGETS, LEVELS } from '../data/features.js'
 import { VARIANTS } from './Intervention.jsx'
 import { rangesOf } from './Clock24.jsx'
+import { SCENARIO_BY_ID } from '../data/scenarios.js'
 
 // ─────────────────────────────────────────────────────────────
 // 연구자용 실시간 모니터.
@@ -20,6 +21,27 @@ function MRow({ label, value, dim }) {
         {label}
       </th>
       <td style={{ padding: '6px 12px', fontSize: 13 }}>{value}</td>
+    </tr>
+  )
+}
+
+function MCheckRow({ label, checked, dim }) {
+  return (
+    <tr style={{ borderBottom: '1px solid #f0f0f0', opacity: dim ? 0.4 : 1 }}>
+      <th style={{ textAlign: 'left', padding: '6px 12px', color: '#888', fontWeight: 'normal', width: 130, whiteSpace: 'nowrap', fontSize: 13 }}>
+        {label}
+      </th>
+      <td style={{ padding: '6px 12px', fontSize: 13 }}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          width: 16, height: 16, borderRadius: 3,
+          border: `1.5px solid ${checked ? '#22c55e' : '#ccc'}`,
+          background: checked ? '#22c55e' : '#fff',
+          color: '#fff', fontSize: 10, fontWeight: 700,
+        }}>
+          {checked ? '✓' : ''}
+        </span>
+      </td>
     </tr>
   )
 }
@@ -262,9 +284,11 @@ function SingleSessionView({ sessionId }) {
 
             <MSec label="S0 사용 환경" />
             <MRow label="기기"   value={envLine('devices') || '—'} dim={!envLine('devices')} />
-            <MRow label="OS"     value={fmt(st.env?.os)}           dim={!(st.env?.os ?? []).length} />
             <MRow label="경로"   value={envLine('route') || '—'}   dim={!envLine('route')} />
             <MRow label="플랫폼" value={envLine('platforms') || '—'} dim={!envLine('platforms')} />
+            {Object.entries(st.envOther || {}).filter(([, v]) => v).map(([k, v]) => (
+              <MRow key={k} label={`기타(${k})`} value={v} />
+            ))}
 
             <MSec label="S1 통제 범위" />
             <MRow
@@ -298,25 +322,44 @@ function SingleSessionView({ sessionId }) {
                 : '—'}
               dim={!(st.agencyRank ?? []).length}
             />
+            {/* 기능 응답 — agency별 그룹 */}
+            {(() => {
+              const acc = st.featureAccepted ?? {}
+              const levelMap = Object.fromEntries(LEVELS.map((l) => [String(l.level), l]))
+              const AGENCY_ORDER = ['supported', 'flexible', 'limited']
+              const AGENCY_LABEL = { supported: 'supported 응답', flexible: 'flexible 응답', limited: 'limited 응답' }
+              const hasAny = Object.keys(acc).length > 0
+              if (!hasAny) return <MRow label="기능 응답" value="—" dim />
+              return AGENCY_ORDER.map((agencyId) => {
+                const entries = Object.entries(acc)
+                  .filter(([lvl]) => levelMap[lvl]?.agency === agencyId)
+                  .sort(([a], [b]) => Number(a) - Number(b))
+                if (!entries.length) return null
+                const val = entries.map(([lvl, resp]) => `${levelMap[lvl].nameKo}: ${resp}`).join(' / ')
+                return <MRow key={agencyId} label={AGENCY_LABEL[agencyId]} value={val} />
+              })
+            })()}
             <MRow
-              label="기능 응답"
-              value={Object.keys(st.featureAccepted ?? {}).length
-                ? Object.entries(st.featureAccepted ?? {}).map(([id, v]) => `${id}:${v}`).join(' ')
-                : '—'}
-              dim={!Object.keys(st.featureAccepted ?? {}).length}
+              label="경험한 시뮬"
+              value={(st.simsPlayed ?? []).length ? [...new Set(st.simsPlayed)].join(', ') : '—'}
+              dim={!(st.simsPlayed ?? []).length}
+            />
+            <MRow
+              label="O/X 건너뜀"
+              value={(st.oxSkipped ?? []).length ? st.oxSkipped.join(', ') : '—'}
+              dim={!(st.oxSkipped ?? []).length}
             />
 
             <MSec label="S5 우회·임시해제" />
+            <MRow
+              label="선택 시나리오"
+              value={st.bypassScenario ? (SCENARIO_BY_ID[st.bypassScenario]?.name ?? st.bypassScenario) : '—'}
+              dim={!st.bypassScenario}
+            />
             {BYPASS_TARGETS.map((s) => {
               const m = (st.bypassMethods ?? {})[s.featureId]
-              const w = (st.bypassWanted ?? {})[s.featureId]
-              const parts = [
-                m === true ? '사용할 것' : m === false ? '안 쓸 것' : null,
-                w === true ? '차단 원함' : w === false ? '차단 불필요' : null,
-              ].filter(Boolean)
-              const val = (m === undefined && w === undefined) ? '—' : (parts.join(' / ') || '—')
               return (
-                <MRow key={s.featureId} label={RESISTANCE_LABEL[s.featureId]} value={val} dim={m === undefined} />
+                <MCheckRow key={s.featureId} label={RESISTANCE_LABEL[s.featureId]} checked={m === true} dim={m === undefined} />
               )
             })}
           </tbody>
